@@ -2,6 +2,9 @@ package tools;
 
 import java.util.Scanner;
 
+import basic.DiceRoll;
+import basic.RollableTable;
+
 public class RPGTools {
 
 	static final RPGTools instance = new RPGTools();
@@ -16,6 +19,7 @@ public class RPGTools {
 		System.out.print(LINEOPENER);
 		while (sc.hasNextLine()) {
 			RPGTools.getInstance().doRPGCommand(sc.nextLine());
+			System.out.print(LINEOPENER);
 		}
 	}
 
@@ -35,7 +39,10 @@ public class RPGTools {
 
 		switch (command) {
 		case "roll":
-			System.out.println("rolling " + options);
+		case "r":	
+			DiceRoll dice = DiceRoll.valueOf(options);
+			
+			System.out.println("rolling " + dice + ": " + dice.roll());
 			break;
 
 		case "exit":
@@ -52,4 +59,10 @@ public class RPGTools {
 		}
 	}
 
+	
+	public RollableTable readTable() {
+		return null;
+	}
+	
+	
 }

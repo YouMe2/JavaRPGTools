@@ -1,5 +1,7 @@
 import java.util.Scanner;
 
+import basic.DiceRoll;
+
 public class HelloRPGTool {
 
 	public static void main(String[] args) {
@@ -7,7 +9,9 @@ public class HelloRPGTool {
 		Scanner sc = new Scanner(System.in);
 
 	    while(sc.hasNext()) {
-	      System.out.println("Damn yo! "+sc.nextLine());
+	    	String in = sc.nextLine();
+	    	System.out.println("Damn yo! " + in);
+	    	System.out.println(in.matches("'.*'"));
 	    }
 
 	}
