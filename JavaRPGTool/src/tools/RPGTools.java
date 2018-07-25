@@ -1,8 +1,10 @@
 package tools;
 
+import java.util.Arrays;
 import java.util.Scanner;
 
 import basic.DiceRoll;
+import basic.ListRoll;
 import basic.RollableTable;
 
 public class RPGTools {
@@ -40,9 +42,7 @@ public class RPGTools {
 		switch (command) {
 		case "roll":
 		case "r":	
-			DiceRoll dice = DiceRoll.valueOf(options);
-			
-			System.out.println("rolling " + dice + ": " + dice.roll());
+			roll(options);
 			break;
 
 		case "exit":
@@ -62,6 +62,22 @@ public class RPGTools {
 	
 	public RollableTable readTable() {
 		return null;
+	}
+	
+	public void roll(String input) {
+		try {
+			DiceRoll dice = DiceRoll.tryParse(input);
+			System.out.println("Rolling " + dice + ": " + dice.roll());
+		} catch (Exception e) {
+			try {
+				ListRoll list = ListRoll.tryParse(input);
+				System.out.println("Rolling " + list + ": " + Arrays.toString(list.roll()));
+			} catch (Exception e2) {
+				System.out.println("No valid roll found: \"" + input + "\"");
+			}
+		}
+					
+		
 	}
 	
 	

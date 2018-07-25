@@ -1,10 +1,7 @@
 package basic;
-
 import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Objects;
-
-import basic.DiceRoll.DiceRollParser;
 
 public class ListRoll implements Rollable {
 
@@ -18,27 +15,37 @@ public class ListRoll implements Rollable {
 
 	@Override
 	public int[] roll() {
+		return roll(false);
+	}
+	
+	public int[] roll(boolean sorted) {
 		int[] res = new int[rolls.length];
 		
 		for (int i = 0; i < res.length; i++) {
 			res[i] = rolls[i].roll();
 		}
-		Arrays.sort(res);
+		
+		if(sorted) Arrays.sort(res);
 		return res;
 	}
+	
+	
 
 	public static ListRoll valueOf(String input){
-		if (input == null || input.isEmpty())
-			throw new IllegalArgumentException("input may not be empty");
-		
 		try {
-			return new ListRollParser(input.replace(" ", "")).parse();
+			return tryParse(input);
 		} catch (ParseException e) {
 			e.printStackTrace();
 			System.err.println("ErrOffSET: " + e.getErrorOffset());
 		}
 		return new ListRoll(new DiceRoll[] {new DiceRoll(1, 1)});
 		
+	}
+	
+	public static ListRoll tryParse(String input) throws ParseException{
+		if (input == null || input.isEmpty())
+			throw new IllegalArgumentException("input may not be empty");
+		return new ListRollParser(input.replace(" ", "")).parse();
 	}
 	
 	@Override

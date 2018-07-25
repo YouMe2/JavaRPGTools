@@ -1,7 +1,5 @@
 import java.util.Scanner;
 
-import basic.DiceRoll;
-
 public class HelloRPGTool {
 
 	public static void main(String[] args) {

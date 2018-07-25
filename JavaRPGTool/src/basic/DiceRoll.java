@@ -120,17 +120,21 @@ public class DiceRoll implements Rollable {
 				&& this.getMod() == other.getMod() && this.isExploding() == other.isExploding();
 	}
 
-	public static DiceRoll valueOf(String input){
-		if (input == null || input.isEmpty())
-			throw new IllegalArgumentException("input may not be empty");
-		
+	public static DiceRoll valueOf(String input){		
 		try {
-			return new DiceRollParser(input.replace(" ", "")).parse();
+			return tryParse(input);
 		} catch (ParseException e) {
 			e.printStackTrace();
 			System.err.println("ErrOffSET: " + e.getErrorOffset());
 		}
 		return new DiceRoll(1, 1);
+	}
+	
+	public static DiceRoll tryParse(String input) throws ParseException {
+			if (input == null || input.isEmpty())
+				throw new IllegalArgumentException("input may not be empty");
+		
+		return new DiceRollParser(input.replace(" ", "")).parse();
 	}
 	
 	public static void main(String[] args) {
