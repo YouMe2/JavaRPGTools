@@ -150,7 +150,7 @@ public class DiceRoll implements Rollable {
 			
 			int res = d.roll();
 			
-			System.out.println("roll: " +res);
+			System.out.println("Result:  " +res);
 			assert res >= d.minResult() && res <= d.maxResult();
 			
 		}
@@ -158,13 +158,10 @@ public class DiceRoll implements Rollable {
 		
 	}
 	
-	private static class DiceRollParser {
-		private CharSequence chars;
-		private int offset; // pointer to next to parse
+	public static class DiceRollParser extends MyParser<DiceRoll>{
 
 		public DiceRollParser(CharSequence chars) {
-			this.chars = chars;
-			offset = 0;
+			super(chars);
 		}
 
 		public DiceRoll parse() throws ParseException {
@@ -176,7 +173,7 @@ public class DiceRoll implements Rollable {
 
 			n = isNextDigit() ? parseInteger() : 1;
 			if (!isNextAnyOf('d', 'D'))
-				throw new ParseException("expected d or D", offset);
+				throw new ParseException("expected d or D", getOffset());
 			skip(1);	
 			die = parseInteger();
 
@@ -192,7 +189,7 @@ public class DiceRoll implements Rollable {
 			} else
 				dl = 0;
 			
-			if (isNextAnyOf('!')) {
+			if (isNext('!')) {
 				skip(1);
 				exploding = DiceRoll.ROLLTYPE_EXPLODING;
 			} else
@@ -204,60 +201,6 @@ public class DiceRoll implements Rollable {
 				mod = 0;
 			
 			return new DiceRoll(n, die, dl, dh, mod, exploding);
-		}
-
-		public CharSequence getRest() {
-			return chars.subSequence(offset, chars.length());
-		}
-		
-		private int parseInteger() throws ParseException {
-			if (!isNextDigit() && !isNextAnyOf('-', '+'))
-				throw new ParseException("expecting digit", offset);
-			StringBuilder builder = new StringBuilder();
-			do {
-				builder.append(next());
-			} while (isNextDigit());
-			return Integer.valueOf(builder.toString());
-		}
-
-		private boolean isNextSeq(CharSequence seq) {
-			for (int i = 0; i < seq.length(); i++) {
-				if (offset+i >= chars.length() || chars.charAt(offset + i) != seq.charAt(i))
-					return false;
-			}
-			return true;
-		}
-
-		private boolean isNextDigit() {
-			return hasNext() && Character.isDigit(chars.charAt(offset));
-		}
-
-		private boolean isNextAnyOf(char... characters) {
-			if (!hasNext())
-				return false;
-			for (char character : characters)
-				if (chars.charAt(offset) == character)
-					return true;
-			return false;
-		}
-
-		private char next() throws ParseException {
-			if (!hasNext())
-				throw new ParseException("unexpected end", offset);
-			return chars.charAt(offset++);
-		}
-
-		private void skip(int n) throws ParseException {
-			if (n < 1)
-				return;
-			if (!hasNext())
-				throw new ParseException("unexpected end", offset);
-			offset++;
-			skip(n - 1);
-		}
-
-		private boolean hasNext() {
-			return offset < chars.length();
 		}
 
 	}

@@ -31,16 +31,80 @@ public class ListRoll implements Rollable {
 		if (input == null || input.isEmpty())
 			throw new IllegalArgumentException("input may not be empty");
 		
+		try {
+			return new ListRollParser(input.replace(" ", "")).parse();
+		} catch (ParseException e) {
+			e.printStackTrace();
+			System.err.println("ErrOffSET: " + e.getErrorOffset());
+		}
+		return new ListRoll(new DiceRoll[] {new DiceRoll(1, 1)});
+		
 	}
 	
-	private static class ListRollParser {
-		private CharSequence chars;
-		private int offset; // pointer to next to parse
+	@Override
+	public String toString() {
+		return Arrays.toString(rolls);
+	}
+	
+	public static void main(String[] args) {
 		
-		public ListRollParser(CharSequence chars) {
-			this.chars = chars;
-			offset = 0;
+		String[] examples
+		= {"6[4d6dl1]", "[d20, d17, 23d5]"};
+		
+		for (String exa : examples) {
+			
+			System.out.println("Example: "+exa);
+			
+			ListRoll l = ListRoll.valueOf(exa);
+			
+			System.out.println("Roll:    "+l);
+			
+			
+			assert l.equals(ListRoll.valueOf(l.toString()));
+			
+			int[] res = l.roll();
+			
+			System.out.println("Result:  " +Arrays.toString(res));
+			
 		}
+	}
+	
+	private static class ListRollParser extends MyParser<ListRoll>{
+
+		public ListRollParser(CharSequence chars) {
+			super(chars);
+		}
+		
+		public ListRoll parse() throws ParseException {
+			
+			if(isNextDigit()) {
+				// 5[2d20]
+				int n = parseInteger();
+				if(isNext('[')) {
+					skip(1);
+					DiceRoll r = DiceRoll.valueOf(getRest().toString());
+					DiceRoll[] rs = new DiceRoll[n];
+					Arrays.fill(rs, r);
+					return new ListRoll(rs);
+				} else
+					throw new ParseException("no valid listroll", getOffset());
+
+			} else if (isNext('[')) {
+				// [2d20,8d30]
+				skip(1);
+				String[] ss = getRest().toString().split(",");
+				DiceRoll[] rs = new DiceRoll[ss.length];
+				for (int i = 0; i < rs.length; i++) {
+					rs[i] = DiceRoll.valueOf(ss[i]);
+				}
+				return new ListRoll(rs);
+				
+			} else
+				throw new ParseException("no valid listroll", getOffset());
+			
+			
+		}
+		
 	}
 	
 }
