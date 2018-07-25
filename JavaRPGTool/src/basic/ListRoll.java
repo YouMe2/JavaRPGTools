@@ -69,7 +69,7 @@ public class ListRoll implements Rollable {
 		}
 	}
 	
-	private static class ListRollParser extends MyParser<ListRoll>{
+	private static class ListRollParser extends AbsParser<ListRoll>{
 
 		public ListRollParser(CharSequence chars) {
 			super(chars);

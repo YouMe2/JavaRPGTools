@@ -2,12 +2,12 @@ package basic;
 
 import java.text.ParseException;
 
-public abstract class MyParser<T> {
+public abstract class AbsParser<T> {
 
 	private CharSequence chars;
 	private int offset; // pointer to next to parse
 	
-	public MyParser(CharSequence chars) {
+	public AbsParser(CharSequence chars) {
 		this.chars = chars;
 		offset = 0;
 	}

@@ -158,7 +158,7 @@ public class DiceRoll implements Rollable {
 		
 	}
 	
-	public static class DiceRollParser extends MyParser<DiceRoll>{
+	public static class DiceRollParser extends AbsParser<DiceRoll>{
 
 		public DiceRollParser(CharSequence chars) {
 			super(chars);
