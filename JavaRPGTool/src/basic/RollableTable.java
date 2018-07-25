@@ -64,17 +64,19 @@ public class RollableTable implements Rollable{
 		final String name = header[1];
 		final DiceRoll roll = DiceRoll.tryParse(header[0]);
 		if(roll.isExploding())
-			throw new IllegalArgumentException("no exploding tables!");
+			throw new ParseException("no exploding tables!",0);
 		
 		final String[] table = new String[roll.maxResult()];
 		
 		for (int i = 1; i < lines.length; i++) {
 			String tabs[] = lines[i].split(",", 2);
 			if (tabs.length < 2)
-				throw new IllegalArgumentException("missing entry in input tabel at line: "+i);
+				throw new ParseException("missing entry in input tabel at line: "+i,0);
 			
 			int[] nums = new RollableTableLineParser(tabs[0]).parse();
 			for (int n : nums) {
+				if(n-1 >= table.length)
+					throw new ParseException("roll and values arent fitting", 0);
 				table[n-1] = tabs[1];
 			}
 		}
