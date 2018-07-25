@@ -43,6 +43,9 @@ public class ListRoll implements Rollable {
 	
 	@Override
 	public String toString() {
+		
+		if(Arrays.stream(rolls).allMatch(roll -> roll == rolls[0]))
+			return rolls.length + "[" + rolls[0] + "]"; 
 		return Arrays.toString(rolls);
 	}
 	
