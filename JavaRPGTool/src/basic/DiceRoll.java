@@ -54,7 +54,7 @@ public class DiceRoll implements Rollable {
 		rolls = Arrays.copyOfRange(rolls, droplowest, n - drophighest);
 
 		int res = Arrays.stream(rolls).sum();
-		return res;
+		return res+mod;
 	}
 
 	public Integer roll(int mod) {
@@ -127,7 +127,7 @@ public class DiceRoll implements Rollable {
 			e.printStackTrace();
 			System.err.println("ErrOffSET: " + e.getErrorOffset());
 		}
-		return new DiceRoll(1, 1);
+		return null;
 	}
 	
 	public static DiceRoll tryParse(String input) throws ParseException {
@@ -155,7 +155,8 @@ public class DiceRoll implements Rollable {
 			int res = d.roll();
 			
 			System.out.println("Result:  " +res);
-			assert res >= d.minResult() && res <= d.maxResult();
+			assert res >= d.minResult();
+			assert res <= d.maxResult();
 			
 		}
 		

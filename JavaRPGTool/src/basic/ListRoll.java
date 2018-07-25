@@ -7,6 +7,7 @@ public class ListRoll implements Rollable {
 
 	private final DiceRoll[] rolls;
 	
+	//immutable
 	public ListRoll(DiceRoll[] rolls) {
 		Objects.requireNonNull(rolls);
 		if (rolls.length == 0) throw new IllegalArgumentException("no empty listrolls");
@@ -38,7 +39,7 @@ public class ListRoll implements Rollable {
 			e.printStackTrace();
 			System.err.println("ErrOffSET: " + e.getErrorOffset());
 		}
-		return new ListRoll(new DiceRoll[] {new DiceRoll(1, 1)});
+		return null;
 		
 	}
 	
@@ -54,6 +55,16 @@ public class ListRoll implements Rollable {
 		if(Arrays.stream(rolls).allMatch(roll -> roll == rolls[0]))
 			return rolls.length + "[" + rolls[0] + "]"; 
 		return Arrays.toString(rolls);
+	}
+	
+	@Override
+	public boolean equals(Object o) {
+		if (this == o)
+			return true;
+		if (!(o instanceof ListRoll))
+			return false;
+		ListRoll other = (ListRoll) o;
+		return Arrays.equals(this.rolls, other.rolls);
 	}
 	
 	public static void main(String[] args) {

@@ -45,12 +45,17 @@ public class RPGTools {
 			roll(options);
 			break;
 
+		case "help":
+		case "h":
+			help(options);
+			break;
+			
 		case "exit":
 		case "quit":
 		case "e":
 		case "q":
-			System.out.println("Goodbye!");
-			System.exit(0);
+			exit(options);
+			
 			break;
 
 		default:
@@ -60,6 +65,16 @@ public class RPGTools {
 	}
 
 	
+	private void exit(String options) {
+		System.out.println("Goodbye!");
+		System.exit(0);
+	}
+
+	private void help(String options) {
+		System.out.println("try \"roll 6[4d6dl1]\" or \"r d20\"");
+		
+	}
+
 	public RollableTable readTable() {
 		return null;
 	}
