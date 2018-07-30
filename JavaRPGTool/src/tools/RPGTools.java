@@ -34,6 +34,18 @@ public class RPGTools {
 	}
 
 	private HashMap<String, RollableTable> tabels;
+	
+	private ToolCommand rollCmd;
+	private ToolCommand helpCmd;
+	private ToolCommand addCmd;
+	private ToolCommand listCmd;
+	private ToolCommand pathCmd;
+	private ToolCommand showCmd;
+	private ToolCommand quitCmd;
+	
+	
+	
+	
 
 	private RPGTools() {
 		tabels = new HashMap<>();
@@ -95,7 +107,7 @@ public class RPGTools {
 		if (t != null) {
 			System.out.println(t.toString());
 		} else
-			System.out.println("No valid roll found: \"" + input + "\"");
+			System.out.println("No table found: \"" + input + "\"");
 	}
 
 	private void exit(String options) {
