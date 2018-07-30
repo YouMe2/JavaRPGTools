@@ -82,7 +82,7 @@ public class RPGTools {
 		rollCmd.addTo(commands);
 
 		addCmd = new ToolCommand("add", "a", "[path_to_table]",
-				"Addes the specified table. You can roll on it afterwards.") {
+				"Adds the specified table. You can roll on it afterwards.") {
 
 			@Override
 			public void action(String options) {
