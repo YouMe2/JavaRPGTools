@@ -1,5 +1,6 @@
 package tools;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -17,11 +18,12 @@ public class RPGTools {
 
 	static final RPGTools instance = new RPGTools();
 
-	static final String WELLCOMEMSG = "Wellcome to RPGTools" + System.lineSeparator() + "- by u/YaAlex";
+	static final String NEWLINE = System.lineSeparator();
+	static final String WELCOMEMSG = "Welcome to RPGTools" + NEWLINE + "- by u/YaAlex";
 	static final String LINEOPENER = "> ";
 
 	public static void main(String[] args) {
-		System.out.println(WELLCOMEMSG);
+		System.out.println(WELCOMEMSG);
 		Scanner sc = new Scanner(System.in);
 
 		System.out.print(LINEOPENER);
@@ -49,6 +51,11 @@ public class RPGTools {
 		String options = in.length > 1 ? in[1] : "";
 
 		switch (command) {
+		case "path":
+		case "p":
+			path(options);
+			break;
+			
 		case "roll":
 		case "r":
 			roll(options);
@@ -97,8 +104,16 @@ public class RPGTools {
 	}
 
 	private void help(String options) {
+		
+		System.out.println("Try one of the following commands:" + NEWLINE);
+		
 		System.out.println("try \"roll 6[4d6dl1]\" or \"r d20\"");
+		System.out.println("or try \"add [table].cvs\"");
 
+	}
+	
+	private void path(String options) {
+		System.out.println("user.dir = " + System.getProperty("user.dir"));
 	}
 
 	public void addTable(String input) {
@@ -133,8 +148,9 @@ public class RPGTools {
 			} catch (Exception e2) {
 				RollableTable t = tabels.get(input);
 				if (t != null) {
-					System.out.println("Rolling on Table" + t.getName() + ":");
-					System.out.println("\"" + t.roll() + "\"");
+					System.out.println("Rolling on Table " + t.getName() + ":");
+					int res = t.getTableroll().roll();
+					System.out.println(res+" -> " + t.getEntry(res));
 				} else
 					System.out.println("No valid roll found: \"" + input + "\"");
 			}

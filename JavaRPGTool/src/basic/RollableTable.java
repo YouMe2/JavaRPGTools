@@ -18,11 +18,19 @@ public class RollableTable implements Rollable{
 
 	@Override
 	public String roll() {
-		return table[tableroll.roll()-1];
+		return getEntry(getTableroll().roll());
+	}
+	
+	public String getEntry(int i){
+		return table[i-1];
 	}
 
 	public String getName() {
 		return name;
+	}
+	
+	public DiceRoll getTableroll() {
+		return tableroll;
 	}
 	
 	@Override
