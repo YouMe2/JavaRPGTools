@@ -7,13 +7,19 @@ import java.util.Objects;
 public class ListRoll implements Rollable {
 
 	private final DiceRoll[] rolls;
-
+	private final String name;
+	
 	// immutable
-	public ListRoll(DiceRoll[] rolls) {
+	public ListRoll(DiceRoll[] rolls, String name) {
 		Objects.requireNonNull(rolls);
 		if (rolls.length == 0)
 			throw new IllegalArgumentException("no empty listrolls");
 		this.rolls = rolls;
+		this.name = name;
+	}
+	
+	public ListRoll(DiceRoll[] rolls) {
+		this(rolls, null);
 	}
 
 	@Override
@@ -58,6 +64,16 @@ public class ListRoll implements Rollable {
 		if (Arrays.stream(rolls).allMatch(roll -> roll == rolls[0]))
 			return rolls.length + "[" + rolls[0] + "]";
 		return Arrays.toString(rolls);
+	}
+	
+
+	@Override
+	public String getRollMessage() {
+		
+		if (name == null)
+			return "Rolling " + this + ": " + Arrays.toString(this.roll());
+		else
+			return "Rolling " + name + " ("+this+"): " + Arrays.toString(this.roll());
 	}
 
 	@Override
@@ -137,5 +153,6 @@ public class ListRoll implements Rollable {
 
 		}
 	}
+
 
 }

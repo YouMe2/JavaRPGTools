@@ -13,9 +13,11 @@ public class DiceRoll implements Rollable {
 
 	private final int n, die, droplowest, drophighest, mod;
 	private final boolean exploding;
+	
+	private final String name;
 
 	// immutable
-	public DiceRoll(int n, int die, int dl, int dh, int mod, boolean exploding) {
+	public DiceRoll(int n, int die, int dl, int dh, int mod, boolean exploding, String name) {
 		if (n < 1 || die < 1 || dl < 0 || dh < 0 || dh + dl >= n)
 			throw new IllegalArgumentException();
 		this.n = n;
@@ -24,7 +26,12 @@ public class DiceRoll implements Rollable {
 		this.drophighest = dh;
 		this.mod = mod;
 		this.exploding = exploding;
+		this.name = name;
 		rng = new Random();
+	}
+	
+	public DiceRoll(int n, int die, int dl, int dh, int mod, boolean exploding) {
+		this(n, die, dl, dh, mod, exploding, null);
 	}
 
 	public DiceRoll(int n, int die, int mod) {
@@ -106,6 +113,13 @@ public class DiceRoll implements Rollable {
 
 		return (n==1 ? "" : n) + "d" + die + (drophighest != 0 ? "dh" + drophighest : "") + (droplowest != 0 ? "dl" + droplowest : "")
 				+ (exploding == ROLLTYPE_EXPLODING ? "!" : "") + (mod < 0 ? mod : (mod > 0 ? "+" + mod : ""));
+	}
+	
+	public String getRollMessage() {
+		if (name == null)
+			return "Rolling " + this + ": " + roll();
+		else
+			return "Rolling " + name + " ("+this+"): " + roll();
 	}
 
 	@Override

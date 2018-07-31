@@ -67,13 +67,11 @@ public class RPGTools {
 					RollableTable t = tables.get(option);
 
 					if (diceparse.left != null)
-						System.out.println("Rolling " + diceparse.left + ": " + diceparse.left.roll());
+						System.out.println(diceparse.left.getRollMessage());
 					else if (listparse.left != null)
-						System.out.println("Rolling " + listparse.left + ": " + Arrays.toString(listparse.left.roll()));
+						System.out.println(listparse.left.getRollMessage());
 					else if (t != null) {
-						System.out.println("Rolling on Table " + t.getName() + ":");
-						int res = t.getTableroll().roll();
-						System.out.println(res + " -> " + t.getEntry(res));
+						System.out.println(t.getRollMessage());
 					} else
 						System.out.println("No valid roll found: \"" + option + "\"");
 				} catch (Exception e) {

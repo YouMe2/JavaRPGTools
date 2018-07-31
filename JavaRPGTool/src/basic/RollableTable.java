@@ -50,6 +50,15 @@ public class RollableTable implements Rollable{
 		return builder.toString();
 	}
 	
+	@Override
+	public String getRollMessage() {
+		int res = this.getTableroll().roll();
+
+		return "Rolling on Table" + this.getName() + " ("+ this.getTableroll() +"): " + System.lineSeparator()
+				+ this.getTableroll().roll() + " -> " + this.getEntry(res);
+		
+	}
+	
 	public static RollableTable valueOf(String input){
 		try {
 			return tryParse(input).left;
