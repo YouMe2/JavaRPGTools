@@ -52,7 +52,7 @@ public class RollableTable implements Rollable{
 	
 	public static RollableTable valueOf(String input){
 		try {
-			return tryParse(input);
+			return tryParse(input).left;
 		} catch (ParseException e) {
 			e.printStackTrace();
 			System.err.println("ErrOffSET: " + e.getErrorOffset());
@@ -60,41 +60,60 @@ public class RollableTable implements Rollable{
 		return null;
 	}
 	
-	public static RollableTable tryParse(String input) throws ParseException{
+	public static Pair<RollableTable, String> tryParse(String input) throws ParseException{
+		input = input.replace(" ", "").replace("\t","");
+		
 		if (input == null || input.isEmpty())
 			throw new IllegalArgumentException("input may not be empty");
 		
-		input = input.replace(" ", "").replace("\t","");
 		String[] lines = input.split(System.lineSeparator());
 		String header[] = lines[0].split(",", 2);
  		
+
+		// tableroll
+		final DiceRoll roll = DiceRoll.tryParse(header[0]).left;
+		if(roll == null) 
+			return new Pair<RollableTable, String>(null, input);
+			//throw new ParseException("no valid table roll found!",0);
+		if (roll.isExploding())
+			return new Pair<RollableTable, String>(null, input);
+			//throw new ParseException("no exploding table rolles allowed!",0);
 		
+		// table name
+		if (header.length != 2)
+			return new Pair<RollableTable, String>(null, input);
+			//throw new ParseException("no unnamed tables allowed!",0);
 		final String name = header[1];
-		final DiceRoll roll = DiceRoll.tryParse(header[0]);
-		if(roll.isExploding())
-			throw new ParseException("no exploding tables!",0);
 		
-		final String[] table = new String[roll.maxResult()];
+		// table entries
+		final String[] entries = new String[roll.maxResult()];
 		
 		for (int i = 1; i < lines.length; i++) {
 			String tabs[] = lines[i].split(",", 2);
-			if (tabs.length < 2)
-				throw new ParseException("missing entry in input tabel at line: "+i,0);
+			if (tabs.length != 2)
+				return new Pair<RollableTable, String>(null, input);
+				//throw new ParseException("missing entry in tabel at line: "+i,0);
 			
-			int[] nums = new RollableTableLineParser(tabs[0]).parse();
+			int[] nums = new RollableTableLineParser(tabs[0]).parse().left;
+			if (nums == null)
+				return new Pair<RollableTable, String>(null, input);
+				//throw new ParseException("no valid roll intable at line: "+i,0);
+		
 			for (int n : nums) {
-				if(n-1 >= table.length)
-					throw new ParseException("roll and values arent fitting", 0);
-				table[n-1] = tabs[1];
+				if(n-1 >= entries.length)
+					return new Pair<RollableTable, String>(null, input);
+//					throw new ParseException("rollable range and values in table aren't matching up!", 0);
+				entries[n-1] = tabs[1];
 			}
 		}
 		//abfragen das alle werte belegt sind.
-		for (int i = 0; i < table.length; i++) {
-			if (table[i] == null || table[i].isEmpty())
-				throw new IllegalArgumentException("missing entry in output table for value: "+i);
+		for (int i = 0; i < entries.length; i++) {
+			if (entries[i] == null || entries[i].isEmpty())
+				return new Pair<RollableTable, String>(null, input);
+//				throw new IllegalArgumentException("missing entry in output table for value: "+i);
 		}
 		
-		return new RollableTable(name, roll, table);
+		return new Pair<RollableTable, String>( new RollableTable(name, roll, entries), "");
 	}
 	
 	@Override
@@ -134,31 +153,39 @@ public class RollableTable implements Rollable{
 	public static class RollableTableLineParser extends AbsParser<int[]> {
 
 		
-		public RollableTableLineParser(CharSequence chars) {
+		public RollableTableLineParser(String chars) {
 			super(chars);
 		}
 
 		@Override
-		public int[] parse() throws ParseException {
-			//6-10 -> [6,7,8,9,10]
+		public Pair<int[], String> parse() throws ParseException {
+			//6 - 10 -> [6,7,8,9,10]
 			//10-6 = 4
 			
-			int n = parseInteger();
+			if (!isNextDigit())
+				return new Pair<int[], String>(null, getRest());
+			int n = parseInteger().left;
 			if (isNext('-')) {
 				skip(1);
-				int m = parseInteger();
+
+				if (!isNextDigit())
+					return new Pair<int[], String>(null, getRest());
+				
+				int m = parseInteger().left;
 				if (n >= m)
-					throw new ParseException("no valid value range", getOffset());
+					return new Pair<int[], String>(null, getRest());
+					//throw new ParseException("no valid value range", getOffset());
 				int[] res = new int[m - n + 1];
 				for (int i = 0; i < res.length; i++) {
 					res[i] = n + i;
 				}
-				return res;
+				return new Pair<int[], String>(res, "");
 			}
 			else if (!hasNext())
-				return new int[] {n};
+				return new Pair<int[], String>(new int[] {n}, "");
 			else
-				throw new ParseException("no valid value", getOffset());
+				return new Pair<int[], String>(null, getRest());
+				//throw new ParseException("no valid value", getOffset());
 				
 		}
 		

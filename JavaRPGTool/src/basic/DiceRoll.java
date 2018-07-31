@@ -122,7 +122,9 @@ public class DiceRoll implements Rollable {
 
 	public static DiceRoll valueOf(String input){		
 		try {
-			return tryParse(input);
+			
+			return tryParse(input).left;
+			
 		} catch (ParseException e) {
 			e.printStackTrace();
 			System.err.println("ErrOffSET: " + e.getErrorOffset());
@@ -130,11 +132,12 @@ public class DiceRoll implements Rollable {
 		return null;
 	}
 	
-	public static DiceRoll tryParse(String input) throws ParseException {
+	public static Pair<DiceRoll,String> tryParse(String input) throws ParseException{
+		input = input.replace(" ", "").replace("\t","");
+		
 			if (input == null || input.isEmpty())
 				throw new IllegalArgumentException("input may not be empty");
-		
-		return new DiceRollParser(input.replace(" ", "")).parse();
+		return new DiceRollParser(input).parse();
 	}
 	
 	public static void main(String[] args) {
@@ -150,6 +153,7 @@ public class DiceRoll implements Rollable {
 			
 			System.out.println("Roll:    "+d.toString());
 			
+//			assert exa.replaceAll(" ", "").equals(d.toString());
 			assert d.equals(DiceRoll.valueOf(d.toString()));
 			
 			int res = d.roll();
@@ -165,32 +169,36 @@ public class DiceRoll implements Rollable {
 	
 	public static class DiceRollParser extends AbsParser<DiceRoll>{
 
-		public DiceRollParser(CharSequence chars) {
+		public DiceRollParser(String chars) {
 			super(chars);
 		}
 
-		public DiceRoll parse() throws ParseException {
+		public Pair<DiceRoll, String> parse() throws ParseException {
 
-			final int n, die, dh, dl, mod;
+			final Integer n, die, dh, dl, mod;
 			final boolean exploding;
 
 			// 10d20dh2dl2!+5
 
-			n = isNextDigit() ? parseInteger() : 1;
+			n = isNextDigit() ? parseInteger().left : 1;
 			if (!isNextAnyOf('d', 'D'))
-				throw new ParseException("expected d or D", getOffset());
+				return new Pair<DiceRoll, String>(null, getChars());
+				//throw new ParseException("expected d or D", getOffset());
 			skip(1);	
-			die = parseInteger();
+			die = parseInteger().left;
+			if (die == null)
+				return new Pair<DiceRoll, String>(null, getChars());
 
 			if (isNextSeq("dh")) {
 				skip(2);
-				dh = parseInteger();
+				dh = isNextDigit() ? parseInteger().left : 0;
+				
 			} else
 				dh = 0;
 			
 			if (isNextSeq("dl")) {
 				skip(2);
-				dl = parseInteger();
+				dl = isNextDigit() ? parseInteger().left : 0;
 			} else
 				dl = 0;
 			
@@ -200,12 +208,12 @@ public class DiceRoll implements Rollable {
 			} else
 				exploding = DiceRoll.ROLLTYPE_NORMAL;
 			
-			if (isNextAnyOf('+', '-')) {
-				mod = parseInteger();
+			if (isNextAnyOf('+', '-') && isNextInt()) {
+				mod = parseInteger().left;
 			} else
 				mod = 0;
 			
-			return new DiceRoll(n, die, dl, dh, mod, exploding);
+			return new Pair<DiceRoll, String>(new DiceRoll(n, die, dl, dh, mod, exploding), getRest());
 		}
 
 	}

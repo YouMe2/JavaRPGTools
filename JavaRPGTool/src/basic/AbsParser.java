@@ -4,17 +4,17 @@ import java.text.ParseException;
 
 public abstract class AbsParser<T> {
 
-	private CharSequence chars;
+	private String chars;
 	private int offset; // pointer to next to parse
 	
-	public AbsParser(CharSequence chars) {
+	public AbsParser(String chars) {
 		this.chars = chars;
 		offset = 0;
 	}
 	
-	public abstract T parse() throws ParseException ;
+	public abstract Pair<T,String> parse() throws ParseException ;
 	
-	public CharSequence getChars() {
+	public String getChars() {
 		return chars;
 	}
 	
@@ -22,21 +22,26 @@ public abstract class AbsParser<T> {
 		return offset;
 	}
 
-	public CharSequence getRest() {
-		return chars.subSequence(offset, chars.length());
+	public String getRest() {
+		return chars.substring(offset, chars.length());
 	}
 	
-	protected int parseInteger() throws ParseException {
-		if (!isNextDigit() && !isNextAnyOf('-', '+'))
-			throw new ParseException("expecting digit", offset);
+	protected Pair<Integer, String> parseInteger() throws ParseException {
 		StringBuilder builder = new StringBuilder();
+		
+		if (isNextAnyOf('-', '+')) {
+			builder.append(next()); // +-
+		}
+		if (!isNextDigit())
+			return new Pair<Integer, String>(null, getRest());
+		
 		do {
 			builder.append(next());
 		} while (isNextDigit());
-		return Integer.valueOf(builder.toString());
+		return new Pair<Integer, String>(Integer.valueOf(builder.toString()), getRest());
 	}
 	
-	protected boolean isNextSeq(CharSequence seq) {
+	protected boolean isNextSeq(String seq) {
 		for (int i = 0; i < seq.length(); i++) {
 			if (offset+i >= chars.length() || chars.charAt(offset + i) != seq.charAt(i))
 				return false;
@@ -47,8 +52,12 @@ public abstract class AbsParser<T> {
 	protected boolean isNextDigit() {
 		return hasNext() && Character.isDigit(chars.charAt(offset));
 	}
+	
+	protected boolean isNextInt() {
+		return isNextDigit() || (isNextAnyOf('-', '+') && hasNext(2) && Character.isDigit(chars.charAt(offset+1)));
+	}
 
-	protected boolean isNext(char c) {
+ 	protected boolean isNext(char c) {
 		return isNextAnyOf(c);
 	}
 	
@@ -77,7 +86,10 @@ public abstract class AbsParser<T> {
 	}
 
 	protected boolean hasNext() {
-		return offset < chars.length();
+		return hasNext(1);
 	}
-
+	
+	protected boolean hasNext(int n) {
+		return offset + n - 1 < chars.length();
+	}
 }

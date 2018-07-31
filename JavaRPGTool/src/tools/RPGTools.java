@@ -11,6 +11,7 @@ import java.util.Scanner;
 
 import basic.DiceRoll;
 import basic.ListRoll;
+import basic.Pair;
 import basic.RollableTable;
 
 public class RPGTools {
@@ -20,7 +21,7 @@ public class RPGTools {
 	static final String NEWLINE = System.lineSeparator();
 	static final String WELCOMEMSG = "Welcome to RPGTools!" + NEWLINE + "- by u/YaAlex" + NEWLINE
 			+ "Try \"?\" for help.";
-	static final String LINEOPENER = ": ";
+	static final String LINEOPENER = "> ";
 
 	public static void main(String[] args) {
 		System.out.println(WELCOMEMSG);
@@ -61,22 +62,24 @@ public class RPGTools {
 			@Override
 			public void action(String option) {
 				try {
-					DiceRoll dice = DiceRoll.tryParse(option);
-					System.out.println("Rolling " + dice + ": " + dice.roll());
+					Pair<DiceRoll, String> diceparse = DiceRoll.tryParse(option);
+					Pair<ListRoll, String> listparse = ListRoll.tryParse(option);
+					RollableTable t = tables.get(option);
+
+					if (diceparse.left != null)
+						System.out.println("Rolling " + diceparse.left + ": " + diceparse.left.roll());
+					else if (listparse.left != null)
+						System.out.println("Rolling " + listparse.left + ": " + Arrays.toString(listparse.left.roll()));
+					else if (t != null) {
+						System.out.println("Rolling on Table " + t.getName() + ":");
+						int res = t.getTableroll().roll();
+						System.out.println(res + " -> " + t.getEntry(res));
+					} else
+						System.out.println("No valid roll found: \"" + option + "\"");
 				} catch (Exception e) {
-					try {
-						ListRoll list = ListRoll.tryParse(option);
-						System.out.println("Rolling " + list + ": " + Arrays.toString(list.roll()));
-					} catch (Exception e2) {
-						RollableTable t = tables.get(option);
-						if (t != null) {
-							System.out.println("Rolling on Table " + t.getName() + ":");
-							int res = t.getTableroll().roll();
-							System.out.println(res + " -> " + t.getEntry(res));
-						} else
-							System.out.println("No valid roll found: \"" + option + "\"");
-					}
+					System.out.println("No valid roll found: \"" + option + "\"");
 				}
+
 			}
 		};
 		rollCmd.addTo(commands);
@@ -89,12 +92,14 @@ public class RPGTools {
 				String filecontent;
 				try {
 					filecontent = readFile(options, Charset.defaultCharset());
-					RollableTable t = RollableTable.tryParse(filecontent);
+					RollableTable t = RollableTable.tryParse(filecontent).left;
+					if (t == null)
+						throw new ParseException("", 0);
 					tables.put(t.getName(), t);
 					System.out.println("Added Table " + t.getName());
 
 				} catch (IOException e) {
-					System.out.println("Couldn't read the file. Try again.");
+					System.out.println("Couldn't read the file \""+ options +"\". Please try again.");
 				} catch (ParseException e) {
 					System.out.println("Couldn't parse the table. Please correct it and try again.");
 				}
@@ -108,24 +113,23 @@ public class RPGTools {
 
 			@Override
 			public void action(String option) {
-
 				try {
-					DiceRoll dice = DiceRoll.tryParse(option);
-					System.out.println(dice);
+					Pair<DiceRoll, String> diceparse = DiceRoll.tryParse(option);
+					Pair<ListRoll, String> listparse = ListRoll.tryParse(option);
+					RollableTable t = tables.get(option);
+
+					if (diceparse.left != null)
+						System.out.println("Dice: " + diceparse.left);
+					else if (listparse.left != null)
+						System.out.println("List: " + listparse.left);
+					else if (t != null) {
+						System.out.println(t);
+					} else
+						System.out.println("No valid roll found: \"" + option + "\"");
 				} catch (Exception e) {
-					try {
-						ListRoll list = ListRoll.tryParse(option);
-						System.out.println(list);
-					} catch (Exception e2) {
-						RollableTable t = tables.get(option);
-						if (t != null) {
-							System.out.println(t);
+					System.out.println("No valid roll found: \"" + option + "\"");
 
-						} else
-							System.out.println("No valid roll, list or table found: \"" + option + "\"");
-					}
 				}
-
 			}
 		};
 		showCmd.addTo(commands);
@@ -178,6 +182,7 @@ public class RPGTools {
 			}
 		};
 		quitCmd.addTo(commands);
+
 	}
 
 	public static RPGTools getInstance() {
