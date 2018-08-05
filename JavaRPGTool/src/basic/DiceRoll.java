@@ -100,6 +100,10 @@ public class DiceRoll implements Rollable {
 		return name;
 	}
 	
+	public boolean hasName() {
+		return getName() != null && !getName().isEmpty();
+	}
+	
 	public int minResult() {
 		return (n - drophighest - droplowest) + mod;
 	}
@@ -135,12 +139,12 @@ public class DiceRoll implements Rollable {
 		switch (mode) {
 		case SIMPLE:
 			
-			if ( getName() != null && !getName().isEmpty())	
+			if (hasName())	
 				n = getName() + ": ";
 			return n + roll;
 
 		case DETAILED:
-			if ( getName() != null && !getName().isEmpty())
+			if (hasName())
 				n = "Rolling \"" + getName() +  "\": ";
 			else
 				n = "Rolling \"" + this + "\": ";

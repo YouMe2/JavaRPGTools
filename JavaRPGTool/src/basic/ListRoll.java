@@ -26,6 +26,10 @@ public class ListRoll implements Rollable {
 		return name;
 	}
 	
+	public boolean hasName() {
+		return getName() != null && !getName().isEmpty();
+	}
+	
 	@Override
 	public int[] roll() {
 		return roll(false);
@@ -57,12 +61,12 @@ public class ListRoll implements Rollable {
 		switch (mode) {
 
 		case SIMPLE:
-			if ( getName() != null && !getName().isEmpty())
+			if ( hasName())
 				n = getName() + ": ";
 			return n + Arrays.toString(Arrays.stream(rolls).map(roll -> roll.getRollMessage(SIMPLE)).toArray());
 
 		case DETAILED:
-			if ( getName() != null && !getName().isEmpty())
+			if ( hasName())
 				n = "Rolling \"" + getName() + "\": ";
 			else
 				n = "Rolling \"" + this + "\": ";
