@@ -8,7 +8,7 @@ public class ListRoll implements Rollable {
 
 	private final DiceRoll[] rolls;
 	private final String name;
-	
+
 	// immutable
 	public ListRoll(DiceRoll[] rolls, String name) {
 		Objects.requireNonNull(rolls);
@@ -17,11 +17,15 @@ public class ListRoll implements Rollable {
 		this.rolls = rolls;
 		this.name = name;
 	}
-	
+
 	public ListRoll(DiceRoll[] rolls) {
 		this(rolls, null);
 	}
 
+	public String getName() {
+		return name;
+	}
+	
 	@Override
 	public int[] roll() {
 		return roll(false);
@@ -39,25 +43,6 @@ public class ListRoll implements Rollable {
 		return res;
 	}
 
-	public static ListRoll valueOf(String input) {
-		try {
-			return tryParse(input).left;
-		} catch (ParseException e) {
-			e.printStackTrace();
-			System.err.println("ErrOffSET: " + e.getErrorOffset());
-		}
-		return null;
-
-	}
-
-	public static Pair<ListRoll, String> tryParse(String input) throws ParseException {
-		input = input.replace(" ", "").replace("\t","");
-		
-		if (input == null || input.isEmpty())
-			throw new IllegalArgumentException("input may not be empty");
-		return new ListRollParser(input).parse();
-	}
-
 	@Override
 	public String toString() {
 
@@ -65,15 +50,28 @@ public class ListRoll implements Rollable {
 			return rolls.length + "[" + rolls[0] + "]";
 		return Arrays.toString(rolls);
 	}
-	
 
 	@Override
-	public String getRollMessage() {
-		
-		if (name == null)
-			return "Rolling " + this + ": " + Arrays.toString(this.roll());
-		else
-			return "Rolling " + name + " ("+this+"): " + Arrays.toString(this.roll());
+	public String getRollMessage(int mode) {
+		String n = "";
+		switch (mode) {
+
+		case SIMPLE:
+			if ( getName() != null && !getName().isEmpty())
+				n = getName() + ": ";
+			return n + Arrays.toString(Arrays.stream(rolls).map(roll -> roll.getRollMessage(SIMPLE)).toArray());
+
+		case DETAILED:
+			if ( getName() != null && !getName().isEmpty())
+				n = "Rolling \"" + getName() + "\": ";
+			else
+				n = "Rolling \"" + this + "\": ";
+			return n + Arrays.toString(Arrays.stream(rolls).map(roll -> roll.getRollMessage(SIMPLE)).toArray());
+
+		case PLAIN:
+		default:
+			return Arrays.toString(roll());
+		}
 	}
 
 	@Override
@@ -88,71 +86,38 @@ public class ListRoll implements Rollable {
 
 	public static void main(String[] args) {
 
-		String[] examples = { "6[4d6dl1]", "6[4d6 dl1]", "[d20, d17, 23d6 -7]" };
+		System.out.println("LISTROLL TEST");
+		String[] examples = { "6[4d6dl1] \"Ablity Scores\"", 
+				"6[4d6 dl1] ", 
+				"[4d6 dl1 Str, 4d6 dl1 Dex, 4d6 dl1 Con, 4d6 dl1 Int, 4d6 dl1 Wis, 4d6 dl1 Cha] \"Ablity Scores\"", 
+				"[d20, d17 Bla, 23d6 -7]" };
 
 		for (String exa : examples) {
+			try {
+				System.out.println("Example: " + exa);
 
-			System.out.println("Example: " + exa);
+//				Rollable r;
+//				r = RollParser.valueOf(exa);
+//				ListRoll l = null;
+//				if (r instanceof ListRoll)
+//					l = (ListRoll) r;
 
-			ListRoll l = ListRoll.valueOf(exa);
+				ListRoll l = new RollParser(exa).parseListRoll();
+				
+				System.out.println("Roll:    " + l);
 
-			System.out.println("Roll:    " + l);
+				assert l.equals(RollParser.valueOf(l.toString()));
 
-			assert l.equals(ListRoll.valueOf(l.toString()));
 
-			int[] res = l.roll();
+				System.out.println("Msg: " + System.lineSeparator()
+				+ l.getRollMessage(SIMPLE) + System.lineSeparator()
+				+ l.getRollMessage(DETAILED) + System.lineSeparator());
 
-			System.out.println("Result:  " + Arrays.toString(res));
-
-		}
-	}
-
-	private static class ListRollParser extends AbsParser<ListRoll> {
-
-		public ListRollParser(String chars) {
-			super(chars);
-		}
-
-		public Pair<ListRoll, String> parse() throws ParseException {
-
-			if (isNextDigit()) {
-				// 5[2d20]
-				int n = parseInteger().left;
-				if (isNext('[')) {
-					skip(1);
-					Pair<DiceRoll, String> p = DiceRoll.tryParse(getRest().toString());
-					if (p.left == null)
-						return new Pair<ListRoll, String>(null, getChars());
-					DiceRoll[] rs = new DiceRoll[n];
-					Arrays.fill(rs, p.left);
-					return new Pair<ListRoll, String>(new ListRoll(rs), p.right);
-				} else
-					return new Pair<ListRoll, String>(null, getChars());
-				// throw new ParseException("no valid listroll", getOffset());
-
-			} else if (isNext('[')) {
-				// [2d20,8d30]
-				skip(1);
-				String[] ss = getRest().toString().split(",");
-				DiceRoll[] rs = new DiceRoll[ss.length];
-				String lastRest = "";
-				for (int i = 0; i < rs.length; i++) {
-					Pair<DiceRoll, String> p = DiceRoll.tryParse(ss[i]);
-					if (p.left == null)
-						return new Pair<ListRoll, String>(null, getChars());
-					rs[i] = p.left;
-					lastRest = p.right;
-				}
-				// überflüssig
-				if (lastRest.startsWith("]"))
-					return new Pair<ListRoll, String>(new ListRoll(rs), lastRest.substring(1));
-
+			} catch (ParseException e) {
+				e.printStackTrace();
+				System.err.println(e.getErrorOffset());
 			}
-			return new Pair<ListRoll, String>(null, getChars());
-			// throw new ParseException("no valid listroll", getOffset());
-
 		}
 	}
-
 
 }

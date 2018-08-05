@@ -13,7 +13,7 @@ public class DiceRoll implements Rollable {
 
 	private final int n, die, droplowest, drophighest, mod;
 	private final boolean exploding;
-	
+
 	private final String name;
 
 	// immutable
@@ -29,7 +29,7 @@ public class DiceRoll implements Rollable {
 		this.name = name;
 		rng = new Random();
 	}
-	
+
 	public DiceRoll(int n, int die, int dl, int dh, int mod, boolean exploding) {
 		this(n, die, dl, dh, mod, exploding, null);
 	}
@@ -61,7 +61,7 @@ public class DiceRoll implements Rollable {
 		rolls = Arrays.copyOfRange(rolls, droplowest, n - drophighest);
 
 		int res = Arrays.stream(rolls).sum();
-		return res+mod;
+		return res + mod;
 	}
 
 	public Integer roll(int mod) {
@@ -96,14 +96,18 @@ public class DiceRoll implements Rollable {
 		return mod;
 	}
 
+	public String getName() {
+		return name;
+	}
+	
 	public int minResult() {
-		return (n -drophighest -droplowest) + mod;
+		return (n - drophighest - droplowest) + mod;
 	}
-	
+
 	public int maxResult() {
-		return exploding ? Integer.MAX_VALUE : (n -drophighest -droplowest)*die + mod;
+		return exploding ? Integer.MAX_VALUE : (n - drophighest - droplowest) * die + mod;
 	}
-	
+
 	public boolean isExploding() {
 		return exploding;
 	}
@@ -111,15 +115,41 @@ public class DiceRoll implements Rollable {
 	@Override
 	public String toString() {
 
-		return (n==1 ? "" : n) + "d" + die + (drophighest != 0 ? "dh" + drophighest : "") + (droplowest != 0 ? "dl" + droplowest : "")
-				+ (exploding == ROLLTYPE_EXPLODING ? "!" : "") + (mod < 0 ? mod : (mod > 0 ? "+" + mod : ""));
+		return (n == 1 ? "" : n) 
+				+ "d" 
+				+ die
+				+ (exploding == ROLLTYPE_EXPLODING ? "!" : "")
+				+ (drophighest != 0 ? " dh" + drophighest : "")
+				+ (droplowest != 0 ? " dl" + droplowest : "") 
+				+ (mod < 0 ? " " + mod : (mod > 0 ? " +" + mod : ""))
+//				+ ((getName() == null || getName().isEmpty()) ? "" : " " + getName())
+				;
 	}
-	
-	public String getRollMessage() {
-		if (name == null)
-			return "Rolling " + this + ": " + roll();
-		else
-			return "Rolling " + name + " ("+this+"): " + roll();
+
+	@Override
+	public String getRollMessage(int mode) {
+		
+		Integer roll = roll();
+		String n = "";
+		
+		switch (mode) {
+		case SIMPLE:
+			
+			if ( getName() != null && !getName().isEmpty())	
+				n = getName() + ": ";
+			return n + roll;
+
+		case DETAILED:
+			if ( getName() != null && !getName().isEmpty())
+				n = "Rolling \"" + getName() +  "\": ";
+			else
+				n = "Rolling \"" + this + "\": ";
+			return n + roll;
+		case PLAIN:
+		default:
+			return roll.toString();
+
+		}
 	}
 
 	@Override
@@ -129,106 +159,51 @@ public class DiceRoll implements Rollable {
 		if (!(o instanceof DiceRoll))
 			return false;
 		DiceRoll other = (DiceRoll) o;
-		return this.getN() == other.getN() && this.getDie() == other.getDie()
-				&& this.getDrophighest() == other.getDrophighest() && this.getDroplowest() == other.getDroplowest()
-				&& this.getMod() == other.getMod() && this.isExploding() == other.isExploding();
+		return this.getN() == other.getN()
+				&& this.getDie() == other.getDie()
+				&& this.getDrophighest() == other.getDrophighest()
+				&& this.getDroplowest() == other.getDroplowest()
+				&& this.getMod() == other.getMod()
+				&& this.isExploding() == other.isExploding()
+//				&& this.getName().equals(other.getName())
+				;
 	}
 
-	public static DiceRoll valueOf(String input){		
-		try {
-			
-			return tryParse(input).left;
-			
-		} catch (ParseException e) {
-			e.printStackTrace();
-			System.err.println("ErrOffSET: " + e.getErrorOffset());
-		}
-		return null;
-	}
-	
-	public static Pair<DiceRoll,String> tryParse(String input) throws ParseException{
-		input = input.replace(" ", "").replace("\t","");
-		
-			if (input == null || input.isEmpty())
-				throw new IllegalArgumentException("input may not be empty");
-		return new DiceRollParser(input).parse();
-	}
-	
 	public static void main(String[] args) {
-		
-		String[] examples
-		= {"d6", "4d8 +5", "d20-8", "10d6-2", "d20+7", "d8", "1d8+0", "10d20dh2dl2!+5", "4d20 dl2 ! -5"};
-		
+
+		System.out.println("DICEROLL TEST");
+		String[] examples = { "d6", "4d8 +5", "d20-8", "10d6-2", "d20 ! +7", "d8", "1d8+0", "10d20!dh2dl2+5",
+				"4d20! dl2 -5", "d20 +8 Skillcheck", "d10 Test Name", "d10 \"Test Name\"" };
+
 		for (String exa : examples) {
-			
-			System.out.println("Example: "+exa);
-			
-			DiceRoll d = DiceRoll.valueOf(exa);
-			
-			System.out.println("Roll:    "+d.toString());
-			
-//			assert exa.replaceAll(" ", "").equals(d.toString());
-			assert d.equals(DiceRoll.valueOf(d.toString()));
-			
-			int res = d.roll();
-			
-			System.out.println("Result:  " +res);
-			assert res >= d.minResult();
-			assert res <= d.maxResult();
-			
-		}
-		
-		
-	}
-	
-	public static class DiceRollParser extends AbsParser<DiceRoll>{
+			try {
+				System.out.println("Example: " + exa);
 
-		public DiceRollParser(String chars) {
-			super(chars);
-		}
+				DiceRoll d = null;
+				Rollable r;
 
-		public Pair<DiceRoll, String> parse() throws ParseException {
+				r = RollParser.valueOf(exa);
 
-			final Integer n, die, dh, dl, mod;
-			final boolean exploding;
+				if (r instanceof DiceRoll)
+					d = (DiceRoll) r;
 
-			// 10d20dh2dl2!+5
+				System.out.println("Roll:    " + d.toString());
+				assert d.equals(RollParser.valueOf(d.toString()));
 
-			n = isNextDigit() ? parseInteger().left : 1;
-			if (!isNextAnyOf('d', 'D'))
-				return new Pair<DiceRoll, String>(null, getChars());
-				//throw new ParseException("expected d or D", getOffset());
-			skip(1);	
-			die = parseInteger().left;
-			if (die == null)
-				return new Pair<DiceRoll, String>(null, getChars());
+				Integer res = d.roll();
 
-			if (isNextSeq("dh")) {
-				skip(2);
-				dh = isNextDigit() ? parseInteger().left : 0;
+				System.out.println("Msg:" + System.lineSeparator()
+					+ d.getRollMessage(SIMPLE) + System.lineSeparator()
+					+ d.getRollMessage(DETAILED) + System.lineSeparator());
 				
-			} else
-				dh = 0;
-			
-			if (isNextSeq("dl")) {
-				skip(2);
-				dl = isNextDigit() ? parseInteger().left : 0;
-			} else
-				dl = 0;
-			
-			if (isNext('!')) {
-				skip(1);
-				exploding = DiceRoll.ROLLTYPE_EXPLODING;
-			} else
-				exploding = DiceRoll.ROLLTYPE_NORMAL;
-			
-			if (isNextAnyOf('+', '-') && isNextInt()) {
-				mod = parseInteger().left;
-			} else
-				mod = 0;
-			
-			return new Pair<DiceRoll, String>(new DiceRoll(n, die, dl, dh, mod, exploding), getRest());
+				assert res >= d.minResult();
+				assert res <= d.maxResult();
+			} catch (ParseException e) {
+				e.printStackTrace();
+				System.err.println(e.getErrorOffset());
+			}
 		}
 
 	}
+
 }

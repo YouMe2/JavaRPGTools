@@ -3,128 +3,74 @@ package basic;
 import java.text.ParseException;
 import java.util.Arrays;
 
-public class RollableTable implements Rollable{
+public class RollableTable implements Rollable {
 
+	public static final String PREFIX = "Rollable Table" + System.lineSeparator();
+	
 	private String name;
 	private DiceRoll tableroll;
-	private String[] table;
-	
-	//mutable?
-	public RollableTable(String name, DiceRoll tableroll, String[] table) {
+	private String[] entries;
+
+	// mutable?
+	public RollableTable(String name, DiceRoll tableroll, String[] entries) {
 		this.name = name;
 		this.tableroll = tableroll;
-		this.table = table;
+		this.entries = entries;
 	}
 
 	@Override
 	public String roll() {
 		return getEntry(getTableroll().roll());
 	}
-	
-	public String getEntry(int i){
-		return table[i-1];
+
+	public String getEntry(int i) {
+		return entries[i - 1];
 	}
 
 	public String getName() {
 		return name;
 	}
-	
+
 	public DiceRoll getTableroll() {
 		return tableroll;
 	}
-	
+
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append(tableroll.toString());
-		builder.append(",\t");
-		builder.append(name);
+		builder.append(PREFIX);
+		builder.append(tableroll.toString() + " \"" + getName() + "\"");
 		builder.append(System.lineSeparator());
-		for (int i = 0; i < table.length; i++) {
-			builder.append(i+1);
+		for (int i = 0; i < entries.length; i++) {
+			builder.append(i + 1);
 			builder.append(",\t");
-			builder.append(table[i]);
+			builder.append(entries[i]);
 			builder.append(System.lineSeparator());
 		}
-		
+
 		return builder.toString();
 	}
-	
+
 	@Override
-	public String getRollMessage() {
+	public String getRollMessage(int mode) {
 		int res = this.getTableroll().roll();
 
-		return "Rolling on Table" + this.getName() + " ("+ this.getTableroll() +"): " + System.lineSeparator()
-				+ this.getTableroll().roll() + " -> " + this.getEntry(res);
-		
-	}
-	
-	public static RollableTable valueOf(String input){
-		try {
-			return tryParse(input).left;
-		} catch (ParseException e) {
-			e.printStackTrace();
-			System.err.println("ErrOffSET: " + e.getErrorOffset());
-		}
-		return null;
-	}
-	
-	public static Pair<RollableTable, String> tryParse(String input) throws ParseException{
-		input = input.replace(" ", "").replace("\t","");
-		
-		if (input == null || input.isEmpty())
-			throw new IllegalArgumentException("input may not be empty");
-		
-		String[] lines = input.split(System.lineSeparator());
-		String header[] = lines[0].split(",", 2);
- 		
+		switch (mode) {
 
-		// tableroll
-		final DiceRoll roll = DiceRoll.tryParse(header[0]).left;
-		if(roll == null) 
-			return new Pair<RollableTable, String>(null, input);
-			//throw new ParseException("no valid table roll found!",0);
-		if (roll.isExploding())
-			return new Pair<RollableTable, String>(null, input);
-			//throw new ParseException("no exploding table rolles allowed!",0);
-		
-		// table name
-		if (header.length != 2)
-			return new Pair<RollableTable, String>(null, input);
-			//throw new ParseException("no unnamed tables allowed!",0);
-		final String name = header[1];
-		
-		// table entries
-		final String[] entries = new String[roll.maxResult()];
-		
-		for (int i = 1; i < lines.length; i++) {
-			String tabs[] = lines[i].split(",", 2);
-			if (tabs.length != 2)
-				return new Pair<RollableTable, String>(null, input);
-				//throw new ParseException("missing entry in tabel at line: "+i,0);
-			
-			int[] nums = new RollableTableLineParser(tabs[0]).parse().left;
-			if (nums == null)
-				return new Pair<RollableTable, String>(null, input);
-				//throw new ParseException("no valid roll intable at line: "+i,0);
-		
-			for (int n : nums) {
-				if(n-1 >= entries.length)
-					return new Pair<RollableTable, String>(null, input);
-//					throw new ParseException("rollable range and values in table aren't matching up!", 0);
-				entries[n-1] = tabs[1];
-			}
+		case SIMPLE:
+			return getName() + ": " + res + " -> " + this.getEntry(res);
+
+		case DETAILED:
+			return "Rolling on " + this.getName() + " (" + this.getTableroll() + "): " + System.lineSeparator()
+			+ res + " -> " + this.getEntry(res);
+
+		case PLAIN:
+		default:
+			return this.getEntry(res);
 		}
-		//abfragen das alle werte belegt sind.
-		for (int i = 0; i < entries.length; i++) {
-			if (entries[i] == null || entries[i].isEmpty())
-				return new Pair<RollableTable, String>(null, input);
-//				throw new IllegalArgumentException("missing entry in output table for value: "+i);
-		}
-		
-		return new Pair<RollableTable, String>( new RollableTable(name, roll, entries), "");
+
 	}
-	
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o)
@@ -132,72 +78,48 @@ public class RollableTable implements Rollable{
 		if (!(o instanceof RollableTable))
 			return false;
 		RollableTable other = (RollableTable) o;
-		return this.name.equals(other.name)
+		return this.getName().equals(other.getName())
 				&& this.tableroll.equals(other.tableroll)
-				&& Arrays.equals(this.table, other.table);
+				&& Arrays.equals(this.entries, other.entries);
 	}
-	
+
 	public static void main(String[] args) {
+		System.out.println("TABLE TEST");
 		
-		String example = 
-				"d10, Name" + System.lineSeparator()
-				+ "1, eins"	+ System.lineSeparator()
-				+ "2, zwei"	+ System.lineSeparator()
-				+ "3-10, rest";		
-		
-		System.out.println("Example: "+example);
-		
-		RollableTable t = RollableTable.valueOf(example);
-		
-		System.out.println("Roll:    "+t);
-		
-		assert t.equals(RollableTable.valueOf(t.toString()));
-		
-		String res = t.roll();
-		
-		System.out.println("Result:  " +res);
-		
-	}
-	
-	public static class RollableTableLineParser extends AbsParser<int[]> {
+		try {
+			String example = 
+			PREFIX 
+			+ "d10 \"Test Name\"" + System.lineSeparator() 
+			+ "1, eins" + System.lineSeparator() 
+			+ "2, zwei"	+ System.lineSeparator()
+			+ "3-10, rest";
 
-		
-		public RollableTableLineParser(String chars) {
-			super(chars);
-		}
+			System.out.println("Example: " + example);
 
-		@Override
-		public Pair<int[], String> parse() throws ParseException {
-			//6 - 10 -> [6,7,8,9,10]
-			//10-6 = 4
+//			Rollable r;
+//			r = RollParser.valueOf(example);
+			RollableTable t = null;
+//			if (r instanceof RollableTable)
+//				t = (RollableTable) r;
 			
-			if (!isNextDigit())
-				return new Pair<int[], String>(null, getRest());
-			int n = parseInteger().left;
-			if (isNext('-')) {
-				skip(1);
+			t = new RollParser(example).parseRollableTable();
+			
+			
+			System.out.println("Roll:    " + t);
+//			System.out.println("Roll2:    " + new RollParser(t.toString()).parseRollableTable());
 
-				if (!isNextDigit())
-					return new Pair<int[], String>(null, getRest());
-				
-				int m = parseInteger().left;
-				if (n >= m)
-					return new Pair<int[], String>(null, getRest());
-					//throw new ParseException("no valid value range", getOffset());
-				int[] res = new int[m - n + 1];
-				for (int i = 0; i < res.length; i++) {
-					res[i] = n + i;
-				}
-				return new Pair<int[], String>(res, "");
-			}
-			else if (!hasNext())
-				return new Pair<int[], String>(new int[] {n}, "");
-			else
-				return new Pair<int[], String>(null, getRest());
-				//throw new ParseException("no valid value", getOffset());
-				
+			assert t.equals(RollParser.valueOf(t.toString()));
+
+			
+			System.out.println("Msg: " + System.lineSeparator()
+			+ t.getRollMessage(SIMPLE) + System.lineSeparator()
+			+ t.getRollMessage(DETAILED) + System.lineSeparator());
+			
+			
+		} catch (ParseException e) {
+			e.printStackTrace();
+			System.err.println(e.getErrorOffset());
 		}
-		
 	}
-	
+
 }

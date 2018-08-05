@@ -13,7 +13,7 @@ public abstract class AbsParser<T> {
 	}
 	
 	public abstract Pair<T,String> parse() throws ParseException ;
-	
+		
 	public String getChars() {
 		return chars;
 	}
@@ -26,19 +26,49 @@ public abstract class AbsParser<T> {
 		return chars.substring(offset, chars.length());
 	}
 	
-	protected Pair<Integer, String> parseInteger() throws ParseException {
-		StringBuilder builder = new StringBuilder();
+	protected int parseInteger() throws ParseException {
 		
-		if (isNextAnyOf('-', '+')) {
-			builder.append(next()); // +-
+		if (isNext('-')) {
+			skip(1);
+			return -parseNatural();
 		}
+		if (isNext('+')) {
+			skip(1);
+			return parseNatural();
+		}
+		return parseNatural();
+		
+	}
+	
+	protected int parseNatural() throws ParseException {
+		StringBuilder builder = new StringBuilder();
 		if (!isNextDigit())
-			return new Pair<Integer, String>(null, getRest());
+			throw new ParseException("expecting digits", getOffset());
 		
 		do {
 			builder.append(next());
 		} while (isNextDigit());
-		return new Pair<Integer, String>(Integer.valueOf(builder.toString()), getRest());
+		return Integer.valueOf(builder.toString());
+	}
+	
+ 	protected String parseText() throws ParseException {
+		StringBuilder builder = new StringBuilder();
+		
+		if (isNext('\"')) {
+			skip(1);
+			while (!isNext('\"') ) {
+				builder.append(next());
+			}
+			skip(1);
+			return builder.toString();
+		} else if (isNextLetter()) {
+			do {
+				builder.append(next());
+			} while (isNextLetter() && !isNextWhitespace());
+			return builder.toString();
+		} else
+			throw new ParseException("expecting text", getOffset());
+	
 	}
 	
 	protected boolean isNextSeq(String seq) {
@@ -53,8 +83,23 @@ public abstract class AbsParser<T> {
 		return hasNext() && Character.isDigit(chars.charAt(offset));
 	}
 	
+	protected boolean isNextLetter() {
+		
+		return hasNext() && Character.isLetter(chars.charAt(offset));
+		
+	}
+	
+	protected boolean isNextText() {
+		return isNextLetter() || isNext('\"');
+	}
+	
 	protected boolean isNextInt() {
 		return isNextDigit() || (isNextAnyOf('-', '+') && hasNext(2) && Character.isDigit(chars.charAt(offset+1)));
+	}
+	
+	protected boolean isNextWhitespace() {
+		return isNextAnyOf(' ', '\t');
+		//return hasNext() && Character.isWhitespace(chars.charAt(offset));
 	}
 
  	protected boolean isNext(char c) {
@@ -83,6 +128,12 @@ public abstract class AbsParser<T> {
 			throw new ParseException("unexpected end", offset);
 		offset++;
 		skip(n - 1);
+	}
+	
+	protected void skipNextWhitespaces() throws ParseException {
+		while (hasNext() && isNextWhitespace()) {
+			skip(1);		
+		}
 	}
 
 	protected boolean hasNext() {

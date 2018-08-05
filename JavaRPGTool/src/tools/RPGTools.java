@@ -5,7 +5,6 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.ParseException;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Scanner;
 
@@ -15,8 +14,6 @@ import basic.Pair;
 import basic.RollableTable;
 
 public class RPGTools {
-
-	static final RPGTools instance = new RPGTools();
 
 	static final String NEWLINE = System.lineSeparator();
 	static final String WELCOMEMSG = "Welcome to RPGTools!" + NEWLINE + "- by u/YaAlex" + NEWLINE
@@ -29,7 +26,7 @@ public class RPGTools {
 
 		System.out.print(LINEOPENER);
 		while (sc.hasNextLine()) {
-			RPGTools.getInstance().doRPGCommand(sc.nextLine());
+			new RPGTools().doRPGCommand(sc.nextLine());
 			System.out.print(LINEOPENER);
 		}
 	}
@@ -46,7 +43,7 @@ public class RPGTools {
 	private final ToolCommand showCmd;
 	private final ToolCommand quitCmd;
 
-	private RPGTools() {
+	public RPGTools() {
 		tables = new HashMap<>();
 		commands = new HashMap<>();
 
@@ -181,10 +178,6 @@ public class RPGTools {
 		};
 		quitCmd.addTo(commands);
 
-	}
-
-	public static RPGTools getInstance() {
-		return instance;
 	}
 
 	public void doRPGCommand(String input) {
