@@ -16,7 +16,7 @@ import basic.RollableTable;
 public class RPGTools {
 
 	static final String WELCOMEMSG = "Welcome to RPGTools!" + System.lineSeparator() + "- by u/YaAlex"
-			+ System.lineSeparator() + "Try \"?\" for help.";
+			+ System.lineSeparator() + "Try \"?\" or \"help\" for help.";
 	static final String LINEOPENER = "> ";
 
 	public static void main(String[] args) {
@@ -79,12 +79,14 @@ public class RPGTools {
 		
 		rollCmd = new ToolCommand("roll", "r", "[roll, list, table, name]",
 				"Rolls the specified roll, list of rolls, or on a table." + System.lineSeparator()
-						+ "\tExamples: \'roll d20 +3 Dex\' or \'roll 6[4d6 dl1] \"Ability Scores\"\' or \'6d20! dh2 dl2 +5\' or \'roll Name\' where Name is the name of an added roll"
+						+ "\tExamples: \'roll d20 +3 Dex\' or \'roll 6[4d6 dl1] \"Ability Scores\"\' or \'6d20! dh2 dl2 +5\' or \'roll Name\' where Name is the name of an added roll."
+						+ System.lineSeparator() + "\tFor example try: \"roll AbilityScores\""
 						+ System.lineSeparator()
 						+ "\tRoll syntax: [amount]d[die] optional: ! dh[amount] dl[amount] +/-[modifier] [\"Some Name\"]"
 						+ System.lineSeparator()
-						+ "\t(\"!\": use exploding die, \"dh\": drop highest, \"dl\": drop lowest)"
-						+ System.lineSeparator() + "\tList syntax: [amount][[roll]] or [[roll], ... ,[roll]]") {
+						+ "\t\t(\"!\": use exploding die, \"dh\": drop highest, \"dl\": drop lowest)"
+						+ System.lineSeparator() + "\tList syntax: [amount]\'[\'[roll]\']\' or \'[\'[roll], ... ,[roll]\']\'"
+						+ System.lineSeparator() + "\tTable syntax: \'[\'[tableroll with name]; [result], [entie]; ... ;[res], [entie]\']\'") {
 
 			@Override
 			public void action(String option) {
@@ -236,14 +238,16 @@ public class RPGTools {
 	private void init() {
 		ListRoll abilitscoreListRoll;
 		try {
-			abilitscoreListRoll = new RollParser("[4d6 dl1 Str, 4d6 dl1 Dex, 4d6 dl1 Con, 4d6 dl1 Int, 4d6 dl1 Wis, 4d6 dl1 Cha] \"Ability Scores\"").parseListRoll();
+			abilitscoreListRoll = new RollParser("[4d6 dl1 Str, 4d6 dl1 Dex, 4d6 dl1 Con, 4d6 dl1 Int, 4d6 dl1 Wis, 4d6 dl1 Cha] \"AbilityScores\"").parseListRoll();
 			rollables.put(abilitscoreListRoll.getName(), abilitscoreListRoll);
 		
+			
 		} catch (ParseException e) {
 			System.err.println("this should never happen...");
 			e.printStackTrace();
 		}
 	}
+	
 	private void start() {
 		System.out.println(WELCOMEMSG);
 		sc = new Scanner(System.in);
@@ -255,6 +259,7 @@ public class RPGTools {
 		}
 		
 	}
+	
 	public void doRPGCommand(String input) {
 
 //System.out.println("before" + rollables.keySet());
