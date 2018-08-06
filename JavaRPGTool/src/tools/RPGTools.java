@@ -8,100 +8,131 @@ import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Scanner;
 
-import basic.DiceRoll;
 import basic.ListRoll;
-import basic.Pair;
-import basic.RollableTable;
+import basic.RollParser;
+import basic.Rollable;
 
 public class RPGTools {
 
-	static final String NEWLINE = System.lineSeparator();
-	static final String WELCOMEMSG = "Welcome to RPGTools!" + NEWLINE + "- by u/YaAlex" + NEWLINE
-			+ "Try \"?\" for help.";
+	static final String WELCOMEMSG = "Welcome to RPGTools!" + System.lineSeparator() + "- by u/YaAlex"
+			+ System.lineSeparator() + "Try \"?\" for help.";
 	static final String LINEOPENER = "> ";
 
 	public static void main(String[] args) {
-		System.out.println(WELCOMEMSG);
-		Scanner sc = new Scanner(System.in);
-
-		System.out.print(LINEOPENER);
-		while (sc.hasNextLine()) {
-			new RPGTools().doRPGCommand(sc.nextLine());
-			System.out.print(LINEOPENER);
-		}
+		RPGTools tool = new RPGTools();
+		tool.init();
+		tool.start();
 	}
 
-	private final HashMap<String, RollableTable> tables;
+	
 
+	private final HashMap<String, Rollable> rollables;
 	private final HashMap<String, ToolCommand> commands;
 
 	private final ToolCommand rollCmd;
 	private final ToolCommand helpCmd;
 	private final ToolCommand addCmd;
+	private final ToolCommand loadCmd;
+	// TODO saveCmd
+	// private final ToolCommand saveCmd;
+	private final ToolCommand removeCmd;
 	private final ToolCommand listCmd;
 	private final ToolCommand pathCmd;
 	private final ToolCommand showCmd;
 	private final ToolCommand quitCmd;
+	private Scanner sc;
 
 	public RPGTools() {
-		tables = new HashMap<>();
+		rollables = new HashMap<>();
 		commands = new HashMap<>();
 
-		rollCmd = new ToolCommand("roll", "r", "[roll, list, table]",
+		rollCmd = new ToolCommand("roll", "r", "[roll, list, table, name]",
 				"Rolls the specified roll, list of rolls, or on a table." + System.lineSeparator()
-						+ "\tExamples: \"roll d20 +3\" or \"roll 6[4d6 dl1]\" or \"6d20 dh2 dl2 ! +5\" or \"roll tableName\" where tableName is the name of an added table"
+						+ "\tExamples: \'roll d20 +3 Dex\' or \'roll 6[4d6 dl1] \"Ability Scores\"\' or \'6d20! dh2 dl2 +5\' or \'roll Name\' where Name is the name of an added roll"
 						+ System.lineSeparator()
-						+ "\tRoll syntax: [amount]d[die] optional: dh[amount] dl[amount] ! +/-[modifier]"
+						+ "\tRoll syntax: [amount]d[die] optional: ! dh[amount] dl[amount] +/-[modifier] [\"Some Name\"]"
 						+ System.lineSeparator()
-						+ "\t(\"dh\": drop highest, \"dl\": drop lowest, \"!\": use exploding die)"
+						+ "\t(\"!\": use exploding die, \"dh\": drop highest, \"dl\": drop lowest)"
 						+ System.lineSeparator() + "\tList syntax: [amount][[roll]] or [[roll], ... ,[roll]]") {
 
 			@Override
 			public void action(String option) {
 				try {
-					Pair<DiceRoll, String> diceparse = DiceRoll.tryParse(option);
-					Pair<ListRoll, String> listparse = ListRoll.tryParse(option);
-					RollableTable t = tables.get(option);
-
-					if (diceparse.left != null)
-						System.out.println(diceparse.left.getRollMessage());
-					else if (listparse.left != null)
-						System.out.println(listparse.left.getRollMessage());
-					else if (t != null) {
-						System.out.println(t.getRollMessage());
-					} else
-						System.out.println("No valid roll found: \"" + option + "\"");
-				} catch (Exception e) {
-					System.out.println("No valid roll found: \"" + option + "\"");
+					Rollable r = rollables.containsKey(option) ? rollables.get(option) : RollParser.valueOf(option);
+					System.out.println(r.getRollMessage(Rollable.SIMPLE)); // maybe DETAILED?
+				} catch (ParseException e) {
+					System.out.println("No valid roll parsable and no roll saved under that name: \"" + option + "\"");
 				}
 
 			}
 		};
 		rollCmd.addTo(commands);
 
-		addCmd = new ToolCommand("add", "a", "[path_to_table]",
-				"Adds the specified table. You can roll on it afterwards.") {
+		addCmd = new ToolCommand("add", "a", "[roll, list, table]",
+				"Adds the specified roll, list of rolls or rollable table. You can roll on it afterwards with the \'roll\' command. Note: A roll or list has to have a name so you can add it.") {
+
+			@Override
+			public void action(String option) {
+				Rollable r;
+				try {
+					r = RollParser.valueOf(option);
+					if (!r.hasName()) {
+						throw new IllegalArgumentException("The rollable needs a name to be added!");
+					}
+					rollables.put(r.getName(), r);
+					assert rollables.containsKey(r.getName());
+					// TODO Type recognition and fitting message.
+					System.out.println("Added Rollable " + r.getName());
+				} catch (ParseException e) {
+					System.out.println("Couldn't parse the rollable. Please correct it in the file and try again.");
+				} catch (IllegalArgumentException e) {
+					System.out.println("Couldn't add rollable. Rollable is missing a name, pleas add one and try again.");
+				}
+			}
+
+		};
+		addCmd.addTo(commands);
+
+		loadCmd = new ToolCommand("load", "l", "[path to file]",
+				"Adds any rollable (roll, list, table) found at the specified path, just like the \'add\' command.") {
 
 			@Override
 			public void action(String options) {
 				String filecontent;
 				try {
 					filecontent = readFile(options, Charset.defaultCharset());
-					RollableTable t = RollableTable.tryParse(filecontent).left;
-					if (t == null)
-						throw new ParseException("", 0);
-					tables.put(t.getName(), t);
-					System.out.println("Added Table " + t.getName());
+
+					Rollable r = RollParser.valueOf(filecontent);
+					if (!r.hasName())
+						throw new IllegalArgumentException("The rollable needs a name to be added!");
+					rollables.put(r.getName(), r);
+					// TODO Type recognition and fitting message.
+					System.out.println("Added Rollable " + r.getName());
 
 				} catch (IOException e) {
-					System.out.println("Couldn't read the file \""+ options +"\". Please try again.");
+					System.out.println("Couldn't read the file \"" + options + "\". Please try again.");
 				} catch (ParseException e) {
-					System.out.println("Couldn't parse the table. Please correct it and try again.");
+					System.out.println("Couldn't parse the rollable. Please correct it in the file and try again.");
+				} catch (IllegalArgumentException e) {
+					System.out.println("Couldn't add rollable. Rollable is missing a name, pleas add one and try again.");
 				}
-
 			}
 		};
-		addCmd.addTo(commands);
+		loadCmd.addTo(commands);
+
+		removeCmd = new ToolCommand("remove", "rm", "[name of added rollable]", null) {
+
+			@Override
+			public void action(String option) {
+
+				if (rollables.containsKey(option)) {
+					rollables.remove(option);
+					System.out.println("Removed " + option);
+				} else
+					System.out.println("No rollable found wiht name: " + option);
+			}
+		};
+		removeCmd.addTo(commands);
 
 		showCmd = new ToolCommand("show", "s", "[roll, list, table]",
 				"Shows the specified roll, list of rolls, or table.") {
@@ -109,22 +140,12 @@ public class RPGTools {
 			@Override
 			public void action(String option) {
 				try {
-					Pair<DiceRoll, String> diceparse = DiceRoll.tryParse(option);
-					Pair<ListRoll, String> listparse = ListRoll.tryParse(option);
-					RollableTable t = tables.get(option);
-
-					if (diceparse.left != null)
-						System.out.println("Dice: " + diceparse.left);
-					else if (listparse.left != null)
-						System.out.println("List: " + listparse.left);
-					else if (t != null) {
-						System.out.println(t);
-					} else
-						System.out.println("No valid roll found: \"" + option + "\"");
-				} catch (Exception e) {
-					System.out.println("No valid roll found: \"" + option + "\"");
-
+					Rollable r = rollables.containsKey(option) ? rollables.get(option) : RollParser.valueOf(option);
+					System.out.println((r.hasName() ? r.getName() + ":" + System.lineSeparator() : "") + r.toString());
+				} catch (ParseException e) {
+					System.out.println("No valid roll parsable and no roll saved under that name: \"" + option + "\"");
 				}
+
 			}
 		};
 		showCmd.addTo(commands);
@@ -133,14 +154,15 @@ public class RPGTools {
 
 			@Override
 			public void action(String option) {
-				if (tables.isEmpty()) {
-					System.out.println("No tables have been added yet.");
+				
+				if (rollables.isEmpty()) {
+					System.out.println("No rollables have been added yet.");
 					return;
 				}
 
-				System.out.println("All added tables:");
-				for (String name : tables.keySet()) {
-					System.out.println(name);
+				System.out.println("All added rolls, lists, and tables:");
+				for (String name : rollables.keySet()) {
+					System.out.println("+ " + name);
 				}
 			}
 		};
@@ -160,6 +182,7 @@ public class RPGTools {
 
 			@Override
 			public void action(String option) {
+				System.out.println("All available commands:");
 				for (Object cmd : commands.values().stream().distinct().toArray()) {
 					System.out.println(((ToolCommand) cmd).getInfoText());
 				}
@@ -177,11 +200,33 @@ public class RPGTools {
 			}
 		};
 		quitCmd.addTo(commands);
-
 	}
 
+	private void init() {
+		ListRoll abilitscoreListRoll;
+		try {
+			abilitscoreListRoll = new RollParser("[4d6 dl1 Str, 4d6 dl1 Dex, 4d6 dl1 Con, 4d6 dl1 Int, 4d6 dl1 Wis, 4d6 dl1 Cha] \"Ability Scores\"").parseListRoll();
+			rollables.put(abilitscoreListRoll.getName(), abilitscoreListRoll);
+		
+		} catch (ParseException e) {
+			System.err.println("this should never happen...");
+			e.printStackTrace();
+		}
+	}
+	private void start() {
+		System.out.println(WELCOMEMSG);
+		sc = new Scanner(System.in);
+
+		System.out.print(LINEOPENER);
+		while (sc.hasNextLine()) {
+			doRPGCommand(sc.nextLine());
+			System.out.print(LINEOPENER);
+		}
+		
+	}
 	public void doRPGCommand(String input) {
-		// System.out.println(input + " wooow!");
+
+//System.out.println("before" + rollables.keySet());
 
 		String[] in = input.split(" ", 2);
 		String command = in[0];
@@ -193,6 +238,8 @@ public class RPGTools {
 
 			ToolCommand cmd = commands.get(command);
 			cmd.action(option);
+
+//System.out.println("after" + rollables.keySet());
 		}
 
 	}

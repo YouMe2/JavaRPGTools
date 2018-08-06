@@ -17,4 +17,6 @@ public interface Rollable {
 	
 	public Object roll();
 	public String getRollMessage(int mode);
+	public String getName();
+	public boolean hasName();
 }

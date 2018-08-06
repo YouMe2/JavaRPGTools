@@ -22,10 +22,11 @@ public class ListRoll implements Rollable {
 		this(rolls, null);
 	}
 
+	@Override
 	public String getName() {
 		return name;
 	}
-	
+	@Override
 	public boolean hasName() {
 		return getName() != null && !getName().isEmpty();
 	}

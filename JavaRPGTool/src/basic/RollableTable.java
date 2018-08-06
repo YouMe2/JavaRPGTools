@@ -7,7 +7,7 @@ public class RollableTable implements Rollable {
 
 	public static final String PREFIX = "Rollable Table" + System.lineSeparator();
 	
-	private String name;
+	private final String name;
 	private DiceRoll tableroll;
 	private String[] entries;
 
@@ -16,6 +16,8 @@ public class RollableTable implements Rollable {
 		this.name = name;
 		this.tableroll = tableroll;
 		this.entries = entries;
+		if (!hasName())
+			throw new IllegalArgumentException("name may not be empty");
 	}
 
 	@Override
@@ -27,8 +29,13 @@ public class RollableTable implements Rollable {
 		return entries[i - 1];
 	}
 
+	@Override
 	public String getName() {
 		return name;
+	}
+	@Override
+	public boolean hasName() {
+		return getName() != null && !getName().isEmpty();
 	}
 
 	public DiceRoll getTableroll() {
