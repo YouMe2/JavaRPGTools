@@ -11,6 +11,7 @@ import java.util.Scanner;
 import basic.ListRoll;
 import basic.RollParser;
 import basic.Rollable;
+import basic.RollableTable;
 
 public class RPGTools {
 
@@ -40,12 +41,42 @@ public class RPGTools {
 	private final ToolCommand pathCmd;
 	private final ToolCommand showCmd;
 	private final ToolCommand quitCmd;
+	private final ToolCommand testCmd;
 	private Scanner sc;
 
 	public RPGTools() {
+		
+		
+		
 		rollables = new HashMap<>();
 		commands = new HashMap<>();
+		
+		testCmd = new ToolCommand("test", "t", "", "For Testing only.") {
+			
+			@Override
+			public void action(String option) {
+				try {
+//				Rollable r;
+//				r = RollParser.valueOf(example);
+				RollableTable t = null;
+//				if (r instanceof RollableTable)
+//					t = (RollableTable) r;
 
+					t = new RollParser("RollableTable: d5 \"Blubb\"\r\n" + 
+							"1,		Stone.\r\n" + 
+							"2,		Nothing.\r\n" + 
+							"3-5,	Some other shit.").parseRollableTable();
+					System.out.println(t);
+				} catch (ParseException e) {
+					
+					e.printStackTrace();
+					System.err.println(e.getErrorOffset());
+				}
+				
+			}
+		};
+		testCmd.addTo(commands);
+		
 		rollCmd = new ToolCommand("roll", "r", "[roll, list, table, name]",
 				"Rolls the specified roll, list of rolls, or on a table." + System.lineSeparator()
 						+ "\tExamples: \'roll d20 +3 Dex\' or \'roll 6[4d6 dl1] \"Ability Scores\"\' or \'6d20! dh2 dl2 +5\' or \'roll Name\' where Name is the name of an added roll"

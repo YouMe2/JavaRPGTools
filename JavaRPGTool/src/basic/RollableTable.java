@@ -5,8 +5,8 @@ import java.util.Arrays;
 
 public class RollableTable implements Rollable {
 
-	public static final String PREFIX = "Rollable Table" + System.lineSeparator();
-	
+	// public static final String PREFIX = "RollableTable: ";
+
 	private final String name;
 	private DiceRoll tableroll;
 	private String[] entries;
@@ -26,13 +26,14 @@ public class RollableTable implements Rollable {
 	}
 
 	public String getEntry(int i) {
-		return entries[i - 1];
+		return entries[i - getTableroll().minResult()];
 	}
 
 	@Override
 	public String getName() {
 		return name;
 	}
+
 	@Override
 	public boolean hasName() {
 		return getName() != null && !getName().isEmpty();
@@ -45,16 +46,14 @@ public class RollableTable implements Rollable {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append(PREFIX);
+		builder.append("[");
 		builder.append(tableroll.toString() + " \"" + getName() + "\"");
-		builder.append(System.lineSeparator());
 		for (int i = 0; i < entries.length; i++) {
-			builder.append(i + 1);
-			builder.append(",\t");
-			builder.append(entries[i]);
 			builder.append(System.lineSeparator());
+			builder.append(i + 1);
+			builder.append(",\t\"" + entries[i] + "\"");
 		}
-
+		builder.append("]");
 		return builder.toString();
 	}
 
@@ -68,8 +67,8 @@ public class RollableTable implements Rollable {
 			return getName() + ": " + res + " -> " + this.getEntry(res);
 
 		case DETAILED:
-			return "Rolling on " + this.getName() + " (" + this.getTableroll() + "): " + System.lineSeparator()
-			+ res + " -> " + this.getEntry(res);
+			return "Rolling on " + this.getName() + " (" + this.getTableroll() + "): " + System.lineSeparator() + res
+					+ " -> " + this.getEntry(res);
 
 		case PLAIN:
 		default:
@@ -85,48 +84,45 @@ public class RollableTable implements Rollable {
 		if (!(o instanceof RollableTable))
 			return false;
 		RollableTable other = (RollableTable) o;
-		return this.getName().equals(other.getName())
-				&& this.tableroll.equals(other.tableroll)
+		return this.getName().equals(other.getName()) && this.tableroll.equals(other.tableroll)
 				&& Arrays.equals(this.entries, other.entries);
 	}
 
 	public static void main(String[] args) {
 		System.out.println("TABLE TEST");
-		
-		try {
-			String example = 
-			PREFIX 
-			+ "d10 \"Test Name\"" + System.lineSeparator() 
-			+ "1, eins" + System.lineSeparator() 
-			+ "2, zwei"	+ System.lineSeparator()
-			+ "3-10, rest";
 
-			System.out.println("Example: " + example);
+		String[] examples = { "[d4 \"Test Name\"" + System.lineSeparator() + "1, One" + System.lineSeparator()
+				+ "2, Two" + System.lineSeparator() + "3-4, \"The Rest\"]", "[d4 Name; 1, Gold; 2, Nothing; 3-4, \"Some Shit\"]" };
+		for (String example : examples) {
+			try {
 
-//			Rollable r;
-//			r = RollParser.valueOf(example);
-			RollableTable t = null;
-//			if (r instanceof RollableTable)
-//				t = (RollableTable) r;
-			
-			t = new RollParser(example).parseRollableTable();
-			
-			
-			System.out.println("Roll:    " + t);
-//			System.out.println("Roll2:    " + new RollParser(t.toString()).parseRollableTable());
+				System.out.println("Example: \n" + example);
 
-			assert t.equals(RollParser.valueOf(t.toString()));
+				// Rollable r;
+				// r = RollParser.valueOf(example);
+				RollableTable t = null;
+				// if (r instanceof RollableTable)
+				// t = (RollableTable) r;
 
-			
-			System.out.println("Msg: " + System.lineSeparator()
-			+ t.getRollMessage(SIMPLE) + System.lineSeparator()
-			+ t.getRollMessage(DETAILED) + System.lineSeparator());
-			
-			
-		} catch (ParseException e) {
-			e.printStackTrace();
-			System.err.println(e.getErrorOffset());
+				t = new RollParser(example).parseRollableTable();
+
+				System.out.println("Roll:    " + t);
+				// System.out.println("Roll2: " + new
+				// RollParser(t.toString()).parseRollableTable());
+
+				assert t.equals(RollParser.valueOf(t.toString()));
+
+				System.out.println("Msg: " + System.lineSeparator() + t.getRollMessage(SIMPLE) + System.lineSeparator()
+						+ t.getRollMessage(DETAILED) + System.lineSeparator());
+
+				System.out.println();
+				
+			} catch (ParseException e) {
+				e.printStackTrace();
+				System.err.println(e.getErrorOffset());
+			}
 		}
+
 	}
 
 }

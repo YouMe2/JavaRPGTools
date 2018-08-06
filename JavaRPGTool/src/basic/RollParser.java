@@ -185,39 +185,46 @@ public class RollParser extends AbsParser<Rollable> {
 
 		public RollableTable parseRollableTable() throws ParseException {			
 			
+//			[d20 Name; 1 -> Gold; 2 -> Nothing; 3-10 -> Shit]
+			
 			String name;
 			DiceRoll tableroll;
 			String[] entries;
 			
-			if (!isNextSeq(RollableTable.PREFIX))
-				throw new ParseException("expected Rollable Table Prefix: \""+RollableTable.PREFIX+"\"", getOffset());
-			skip(RollableTable.PREFIX.length());
+//			if (!isNextSeq(RollableTable.PREFIX))
+//				throw new ParseException("expected Rollable Table Prefix: \""+RollableTable.PREFIX+"\"", getOffset());
+//			skip(RollableTable.PREFIX.length());
 			
+			if (!isNext('['))
+				throw new ParseException("expected [ opening the table", getOffset());
+			skip(1);
 			
 			tableroll = parseDiceRoll();
 			if (tableroll == null || tableroll.isExploding())
 				throw new ParseException("no valid tableroll", getOffset());
 			
-			entries = new String[tableroll.maxResult()];
+			entries = new String[tableroll.maxResult() - tableroll.minResult() + 1];
 			name = tableroll.getName();
 			
 			skipNextWhitespaces();
 			
-			while (isNext(';') || isNextSeq(System.lineSeparator())) {
+			while (!isNext(']')) {
 				
 				if (isNext(';'))
 					skip(1);
-				else
+				else if (isNextSeq(System.lineSeparator()))
 					skip(System.lineSeparator().length());
+				else
+					throw new ParseException("expected end of entrie", getOffset());
 				
-				
-				int lower=0, upper;
+				int lower, upper;
 				//  incl   excl
 				
 				skipNextWhitespaces();
 				try {
 					lower = parseNatural();
 				} catch (ParseException e) {
+					System.out.println("end of table" + next());
 					break;
 				}
 				
@@ -232,8 +239,10 @@ public class RollParser extends AbsParser<Rollable> {
 				
 				skipNextWhitespaces();
 				
-				if (isNext(','))
+				if (isNextSeq(","))
 					skip(1);
+				else
+					throw new ParseException("expecting \",\"", getOffset());
 
 				skipNextWhitespaces();
 				
@@ -241,15 +250,15 @@ public class RollParser extends AbsParser<Rollable> {
 				
 				skipNextWhitespaces();
 				
-				for (int i = lower - 1; i < upper; i++) {
+				for (int i = lower - tableroll.minResult(); i < upper; i++) {
 					entries[i] = entrie;
 				}
-	
+				skipNextWhitespaces();
 			}
 			
 			for (int i = 0; i < entries.length; i++) {
 				if (entries[i] == null || entries[i].isEmpty())
-					throw new ParseException("no entire for a roll of: " + (i+1), getOffset());
+					throw new ParseException("no entire for a roll of: " + (i+tableroll.minResult()), getOffset());
 			}
 			
 			return new RollableTable(name, tableroll, entries);

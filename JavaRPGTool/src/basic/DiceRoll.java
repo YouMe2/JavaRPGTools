@@ -128,7 +128,7 @@ public class DiceRoll implements Rollable {
 				+ (drophighest != 0 ? " dh" + drophighest : "")
 				+ (droplowest != 0 ? " dl" + droplowest : "") 
 				+ (mod < 0 ? " " + mod : (mod > 0 ? " +" + mod : ""))
-				+ ((getName() == null || getName().isEmpty()) ? "" : " " + getName())
+//				+ ((getName() == null || getName().isEmpty()) ? "" : " " + getName())
 				;
 	}
 
