@@ -70,14 +70,26 @@ public abstract class AbsParser<T> {
 			throw new ParseException("expecting text", getOffset());
 	
 	}
+ 	
+ 	protected String parseLetters() throws ParseException {
+ 		StringBuilder builder = new StringBuilder();
+		
+		if (isNextLetter()) {
+			do {
+				builder.append(next());
+			} while (isNextLetter() || isNextWhitespace());
+			return builder.toString();
+		} else
+			throw new ParseException("expecting letters", getOffset());
+ 	}
 	
-	protected boolean isNextSeq(String seq) {
-		for (int i = 0; i < seq.length(); i++) {
-			if (offset+i >= chars.length() || chars.charAt(offset + i) != seq.charAt(i))
-				return false;
+	protected String nextUntilIsNextAnySeqOf(String... seqs) throws ParseException {
+ 		StringBuilder builder = new StringBuilder();
+		while (hasNext() && !isNextAnySeqOf(seqs)) {
+			builder.append(next());
 		}
-		return true;
-	}
+		return builder.toString();
+	}	
 
 	protected boolean isNextDigit() {
 		return hasNext() && Character.isDigit(chars.charAt(offset));
@@ -103,14 +115,31 @@ public abstract class AbsParser<T> {
 	}
 
  	protected boolean isNext(char c) {
-		return isNextAnyOf(c);
+		return hasNext() && chars.charAt(offset) == c;
+	}
+	
+	protected boolean isNextSeq(String seq) {
+		for (int i = 0; i < seq.length(); i++) {
+			if (offset+i >= chars.length() || chars.charAt(offset + i) != seq.charAt(i))
+				return false;
+		}
+		return true;
 	}
 	
 	protected boolean isNextAnyOf(char... characters) {
 		if (!hasNext())
 			return false;
 		for (char character : characters)
-			if (chars.charAt(offset) == character)
+			if (isNext(character))
+				return true;
+		return false;
+	}
+	
+	protected boolean isNextAnySeqOf(String... seqs) {
+		if (!hasNext())
+			return false;
+		for (String seq : seqs)
+			if (isNextSeq(seq))
 				return true;
 		return false;
 	}
@@ -130,9 +159,28 @@ public abstract class AbsParser<T> {
 		skip(n - 1);
 	}
 	
-	protected void skipNextWhitespaces() throws ParseException {
+	protected void skipNextWhitespaces(){
 		while (hasNext() && isNextWhitespace()) {
-			skip(1);		
+			try {
+				skip(1);
+			} catch (ParseException e) {
+				// this should never happen!
+				e.printStackTrace();
+			}		
+		}
+	}
+	
+	protected void skipNextSpaces(){
+		while (isNextWhitespace() || isNextSeq(System.lineSeparator())) {
+			try {
+				if(isNextWhitespace())
+					skip(1);
+				else
+					skip(System.lineSeparator().length());
+			} catch (ParseException e) {
+				// this should never happen!
+				e.printStackTrace();
+			}
 		}
 	}
 

@@ -1,4 +1,6 @@
-[d10 TestTable
-1, Gold
-2, Nothing
-3-10, "Some Shit"]
+<d10 	TestTable
+1		Gold
+2		Nothing
+3-10	Some Shit>
+
+<d10 TestTable: 1 Gold, 2 Nothing, 3-10 Some Shit>

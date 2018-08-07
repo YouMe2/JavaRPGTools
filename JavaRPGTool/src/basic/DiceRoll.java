@@ -128,8 +128,7 @@ public class DiceRoll implements Rollable {
 				+ (drophighest != 0 ? " dh" + drophighest : "")
 				+ (droplowest != 0 ? " dl" + droplowest : "") 
 				+ (mod < 0 ? " " + mod : (mod > 0 ? " +" + mod : ""))
-//				+ ((getName() == null || getName().isEmpty()) ? "" : " " + getName())
-				;
+				+ ((getName() == null || getName().isEmpty()) ? "" : " " + getName());
 	}
 
 	@Override
@@ -188,11 +187,15 @@ public class DiceRoll implements Rollable {
 				DiceRoll d = null;
 				Rollable r;
 
-				r = RollParser.valueOf(exa);
+//				r = RollParser.valueOf(exa);
 
-				if (r instanceof DiceRoll)
-					d = (DiceRoll) r;
-
+				
+				
+//				if (r instanceof DiceRoll)
+//					d = (DiceRoll) r;
+				
+				d = new RollParser(exa).parseDiceRoll();
+				
 				System.out.println("Roll:    " + d.toString());
 				assert d.equals(RollParser.valueOf(d.toString()));
 

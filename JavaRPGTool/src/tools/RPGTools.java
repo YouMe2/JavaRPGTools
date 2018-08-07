@@ -1,31 +1,36 @@
 package tools;
 
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Scanner;
 
 import basic.ListRoll;
+import basic.Pair;
 import basic.RollParser;
 import basic.Rollable;
 import basic.RollableTable;
 
 public class RPGTools {
 
+	static final Charset STANDARDCHARSET = StandardCharsets.UTF_8;
 	static final String WELCOMEMSG = "Welcome to RPGTools!" + System.lineSeparator() + "- by u/YaAlex"
 			+ System.lineSeparator() + "Try \"?\" or \"help\" for help.";
-	static final String LINEOPENER = "> ";
+	static final String LINEOPENER = "~ ";
+	
 
 	public static void main(String[] args) {
 		RPGTools tool = new RPGTools();
 		tool.init();
 		tool.start();
 	}
-
-	
 
 	private final HashMap<String, Rollable> rollables;
 	private final HashMap<String, ToolCommand> commands;
@@ -34,9 +39,9 @@ public class RPGTools {
 	private final ToolCommand helpCmd;
 	private final ToolCommand addCmd;
 	private final ToolCommand loadCmd;
-	// TODO saveCmd
-	// private final ToolCommand saveCmd;
+	private final ToolCommand saveCmd;
 	private final ToolCommand removeCmd;
+	private final ToolCommand removeAllCmd;
 	private final ToolCommand listCmd;
 	private final ToolCommand pathCmd;
 	private final ToolCommand showCmd;
@@ -55,37 +60,21 @@ public class RPGTools {
 			
 			@Override
 			public void action(String option) {
-				try {
-//				Rollable r;
-//				r = RollParser.valueOf(example);
-				RollableTable t = null;
-//				if (r instanceof RollableTable)
-//					t = (RollableTable) r;
-
-					t = new RollParser("RollableTable: d5 \"Blubb\"\r\n" + 
-							"1,		Stone.\r\n" + 
-							"2,		Nothing.\r\n" + 
-							"3-5,	Some other shit.").parseRollableTable();
-					System.out.println(t);
-				} catch (ParseException e) {
-					
-					e.printStackTrace();
-					System.err.println(e.getErrorOffset());
-				}
+				System.out.println("test");
 				
 			}
 		};
-		testCmd.addTo(commands);
+//		testCmd.addTo(commands);
 		
 		rollCmd = new ToolCommand("roll", "r", "[roll, list, table, name]",
 				"Rolls the specified roll, list of rolls, or on a table." + System.lineSeparator()
-						+ "\tExamples: \'roll d20 +3 Dex\' or \'roll 6[4d6 dl1] \"Ability Scores\"\' or \'6d20! dh2 dl2 +5\' or \'roll Name\' where Name is the name of an added roll."
-						+ System.lineSeparator() + "\tFor example try: \"roll AbilityScores\""
+						+ "\tExamples: \'roll d20 +3 Dex\' or \'roll 6[4d6 dl1] Ability Scores\' or \'6d20! dh2 dl2 +5\' or \'roll Name\' where Name is the name of an added roll."
+						+ System.lineSeparator() + "\tFor example try: \"roll Ability Scores\""
 						+ System.lineSeparator()
-						+ "\tRoll syntax: [amount]d[die] optional: ! dh[amount] dl[amount] +/-[modifier] [\"Some Name\"]"
+						+ "\tRoll syntax: [amount]d[die] optional: ! dh[amount] dl[amount] +/-[modifier] [some name]"
 						+ System.lineSeparator()
 						+ "\t\t(\"!\": use exploding die, \"dh\": drop highest, \"dl\": drop lowest)"
-						+ System.lineSeparator() + "\tList syntax: [amount]\'[\'[roll]\']\' or \'[\'[roll], ... ,[roll]\']\'"
+						+ System.lineSeparator() + "\tList syntax: [amount]\'[\'[roll]\'] [name]\' or \'[\'[roll], ... ,[roll]\'] [name]\'"
 						+ System.lineSeparator() + "\tTable syntax: \'[\'[tableroll with name]; [result], [entie]; ... ;[res], [entie]\']\'") {
 
 			@Override
@@ -94,7 +83,8 @@ public class RPGTools {
 					Rollable r = rollables.containsKey(option) ? rollables.get(option) : RollParser.valueOf(option);
 					System.out.println(r.getRollMessage(Rollable.SIMPLE)); // maybe DETAILED?
 				} catch (ParseException e) {
-					System.out.println("No valid roll parsable and no roll saved under that name: \"" + option + "\"");
+					System.out.println("No roll saved under that name and couldn't parse a rollable. Please correct it and try again.");
+					System.err.println("ParseError at offset " + e.getErrorOffset() +" : " + e.getMessage());
 				}
 
 			}
@@ -109,17 +99,10 @@ public class RPGTools {
 				Rollable r;
 				try {
 					r = RollParser.valueOf(option);
-					if (!r.hasName()) {
-						throw new IllegalArgumentException("The rollable needs a name to be added!");
-					}
-					rollables.put(r.getName(), r);
-					assert rollables.containsKey(r.getName());
-					// TODO Type recognition and fitting message.
-					System.out.println("Added Rollable " + r.getName());
+					addRollable(r);
 				} catch (ParseException e) {
-					System.out.println("Couldn't parse the rollable. Please correct it in the file and try again.");
-				} catch (IllegalArgumentException e) {
-					System.out.println("Couldn't add rollable. Rollable is missing a name, pleas add one and try again.");
+					System.out.println("Couldn't parse the rollable. Please correct it and try again.");
+//					System.err.println("ParseError at offset " + e.getErrorOffset() +" : " + e.getMessage());
 				}
 			}
 
@@ -130,30 +113,57 @@ public class RPGTools {
 				"Adds any rollable (roll, list, table) found at the specified path, just like the \'add\' command.") {
 
 			@Override
-			public void action(String options) {
-				String filecontent;
+			public void action(String option) {
+				String restcontent = null;
 				try {
-					filecontent = readFile(options, Charset.defaultCharset());
-
-					Rollable r = RollParser.valueOf(filecontent);
-					if (!r.hasName())
-						throw new IllegalArgumentException("The rollable needs a name to be added!");
-					rollables.put(r.getName(), r);
-					// TODO Type recognition and fitting message.
-					System.out.println("Added Rollable " + r.getName());
-
+					restcontent = readFile(option);
+					Pair<Rollable, String> parse;
+					
+					do {
+						parse = RollParser.tryParse(restcontent);
+						restcontent = parse.right;
+						Rollable rollable = parse.left;
+						if(rollable != null)
+							addRollable(rollable);
+						else
+							throw new ParseException("no parse2", -1);
+					} while (restcontent != null && !restcontent.isEmpty());
+					
 				} catch (IOException e) {
-					System.out.println("Couldn't read the file \"" + options + "\". Please try again.");
+					System.out.println("Couldn't read the file \"" + option + "\". Please try again.");
 				} catch (ParseException e) {
-					System.out.println("Couldn't parse the rollable. Please correct it in the file and try again.");
+					System.out.println("Couldn't parse the rollable"+ (restcontent!=null?" at \""+restcontent.substring(0, 10)+"... \"":"") +". Please correct the file and try again.");
+//					System.err.println("ParseError at offset " + e.getErrorOffset() +" : " + e.getMessage());
 				} catch (IllegalArgumentException e) {
 					System.out.println("Couldn't add rollable. Rollable is missing a name, pleas add one and try again.");
 				}
 			}
 		};
 		loadCmd.addTo(commands);
+		
+		saveCmd = new ToolCommand("save", "sa", "[filename]", "Saves all your added rollables to a a file with the given name with the\".rpg\" fileending.") {
+			
+			@Override
+			public void action(String option) {
+				
+				StringBuilder builder = new StringBuilder();
+				for (Rollable rollable : rollables.values()) {
+					builder.append(rollable.toString());
+					builder.append(System.lineSeparator());
+					builder.append(System.lineSeparator());
+				}
+				try {
+					writeFile(option, builder.toString().trim());
+					System.out.println("Saved all rollables to file: "+option+".rpg");
+				} catch (IOException e) {
+					System.out.println("Couldn't write to file \"" + option + "\". Please try again.");
+				}
+				
+			}
+		};
+		saveCmd.addTo(commands);
 
-		removeCmd = new ToolCommand("remove", "rm", "[name of added rollable]", null) {
+		removeCmd = new ToolCommand("remove", "rm", "[name of added rollable]", "Removes the specified rollable from your list.") {
 
 			@Override
 			public void action(String option) {
@@ -166,6 +176,17 @@ public class RPGTools {
 			}
 		};
 		removeCmd.addTo(commands);
+		
+		removeAllCmd = new ToolCommand("removeall", "rma", "[none]", "Removes all rollables from your list.") {
+
+			@Override
+			public void action(String option) {
+
+				rollables.clear();
+				System.out.println("Removed all rollables.");
+			}
+		};
+		removeAllCmd.addTo(commands);
 
 		showCmd = new ToolCommand("show", "s", "[roll, list, table]",
 				"Shows the specified roll, list of rolls, or table.") {
@@ -235,12 +256,12 @@ public class RPGTools {
 		quitCmd.addTo(commands);
 	}
 
-	private void init() {
+	public void init() {
 		ListRoll abilitscoreListRoll;
 		try {
-			abilitscoreListRoll = new RollParser("[4d6 dl1 Str, 4d6 dl1 Dex, 4d6 dl1 Con, 4d6 dl1 Int, 4d6 dl1 Wis, 4d6 dl1 Cha] \"AbilityScores\"").parseListRoll();
+			abilitscoreListRoll = new RollParser("[4d6 dl1 Str, 4d6 dl1 Dex, 4d6 dl1 Con, 4d6 dl1 Int, 4d6 dl1 Wis, 4d6 dl1 Cha] Ability Scores").parseListRoll();
 			rollables.put(abilitscoreListRoll.getName(), abilitscoreListRoll);
-		
+//			addRollable(abilitscoreListRoll);
 			
 		} catch (ParseException e) {
 			System.err.println("this should never happen...");
@@ -248,7 +269,7 @@ public class RPGTools {
 		}
 	}
 	
-	private void start() {
+	public void start() {
 		System.out.println(WELCOMEMSG);
 		sc = new Scanner(System.in);
 
@@ -258,6 +279,17 @@ public class RPGTools {
 			System.out.print(LINEOPENER);
 		}
 		
+	}
+	
+	public void addRollable(Rollable rollable) {
+		if (!rollable.hasName()) { 
+			System.out.println("Couldn't add rollable. Rollable is missing a name, pleas add one and try again.");
+			return;	
+		}
+		rollables.put(rollable.getName(), rollable);
+		assert rollables.containsKey(rollable.getName());
+		// TODO Type recognition and fitting message.
+		System.out.println("Added rollable \"" + rollable.getName()+"\".");
 	}
 	
 	public void doRPGCommand(String input) {
@@ -280,9 +312,23 @@ public class RPGTools {
 
 	}
 
-	static String readFile(String path, Charset encoding) throws IOException {
-		byte[] encoded = Files.readAllBytes(Paths.get(path));
-		return new String(encoded, encoding);
+	public static String readFile(String filename) throws IOException {
+		byte[] encoded = Files.readAllBytes(Paths.get(filename));
+		return new String(encoded, STANDARDCHARSET);
+	}
+	
+	public static void writeFile(String filename, String input) throws IOException{
+		
+//		byte[] bytes = input.getBytes(STANDARDCHARSET);
+		Path p = Paths.get(filename+".rpg");
+		
+		try (
+		        final BufferedWriter writer = Files.newBufferedWriter(p,
+		            STANDARDCHARSET, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE, StandardOpenOption.WRITE);
+		    ) {
+		        writer.write(input);
+		        writer.flush();
+		    }
 	}
 
 }
