@@ -190,30 +190,6 @@ public class RollParser extends AbsParser<Rollable> {
 		skip(1);
 
 		skipNextWhitespaces();
-		// tableroll = parseDiceRoll();
-
-		// tabelroll parese
-//		int n, die, mod;
-//
-//		n = isNextDigit() ? parseNatural() : 1;
-//		if (!isNextAnyOf('d', 'D'))
-//			throw new ParseException("expected d or D", getOffset());
-//		skip(1);
-//		die = parseNatural();
-//
-//		skipNextWhitespaces();
-//
-//		if (isNextAnyOf('+', '-') && isNextInt()) {
-//			mod = parseInteger();
-//		} else
-//			mod = 0;
-//
-//		skipNextWhitespaces();
-//
-//		name = nextUntilIsNextAnySeqOf(":", System.lineSeparator());
-		
-//		tableroll = new DiceRoll(n, die, 0, 0, mod, DiceRoll.ROLLTYPE_NORMAL, "");
-//		tableroll parse end
 		
 		tableroll = parseDiceRoll();
 		if (tableroll == null || tableroll.isExploding() || !tableroll.hasName())
@@ -225,7 +201,7 @@ public class RollParser extends AbsParser<Rollable> {
 
 		// parse entries:
 		// inline table:
-		// <d10 TestTableB: 1 Gold; 2 Nothing; 3-10 Some Shit>
+		// <d10 TestTableB; 1 Gold; 2 Nothing; 3-10 Some Shit>
 		// lined table:
 		// <d10 TestTable
 		// 1 Gold
@@ -234,7 +210,7 @@ public class RollParser extends AbsParser<Rollable> {
 
 		do {
 
-			if (isNext(';') || isNext(':'))
+			if (isNext(';'))
 				skip(1);
 			else if (isNextSeq(System.lineSeparator()))
 				skip(System.lineSeparator().length());
