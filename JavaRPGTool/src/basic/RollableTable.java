@@ -7,13 +7,13 @@ public class RollableTable implements Rollable {
 
 	// public static final String PREFIX = "RollableTable: ";
 
-	private final String name;
+//	private String name;
 	private DiceRoll tableroll;
 	private String[] entries;
 
 	// mutable?
-	public RollableTable(String name, DiceRoll tableroll, String[] entries) {
-		this.name = name;
+	public RollableTable(DiceRoll tableroll, String[] entries) {
+//		this.name = name;
 		this.tableroll = tableroll;
 		this.entries = entries;
 		if (!hasName())
@@ -31,7 +31,7 @@ public class RollableTable implements Rollable {
 
 	@Override
 	public String getName() {
-		return name;
+		return tableroll.getName();
 	}
 
 	@Override
@@ -46,14 +46,16 @@ public class RollableTable implements Rollable {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("[");
-		builder.append(tableroll.toString() + " \"" + getName() + "\"");
+		builder.append("<");
+		builder.append(tableroll.toString());
+//		builder.append("\t"+ getName());
 		for (int i = 0; i < entries.length; i++) {
 			builder.append(System.lineSeparator());
 			builder.append(i + 1);
-			builder.append(",\t\"" + entries[i] + "\"");
+			builder.append("\t");
+			builder.append(entries[i]);
 		}
-		builder.append("]");
+		builder.append(">");
 		return builder.toString();
 	}
 
@@ -91,12 +93,12 @@ public class RollableTable implements Rollable {
 	public static void main(String[] args) {
 		System.out.println("TABLE TEST");
 
-		String[] examples = { "[d4 \"Test Name\"" + System.lineSeparator() + "1, One" + System.lineSeparator()
-				+ "2, Two" + System.lineSeparator() + "3-4, \"The Rest\"]", "[d4 Name; 1, Gold; 2, Nothing; 3-4, \"Some Shit\"]" };
+		String[] examples = { "<d4 Test Name" + System.lineSeparator() + "1 One" + System.lineSeparator()
+				+ "2 Two" + System.lineSeparator() + "3-4 The Rest>", "<d4 Name: 1 Gold, 2 Nothing, 3-4 Some Shit>" };
 		for (String example : examples) {
 			try {
 
-				System.out.println("Example: \n" + example);
+				System.out.println("Example:\n" + example);
 
 				// Rollable r;
 				// r = RollParser.valueOf(example);
@@ -106,7 +108,7 @@ public class RollableTable implements Rollable {
 
 				t = new RollParser(example).parseRollableTable();
 
-				System.out.println("Roll:    " + t);
+				System.out.println("Roll:\n" + t);
 				// System.out.println("Roll2: " + new
 				// RollParser(t.toString()).parseRollableTable());
 

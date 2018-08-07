@@ -52,8 +52,8 @@ public class ListRoll implements Rollable {
 	public String toString() {
 
 		if (Arrays.stream(rolls).allMatch(roll -> roll == rolls[0]))
-			return rolls.length + "[" + rolls[0] + "]";
-		return Arrays.toString(rolls);
+			return rolls.length + "[" + rolls[0].toString() + "]" + (hasName()?" "+getName():"");
+		return Arrays.toString(rolls) + (hasName()?" "+getName():"");
 	}
 
 	@Override
@@ -92,9 +92,9 @@ public class ListRoll implements Rollable {
 	public static void main(String[] args) {
 
 		System.out.println("LISTROLL TEST");
-		String[] examples = { "6[4d6dl1] \"Ablity Scores\"", 
+		String[] examples = { "6[4d6dl1] Ablity Scores", 
 				"6[4d6 dl1] ", 
-				"[4d6 dl1 Str, 4d6 dl1 Dex, 4d6 dl1 Con, 4d6 dl1 Int, 4d6 dl1 Wis, 4d6 dl1 Cha] \"Ablity Scores\"", 
+				"[4d6 dl1 Str, 4d6 dl1 Dex, 4d6 dl1 Con, 4d6 dl1 Int, 4d6 dl1 Wis, 4d6 dl1 Cha] Ablity Scores", 
 				"[d20, d17 Bla, 23d6 -7]" };
 
 		for (String exa : examples) {
