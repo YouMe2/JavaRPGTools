@@ -84,7 +84,7 @@ public class RPGTools {
 					System.out.println(r.getRollMessage(Rollable.SIMPLE)); // maybe DETAILED?
 				} catch (ParseException e) {
 					System.out.println("No roll saved under that name and couldn't parse a rollable. Please correct it and try again.");
-					System.err.println("ParseError at offset " + e.getErrorOffset() +" : " + e.getMessage());
+//					System.err.println("ParseError at offset " + e.getErrorOffset() +" : " + e.getMessage());
 				}
 
 			}
@@ -126,7 +126,7 @@ public class RPGTools {
 						if(rollable != null)
 							addRollable(rollable);
 						else
-							throw new ParseException("no parse2", -1);
+							throw new ParseException("no parse2", 0);
 					} while (restcontent != null && !restcontent.isEmpty());
 					
 				} catch (IOException e) {
