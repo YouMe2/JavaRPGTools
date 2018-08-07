@@ -103,10 +103,12 @@ public class RollParser extends AbsParser<Rollable> {
 
 		skipNextWhitespaces();
 
-		if (isNextLetter())
-			name = parseLetters();
-		else
-			name = "";
+//		if (isNextLetter())
+//			name = parseLetters();
+//		else
+//			name = "";
+
+		name = nextUntilIsNextAnySeqOf(";", ",", ":", ".", "<", ">", "[", "]", "(", ")", System.lineSeparator());
 
 		return new DiceRoll(n, die, dl, dh, mod, exploding, name);
 	}
@@ -173,11 +175,8 @@ public class RollParser extends AbsParser<Rollable> {
 
 		skipNextWhitespaces();
 		
-		if (isNextLetter())
-			name = parseLetters();
-		else
-			name = "";
-
+		name = nextUntilIsNextAnySeqOf(";", ",", ":", ".", "<", ">", "[", "]", "(", ")", System.lineSeparator());
+		
 		return new ListRoll(rs, name);
 	}
 
@@ -226,7 +225,7 @@ public class RollParser extends AbsParser<Rollable> {
 
 		// parse entries:
 		// inline table:
-		// <d10 TestTable: 1 Gold, 2 Nothing, 3-10 Some Shit>
+		// <d10 TestTableB: 1 Gold; 2 Nothing; 3-10 Some Shit>
 		// lined table:
 		// <d10 TestTable
 		// 1 Gold
@@ -235,7 +234,7 @@ public class RollParser extends AbsParser<Rollable> {
 
 		do {
 
-			if (isNext(',') || isNext(':'))
+			if (isNext(';') || isNext(':'))
 				skip(1);
 			else if (isNextSeq(System.lineSeparator()))
 				skip(System.lineSeparator().length());
@@ -256,7 +255,7 @@ public class RollParser extends AbsParser<Rollable> {
 				upper = lower;
 			}
 
-			String entrie = nextUntilIsNextAnySeqOf(",", ">", System.lineSeparator());
+			String entrie = nextUntilIsNextAnySeqOf(";", ">", System.lineSeparator());
 
 			if (entrie.isEmpty())
 				throw new ParseException("empty Entrie at: " + lower + "-" + upper, getOffset());
@@ -265,7 +264,7 @@ public class RollParser extends AbsParser<Rollable> {
 				entries[i] = entrie;
 			}
 
-		} while (isNextAnySeqOf(",", System.lineSeparator()));
+		} while (isNextAnySeqOf(";", System.lineSeparator()));
 
 		if (!isNext('>'))
 			throw new ParseException("expected > closing table syntax", getOffset());
