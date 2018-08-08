@@ -3,17 +3,15 @@ package basic;
 import java.text.ParseException;
 import java.util.Arrays;
 
-public class RollableTable implements Rollable {
+public class RollableTable extends Rollable {
 
-	// public static final String PREFIX = "RollableTable: ";
 
-//	private String name;
 	private DiceRoll tableroll;
 	private String[] entries;
 
 	// mutable?
 	public RollableTable(DiceRoll tableroll, String[] entries) {
-//		this.name = name;
+		super(tableroll.getName());
 		this.tableroll = tableroll;
 		this.entries = entries;
 		if (!hasName())
@@ -21,22 +19,32 @@ public class RollableTable implements Rollable {
 	}
 
 	@Override
-	public String roll() {
-		return getEntry(getTableroll().roll());
+	public RollResult roll() {
+		int res = getTableroll().getRandomRollValue();
+		String entry = getEntry(res);
+		
+		return new RollResult() {
+			
+			@Override
+			public String simple() {
+				return getName() + ": " + res + " -> " + entry;
+			}
+			
+			@Override
+			public String plain() {
+				return entry;
+			}
+			
+			@Override
+			public String detailed() {
+				return "Rolling " + getTableroll() +" : "
+						+ System.lineSeparator() + res + " -> " + entry;
+			}
+		};
 	}
 
 	public String getEntry(int i) {
 		return entries[i - getTableroll().minResult()];
-	}
-
-	@Override
-	public String getName() {
-		return tableroll.getName();
-	}
-
-	@Override
-	public boolean hasName() {
-		return getName() != null && !getName().isEmpty();
 	}
 
 	public DiceRoll getTableroll() {
@@ -45,10 +53,10 @@ public class RollableTable implements Rollable {
 
 	@Override
 	public String toString() {
+		//TODO options for inline/simpletable/fancytable
 		StringBuilder builder = new StringBuilder();
 		builder.append("<");
-		builder.append(tableroll.toString());
-//		builder.append("\t"+ getName());
+		builder.append(tableroll.toString()); // name in roll
 		for (int i = 0; i < entries.length; i++) {
 			builder.append(System.lineSeparator());
 			builder.append(i + 1);
@@ -57,26 +65,6 @@ public class RollableTable implements Rollable {
 		}
 		builder.append(">");
 		return builder.toString();
-	}
-
-	@Override
-	public String getRollMessage(int mode) {
-		int res = this.getTableroll().roll();
-
-		switch (mode) {
-
-		case SIMPLE:
-			return getName() + ": " + res + " -> " + this.getEntry(res);
-
-		case DETAILED:
-			return "Rolling on " + this.getName() + " (" + this.getTableroll() + "): " + System.lineSeparator() + res
-					+ " -> " + this.getEntry(res);
-
-		case PLAIN:
-		default:
-			return this.getEntry(res);
-		}
-
 	}
 
 	@Override
@@ -114,8 +102,8 @@ public class RollableTable implements Rollable {
 
 				assert t.equals(RollParser.valueOf(t.toString()));
 
-				System.out.println("Msg: " + System.lineSeparator() + t.getRollMessage(SIMPLE) + System.lineSeparator()
-						+ t.getRollMessage(DETAILED) + System.lineSeparator());
+				System.out.println("Msg: " + System.lineSeparator() + t.roll().simple() + System.lineSeparator()
+						+ t.roll().detailed() + System.lineSeparator());
 
 				System.out.println();
 				

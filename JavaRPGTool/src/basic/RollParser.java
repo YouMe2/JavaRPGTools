@@ -8,7 +8,7 @@ public class RollParser extends AbsParser<Rollable> {
 
 	public RollParser(String chars) {
 		super(chars.trim());
-//		skipNextSpaces(); // go to the beginning
+		// skipNextSpaces(); // go to the beginning
 	}
 
 	public static Rollable valueOf(String input) throws ParseException {
@@ -52,10 +52,28 @@ public class RollParser extends AbsParser<Rollable> {
 					RollableTable t = tableP.parseRollableTable();
 					return new Pair<Rollable, String>(t, tableP.getRest());
 				} catch (ParseException e3) {
-					return new Pair<Rollable, String>(null, getRest());
+					try {
+						RollParser keyP = new RollParser(getRest());
+						RollKey k = keyP.parseRollKey();
+						return new Pair<Rollable, String>(k, keyP.getRest());
+					} catch (Exception e) {
+						return new Pair<Rollable, String>(null, getRest());
+					}
+
 				}
 			}
 		}
+	}
+
+	private RollKey parseRollKey() throws ParseException {
+		if (!isNextText())
+			throw new ParseException("expecting text as a key", getOffset());
+		
+		String text = parseText();
+		if (text.isEmpty())
+			throw new ParseException("empty text", getOffset());
+		
+		return new RollKey(parseText());
 	}
 
 	public DiceRoll parseDiceRoll() throws ParseException {
@@ -108,7 +126,8 @@ public class RollParser extends AbsParser<Rollable> {
 		else
 			name = "";
 
-//		name = nextUntilIsNextAnySeqOf(";", ",", ":", ".", "<", ">", "[", "]", "(", ")", System.lineSeparator());
+		// name = nextUntilIsNextAnySeqOf(";", ",", ":", ".", "<", ">", "[", "]", "(",
+		// ")", System.lineSeparator());
 
 		return new DiceRoll(n, die, dl, dh, mod, exploding, name);
 	}
@@ -169,24 +188,25 @@ public class RollParser extends AbsParser<Rollable> {
 
 		} else
 			throw new ParseException("no valid listroll", getOffset());
-		
+
 		if (rs.length == 0)
 			throw new ParseException("parsed empty list of rolls", getOffset());
 
 		skipNextWhitespaces();
-		
+
 		if (isNextText())
 			name = parseText();
 		else
 			name = "";
-		
-//		name = nextUntilIsNextAnySeqOf(";", ",", ":", ".", "<", ">", "[", "]", "(", ")", System.lineSeparator());
-		
+
+		// name = nextUntilIsNextAnySeqOf(";", ",", ":", ".", "<", ">", "[", "]", "(",
+		// ")", System.lineSeparator());
+
 		return new ListRoll(rs, name);
 	}
 
 	public RollableTable parseRollableTable() throws ParseException {
-//		String name;
+		// String name;
 		DiceRoll tableroll;
 		String[] entries;
 
@@ -195,12 +215,11 @@ public class RollParser extends AbsParser<Rollable> {
 		skip(1);
 
 		skipNextWhitespaces();
-		
+
 		tableroll = parseDiceRoll();
 		if (tableroll == null || tableroll.isExploding() || !tableroll.hasName())
 			throw new ParseException("illegal table roll", getOffset());
-		
-		
+
 		entries = new String[tableroll.maxResult() - tableroll.minResult() + 1];
 		skipNextWhitespaces();
 
@@ -226,17 +245,19 @@ public class RollParser extends AbsParser<Rollable> {
 			// incl excl
 			skipNextWhitespaces();
 			lower = parseNatural();
-			
+
 			if (lower < tableroll.minResult() || lower > tableroll.maxResult())
-				throw new ParseException("lower value is out of bounds for the given table roll: "+lower, getOffset());
-			
+				throw new ParseException("lower value is out of bounds for the given table roll: " + lower,
+						getOffset());
+
 			skipNextWhitespaces();
 			if (isNext('-')) {
 				skip(1);
 				skipNextWhitespaces();
 				upper = parseNatural();
 				if (upper < tableroll.minResult() || upper > tableroll.maxResult())
-					throw new ParseException("upper value is out of bounds for the given table roll: "+upper, getOffset());
+					throw new ParseException("upper value is out of bounds for the given table roll: " + upper,
+							getOffset());
 				skipNextWhitespaces();
 			} else {
 				upper = lower;

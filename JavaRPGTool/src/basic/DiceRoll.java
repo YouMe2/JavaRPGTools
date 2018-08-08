@@ -4,7 +4,7 @@ import java.security.SecureRandom;
 import java.text.ParseException;
 import java.util.Arrays;
 
-public class DiceRoll implements Rollable {
+public class DiceRoll extends Rollable {
 
 	public static final boolean ROLLTYPE_NORMAL = false;
 	public static final boolean ROLLTYPE_EXPLODING = true;
@@ -14,10 +14,10 @@ public class DiceRoll implements Rollable {
 	private final int n, die, droplowest, drophighest, mod;
 	private final boolean exploding;
 
-	private final String name;
 
 	// immutable
 	public DiceRoll(int n, int die, int dl, int dh, int mod, boolean exploding, String name) {
+		super(name);
 		if (n < 1 || die < 1 || dl < 0 || dh < 0 || dh + dl >= n)
 			throw new IllegalArgumentException();
 		this.n = n;
@@ -26,7 +26,6 @@ public class DiceRoll implements Rollable {
 		this.drophighest = dh;
 		this.mod = mod;
 		this.exploding = exploding;
-		this.name = name;
 		rng = new SecureRandom();
 	}
 
@@ -43,7 +42,39 @@ public class DiceRoll implements Rollable {
 	}
 
 	@Override
-	public Integer roll() {
+	public RollResult roll() {
+		int res = getRandomRollValue();	
+		
+		return new RollResult() {
+			
+			@Override
+			public String simple() {
+				String n = "";
+				if (hasName())	
+					n = getName() + ": ";
+				return n + res;
+			}
+			
+			@Override
+			public String plain() {
+				return String.valueOf(res);
+			}
+			
+			@Override
+			public String detailed() {
+				String n = "";
+				if (hasName())
+					n = "Rolling \"" + getName() +  "\": ";
+				else
+					n = "Rolling \"" + DiceRoll.this + "\": ";
+				return n + res;
+			}
+		};
+		
+		
+	}
+	
+	public int getRandomRollValue() {
 		int[] rolls = new int[n];
 
 		for (int i = 0; i < rolls.length; i++) {
@@ -60,20 +91,7 @@ public class DiceRoll implements Rollable {
 		Arrays.sort(rolls);
 		rolls = Arrays.copyOfRange(rolls, droplowest, n - drophighest);
 
-		int res = Arrays.stream(rolls).sum();
-		return res + mod;
-	}
-
-	public Integer roll(int mod) {
-		return roll() + mod;
-	}
-
-	public Integer rollAdvantage() {
-		return Math.max(roll(), roll());
-	}
-
-	public Integer rollDisadvantage() {
-		return Math.min(roll(), roll());
+		return Arrays.stream(rolls).sum() + mod;
 	}
 
 	public int getN() {
@@ -94,16 +112,6 @@ public class DiceRoll implements Rollable {
 
 	public int getMod() {
 		return mod;
-	}
-
-	@Override
-	public String getName() {
-		return name;
-	}
-	
-	@Override
-	public boolean hasName() {
-		return getName() != null && !getName().isEmpty();
 	}
 	
 	public int minResult() {
@@ -129,32 +137,6 @@ public class DiceRoll implements Rollable {
 				+ (droplowest != 0 ? " dl" + droplowest : "") 
 				+ (mod < 0 ? " " + mod : (mod > 0 ? " +" + mod : ""))
 				+ ((getName() == null || getName().isEmpty()) ? "" : " \"" + getName()+"\"");
-	}
-
-	@Override
-	public String getRollMessage(int mode) {
-		
-		Integer roll = roll();
-		String n = "";
-		
-		switch (mode) {
-		case SIMPLE:
-			
-			if (hasName())	
-				n = getName() + ": ";
-			return n + roll;
-
-		case DETAILED:
-			if (hasName())
-				n = "Rolling \"" + getName() +  "\": ";
-			else
-				n = "Rolling \"" + this + "\": ";
-			return n + roll;
-		case PLAIN:
-		default:
-			return roll.toString();
-
-		}
 	}
 
 	@Override
@@ -184,27 +166,17 @@ public class DiceRoll implements Rollable {
 			try {
 				System.out.println("Example: " + exa);
 
-				DiceRoll d = null;
-				Rollable r;
-
-//				r = RollParser.valueOf(exa);
-
-				
-				
-//				if (r instanceof DiceRoll)
-//					d = (DiceRoll) r;
-				
-				d = new RollParser(exa).parseDiceRoll();
+				DiceRoll d = new RollParser(exa).parseDiceRoll();
 				
 				System.out.println("Roll:    " + d.toString());
 				assert d.equals(RollParser.valueOf(d.toString()));
 
-				Integer res = d.roll();
 
 				System.out.println("Msg:" + System.lineSeparator()
-					+ d.getRollMessage(SIMPLE) + System.lineSeparator()
-					+ d.getRollMessage(DETAILED) + System.lineSeparator());
+					+ d.roll().toString(RollResult.SIMPLE) + System.lineSeparator()
+					+ d.roll().toString(RollResult.DETAILED) + System.lineSeparator());
 				
+				int res = d.getRandomRollValue();
 				assert res >= d.minResult();
 				assert res <= d.maxResult();
 			} catch (ParseException e) {

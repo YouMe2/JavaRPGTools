@@ -4,48 +4,59 @@ import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Objects;
 
-public class ListRoll implements Rollable {
+public class ListRoll extends Rollable {
 
-	private final DiceRoll[] rolls;
-	private final String name;
+	private final Rollable[] rolls;
 
 	// immutable
-	public ListRoll(DiceRoll[] rolls, String name) {
+	public ListRoll(Rollable[] rolls, String name) {
+		super(name);
 		Objects.requireNonNull(rolls);
 		if (rolls.length == 0)
 			throw new IllegalArgumentException("no empty listrolls");
 		this.rolls = rolls;
-		this.name = name;
 	}
 
-	public ListRoll(DiceRoll[] rolls) {
-		this(rolls, null);
-	}
-
+	//unused
+//	public RollResult[] getRandomRollResults() {
+//		RollResult[] res = new RollResult[rolls.length];
+//
+//		for (int i = 0; i < res.length; i++) {
+//			res[i] = rolls[i].roll();
+//		}
+//		return res;
+//	}
+//	
 	@Override
-	public String getName() {
-		return name;
-	}
-	@Override
-	public boolean hasName() {
-		return getName() != null && !getName().isEmpty();
-	}
-	
-	@Override
-	public int[] roll() {
-		return roll(false);
-	}
+	public RollResult roll() {
+		
+		return new RollResult() {
+			
+			@Override
+			public String simple() {
+				String n = "";
+				if ( hasName())
+					n = getName() + ": ";
+				return n + Arrays.toString(Arrays.stream(rolls).map(roll -> roll.roll().toString(SIMPLE)).toArray());
 
-	public int[] roll(boolean sorted) {
-		int[] res = new int[rolls.length];
+			}
+			
+			@Override
+			public String plain() {
+				return Arrays.toString(Arrays.stream(rolls).map(roll -> roll.roll().toString(PLAIN)).toArray());
+			}
+			
+			@Override
+			public String detailed() {
+				String n = "";
+				if ( hasName())
+					n = "Rolling \"" + getName() + "\": ";
+				else
+					n = "Rolling \"" + ListRoll.this + "\": ";
+				return n + Arrays.toString(Arrays.stream(rolls).map(roll -> /*System.lineSeparator() + */ roll.roll().toString(SIMPLE)).toArray());
 
-		for (int i = 0; i < res.length; i++) {
-			res[i] = rolls[i].roll();
-		}
-
-		if (sorted)
-			Arrays.sort(res);
-		return res;
+			}
+		};
 	}
 
 	@Override
@@ -57,29 +68,6 @@ public class ListRoll implements Rollable {
 		else
 			list = Arrays.toString(rolls);
 		return list + ((getName() == null || getName().isEmpty()) ? "" : " \"" + getName()+"\"");
-	}
-
-	@Override
-	public String getRollMessage(int mode) {
-		String n = "";
-		switch (mode) {
-
-		case SIMPLE:
-			if ( hasName())
-				n = getName() + ": ";
-			return n + Arrays.toString(Arrays.stream(rolls).map(roll -> roll.getRollMessage(SIMPLE)).toArray());
-
-		case DETAILED:
-			if ( hasName())
-				n = "Rolling \"" + getName() + "\": ";
-			else
-				n = "Rolling \"" + this + "\": ";
-			return n + Arrays.toString(Arrays.stream(rolls).map(roll -> System.lineSeparator() + roll.getRollMessage(SIMPLE)).toArray());
-
-		case PLAIN:
-		default:
-			return Arrays.toString(roll());
-		}
 	}
 
 	@Override
@@ -118,8 +106,8 @@ public class ListRoll implements Rollable {
 
 
 				System.out.println("Msg: " + System.lineSeparator()
-				+ l.getRollMessage(SIMPLE) + System.lineSeparator()
-				+ l.getRollMessage(DETAILED) + System.lineSeparator());
+				+ l.roll().simple() + System.lineSeparator()
+				+ l.roll().detailed() + System.lineSeparator());
 
 			} catch (ParseException e) {
 				e.printStackTrace();

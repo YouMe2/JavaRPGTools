@@ -1,8 +1,20 @@
 package basic;
 
-public class RollResult {
-	//TODO unused
-	final String name =null;
+public abstract class RollResult {
+	/**
+	 * res
+	 */
+	public static final int PLAIN = 0;
+	/**
+	 * Name: res
+	 */
+	public static final int SIMPLE = 1;
+	/**
+	 * Rolling "Name": res
+	 */
+	public static final int DETAILED = 2;
+	
+	
 	
 	public RollResult() {
 		
@@ -10,7 +22,25 @@ public class RollResult {
 
 	@Override
 	public String toString() {
-		
-		return super.toString();
+		return this.toString(PLAIN);
 	}
+
+	public String toString(int mode) {
+		switch (mode) {
+		case SIMPLE:
+			
+			return simple();
+
+		case DETAILED:
+			return detailed();
+		case PLAIN:
+		default:
+			return plain();
+
+		}
+	}
+
+	public abstract String plain();
+	public abstract String simple();
+	public abstract String detailed();
 }

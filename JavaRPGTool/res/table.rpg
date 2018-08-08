@@ -1,6 +1,21 @@
-<d10 	TestTableA
+<d10	TestTableA
 1		Gold
 2		Nothing
 3-10	Some Shit>
 
 <d10 TestTableB; 1 Gold; 2 Nothing; 3-10 Some Shit>
+
+
+
+─ │ ┌ ┐ └ ┘ ├ ┤ ┬ ┴ ┼
+
+┌───────────────────┐
+│ d1000 "Some Name" │
+├─────┬─────────────┤
+│ 1   │ Something   │
+│ 1   │ Something   │
+│ 1   │ Something   │
+│ 1   │ Something   │
+│ 1   │ Something   │
+│ 1   │ Something   │
+└─────┴─────────────┘

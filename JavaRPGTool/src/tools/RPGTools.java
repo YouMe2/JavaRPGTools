@@ -17,7 +17,7 @@ import basic.ListRoll;
 import basic.Pair;
 import basic.PremadeRollables;
 import basic.RollParser;
-import basic.Rollable;
+import basic.RollableX;
 import basic.RollableTable;
 
 public class RPGTools {
@@ -34,7 +34,7 @@ public class RPGTools {
 		tool.start();
 	}
 
-	private final HashMap<String, Rollable> rollables;
+	private final HashMap<String, RollableX> rollables;
 	private final HashMap<String, ToolCommand> commands;
 
 	private final ToolCommand rollCmd;
@@ -83,8 +83,8 @@ public class RPGTools {
 			@Override
 			public void action(String option) {
 				try {
-					Rollable r = rollables.containsKey(option) ? rollables.get(option) : RollParser.valueOf(option);
-					System.out.println(r.getRollMessage(Rollable.SIMPLE)); // maybe DETAILED?
+					RollableX r = rollables.containsKey(option) ? rollables.get(option) : RollParser.valueOf(option);
+					System.out.println(r.getRollMessage(RollableX.SIMPLE)); // maybe DETAILED?
 				} catch (ParseException e) {
 					System.out.println("No roll saved under that name and couldn't parse a rollable. Please correct it and try again.");
 //					System.err.println("ParseError at offset " + e.getErrorOffset() +" : " + e.getMessage());
@@ -100,7 +100,7 @@ public class RPGTools {
 
 			@Override
 			public void action(String option) {
-				Rollable r;
+				RollableX r;
 				try {
 					r = RollParser.valueOf(option);
 					addRollable(r);
@@ -121,12 +121,12 @@ public class RPGTools {
 				String restcontent = null;
 				try {
 					restcontent = readFile(option);
-					Pair<Rollable, String> parse;
+					Pair<RollableX, String> parse;
 					
 					do {
 						parse = RollParser.tryParse(restcontent);
 						restcontent = parse.right;
-						Rollable rollable = parse.left;
+						RollableX rollable = parse.left;
 						if(rollable != null)
 							addRollable(rollable);
 						else
@@ -152,12 +152,12 @@ public class RPGTools {
 				String restcontent = null;
 				try {
 					restcontent = PremadeRollables.valueOf(option).getContent();
-					Pair<Rollable, String> parse;
+					Pair<RollableX, String> parse;
 					
 					do {
 						parse = RollParser.tryParse(restcontent);
 						restcontent = parse.right;
-						Rollable rollable = parse.left;
+						RollableX rollable = parse.left;
 						if(rollable != null)
 							addRollable(rollable);
 						else
@@ -180,7 +180,7 @@ public class RPGTools {
 			public void action(String option) {
 				
 				StringBuilder builder = new StringBuilder();
-				for (Rollable rollable : rollables.values()) {
+				for (RollableX rollable : rollables.values()) {
 					builder.append(rollable.toString());
 					builder.append(System.lineSeparator());
 					builder.append(System.lineSeparator());
@@ -227,7 +227,7 @@ public class RPGTools {
 			@Override
 			public void action(String option) {
 				try {
-					Rollable r = rollables.containsKey(option) ? rollables.get(option) : RollParser.valueOf(option);
+					RollableX r = rollables.containsKey(option) ? rollables.get(option) : RollParser.valueOf(option);
 					System.out.println((r.hasName() ? r.getName() + ":" + System.lineSeparator() : "") + r.toString());
 				} catch (ParseException e) {
 					System.out.println("No valid roll parsable and no roll saved under that name: \"" + option + "\"");
@@ -334,7 +334,8 @@ public class RPGTools {
 			
 		
 	}
-	public void addRollable(Rollable rollable) {
+	
+	public void addRollable(RollableX rollable) {
 		if (!rollable.hasName()) { 
 			System.out.println("Couldn't add rollable. Rollable is missing a name, pleas add one and try again.");
 			return;	
