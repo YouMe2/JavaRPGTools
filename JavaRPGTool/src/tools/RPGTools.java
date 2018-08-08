@@ -9,6 +9,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.text.ParseException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Scanner;
 
@@ -39,6 +40,7 @@ public class RPGTools {
 	private final ToolCommand helpCmd;
 	private final ToolCommand addCmd;
 	private final ToolCommand loadCmd;
+	private final ToolCommand addpremadeCmd;
 	private final ToolCommand saveCmd;
 	private final ToolCommand removeCmd;
 	private final ToolCommand removeAllCmd;
@@ -134,12 +136,39 @@ public class RPGTools {
 				} catch (ParseException e) {
 					System.out.println("Couldn't parse the rollable"+ (restcontent!=null?" at \""+restcontent.substring(0, 10)+"... \"":"") +". Please correct the file and try again.");
 //					System.err.println("ParseError at offset " + e.getErrorOffset() +" : " + e.getMessage());
-				} catch (IllegalArgumentException e) {
-					System.out.println("Couldn't add rollable. Rollable is missing a name, pleas add one and try again.");
 				}
 			}
 		};
 		loadCmd.addTo(commands);
+		
+		addpremadeCmd = new ToolCommand("addpre", "ap", "[name of the premade set]",
+				"Adds a premade set rollables (rolls, lists, tables) that might be usefull to you." + System.lineSeparator()
+				+ "\tPremade sets: " + Arrays.toString(PremadeRollables.values())) {
+
+			@Override
+			public void action(String option) {
+				String restcontent = null;
+				try {
+					restcontent = PremadeRollables.valueOf(option).getContent();
+					Pair<Rollable, String> parse;
+					
+					do {
+						parse = RollParser.tryParse(restcontent);
+						restcontent = parse.right;
+						Rollable rollable = parse.left;
+						if(rollable != null)
+							addRollable(rollable);
+						else
+							throw new ParseException("no parse2", 0);
+					} while (restcontent != null && !restcontent.isEmpty());
+					
+				} catch (ParseException e) {
+					System.out.println("Couldn't parse the rollable"+ (restcontent!=null?" at \""+restcontent.substring(0, 10)+"... \"":"") +". Please correct the file and try again.");
+//					System.err.println("ParseError at offset " + e.getErrorOffset() +" : " + e.getMessage());
+				}
+			}
+		};
+		addpremadeCmd.addTo(commands);
 		
 		saveCmd = new ToolCommand("save", "sa", "[filename]", "Saves all your added rollables to a a file with the given name with the\".rpg\" fileending.") {
 			

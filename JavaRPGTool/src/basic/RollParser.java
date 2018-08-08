@@ -221,11 +221,17 @@ public class RollParser extends AbsParser<Rollable> {
 			// incl excl
 			skipNextWhitespaces();
 			lower = parseNatural();
+			
+			if (lower < tableroll.minResult() || lower > tableroll.maxResult())
+				throw new ParseException("lower value is out of bounds for the given table roll: "+lower, getOffset());
+			
 			skipNextWhitespaces();
 			if (isNext('-')) {
 				skip(1);
 				skipNextWhitespaces();
 				upper = parseNatural();
+				if (upper < tableroll.minResult() || upper > tableroll.maxResult())
+					throw new ParseException("upper value is out of bounds for the given table roll: "+upper, getOffset());
 				skipNextWhitespaces();
 			} else {
 				upper = lower;
