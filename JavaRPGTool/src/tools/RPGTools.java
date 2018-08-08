@@ -22,7 +22,7 @@ import basic.RollableTable;
 public class RPGTools {
 
 	static final Charset STANDARDCHARSET = StandardCharsets.UTF_8;
-	static final String WELCOMEMSG = "Welcome to RPGTools!" + System.lineSeparator() + "- by u/YaAlex"
+	static final String WELCOMEMSG = System.lineSeparator()+"Welcome to RPGTools!" + System.lineSeparator() + "- by u/YaAlex"
 			+ System.lineSeparator() + "Try \"?\" or \"help\" for help.";
 	static final String LINEOPENER = "~ ";
 	
@@ -69,8 +69,8 @@ public class RPGTools {
 //		testCmd.addTo(commands);
 		
 		rollCmd = new ToolCommand("roll", "r", "[roll, list, table, name]",
-				"Rolls the specified roll, list of rolls, or on a table." + System.lineSeparator()
-						+ "\tExamples: \'roll d20 +3 Dex\' or \'roll 6[4d6 dl1] Ability Scores\' or \'6d20! dh2 dl2 +5\' or \'roll Name\' where Name is the name of an added roll."
+				"Rolls the specified roll, list of rolls, on a table, or on some added rollable with the given name." + System.lineSeparator()
+						+ "\tExamples: \'roll d20 +3 Dex\', \'r 6[4d6 dl1] Ability Scores\', \'r 6d20! dh2 dl2 +5\', \'r Name\'"
 						+ System.lineSeparator() + "\tFor example try: \"roll Ability Scores\""
 						+ System.lineSeparator()
 						+ "\tRoll syntax: [amount]d[die] optional: ! dh[amount] dl[amount] +/-[modifier] [some name]"
@@ -94,7 +94,8 @@ public class RPGTools {
 		rollCmd.addTo(commands);
 
 		addCmd = new ToolCommand("add", "a", "[roll, list, table]",
-				"Adds the specified roll, list of rolls or rollable table. You can roll on it afterwards with the \'roll\' command. Note: A roll or list has to have a name so you can add it.") {
+				"Adds the specified roll, list of rolls or rollable table. You can roll on it afterwards with the \'roll\' command."
+						+System.lineSeparator()+"\tNote: A roll or list has to have a name so you can add it.") {
 
 			@Override
 			public void action(String option) {
@@ -267,7 +268,7 @@ public class RPGTools {
 			public void action(String option) {
 				System.out.println("All available commands:");
 				for (Object cmd : commands.values().stream().distinct().toArray()) {
-					System.out.println(((ToolCommand) cmd).getInfoText());
+					System.out.println(((ToolCommand) cmd).getInfoText()+System.lineSeparator());
 				}
 
 			}
@@ -305,7 +306,7 @@ public class RPGTools {
 		System.out.print(LINEOPENER);
 		while (sc.hasNextLine()) {
 			doRPGCommand(sc.nextLine());
-			System.out.print(LINEOPENER);
+			System.out.print(System.lineSeparator()+LINEOPENER);
 		}
 		
 	}
