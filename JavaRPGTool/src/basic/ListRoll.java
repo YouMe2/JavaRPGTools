@@ -50,10 +50,13 @@ public class ListRoll implements Rollable {
 
 	@Override
 	public String toString() {
-
+		
+		String list;	
 		if (Arrays.stream(rolls).allMatch(roll -> roll == rolls[0]))
-			return rolls.length + "[" + rolls[0].toString() + "]" + (hasName()?" "+getName():"");
-		return Arrays.toString(rolls) + (hasName()?" "+getName():"");
+			list = rolls.length + "[" + rolls[0].toString() + "]";
+		else
+			list = Arrays.toString(rolls);
+		return list + ((getName() == null || getName().isEmpty()) ? "" : " \"" + getName()+"\"");
 	}
 
 	@Override
@@ -71,7 +74,7 @@ public class ListRoll implements Rollable {
 				n = "Rolling \"" + getName() + "\": ";
 			else
 				n = "Rolling \"" + this + "\": ";
-			return n + Arrays.toString(Arrays.stream(rolls).map(roll -> roll.getRollMessage(SIMPLE)).toArray());
+			return n + Arrays.toString(Arrays.stream(rolls).map(roll -> System.lineSeparator() + roll.getRollMessage(SIMPLE)).toArray());
 
 		case PLAIN:
 		default:
@@ -92,10 +95,10 @@ public class ListRoll implements Rollable {
 	public static void main(String[] args) {
 
 		System.out.println("LISTROLL TEST");
-		String[] examples = { "6[4d6dl1] Ablity Scores", 
+		String[] examples = { "6[4d6dl1] \"Ablity Scores\"", 
 				"6[4d6 dl1] ", 
-				"[4d6 dl1 Str, 4d6 dl1 Dex, 4d6 dl1 Con, 4d6 dl1 Int, 4d6 dl1 Wis, 4d6 dl1 Cha] Ablity Scores", 
-				"[d20, d17 Bla, 23d6 -7]" };
+				"[4d6 dl1 Str, 4d6 dl1 Dex, 4d6 dl1 Con, 4d6 dl1 Int, 4d6 dl1 Wis, 4d6 dl1 Cha] \"Ablity Scores\"", 
+				"[d20, d17 Bla, 23d6 -7] Test" };
 
 		for (String exa : examples) {
 			try {

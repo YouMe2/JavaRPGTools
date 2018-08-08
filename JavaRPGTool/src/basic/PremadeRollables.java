@@ -1,4 +1,4 @@
-package tools;
+package basic;
 
 public enum PremadeRollables {
 
@@ -7,14 +7,14 @@ public enum PremadeRollables {
 //	TEST("d20 Test");
 	
 	CHARACTER_CREATION(
-			"[4d6 dl1 Str, 4d6 dl1 Dex, 4d6 dl1 Con, 4d6 dl1 Int, 4d6 dl1 Wis, 4d6 dl1 Cha] Ability Scores" + System.lineSeparator()
-			+ "<d13 PHB Races;1 Dragonborn;2 Hill Dwarf;3 Mountain Dwarf;4 High Elf;5 Wood Elf;6 Forest Gnome;7 Rock Gnome;8 Half Elf;9 Half Orc;10 Lightfoot Halfling;11 Stout Halfling;12 Human;13 Tiefling>" + System.lineSeparator()
-			+ "<d12 PHB Backgrounds;1 Acolyte;2 Charlatan;3 Criminal;4 Entertainer;5 Folk Hero;6 Guild Artisan;7 Hermit;8 Nobel;9 Outlander;10 Sage;11 Sailor; 12 Urchin>" + System.lineSeparator()
-			+ "<d12 PHB Classes;1 Barbarian;2 Bard;3 Clearic;4 Druid;5 Fighter;6 Monk;7 Paladin;8 Ranger;9 Rogue;10 Sorcerer;11 Warlock;12 Wizard>" + System.lineSeparator()
+			"[4d6 dl1 Str, 4d6 dl1 Dex, 4d6 dl1 Con, 4d6 dl1 Int, 4d6 dl1 Wis, 4d6 dl1 Cha] AbilityScores" + System.lineSeparator()
+			+ "<d13 PHBRaces;1 Dragonborn;2 Hill Dwarf;3 Mountain Dwarf;4 High Elf;5 Wood Elf;6 Forest Gnome;7 Rock Gnome;8 Half Elf;9 Half Orc;10 Lightfoot Halfling;11 Stout Halfling;12 Human;13 Tiefling>" + System.lineSeparator()
+			+ "<d12 PHBBackgrounds;1 Acolyte;2 Charlatan;3 Criminal;4 Entertainer;5 Folk Hero;6 Guild Artisan;7 Hermit;8 Nobel;9 Outlander;10 Sage;11 Sailor; 12 Urchin>" + System.lineSeparator()
+			+ "<d12 PHBClasses;1 Barbarian;2 Bard;3 Clearic;4 Druid;5 Fighter;6 Monk;7 Paladin;8 Ranger;9 Rogue;10 Sorcerer;11 Warlock;12 Wizard>" + System.lineSeparator()
 			+ "<d20 Alignment;1 Lawful Evil;2-3 Neutral Evil;4 Chaotic Evil;5-6 Lawful Neutral;7-8 True Neutral;9-10 Chaotic Neutral;11-14 Lawful Good;15-17 Neutral Good;18-20 Chaotic Good>"),
 //	PLAYER_UTILITY(""),
 	DM_UTILITY(
-	"<d100	Arctic Encounters L1"+ System.lineSeparator() +"1	1 giant owl"+ System.lineSeparator() +"2-5	1d6+3 kobolds\r\n" + 
+	"<d100	ArcticEncountersL1ToL4"+ System.lineSeparator() +"1	1 giant owl"+ System.lineSeparator() +"2-5	1d6+3 kobolds\r\n" + 
 	"6-8	1d4+3 trappers (commoners)\r\n" + 
 	"9-10	1 owl\r\n" + 
 	"11-12	2d4 blood hawks\r\n" + 

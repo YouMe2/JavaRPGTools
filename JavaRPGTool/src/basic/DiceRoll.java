@@ -1,15 +1,15 @@
 package basic;
 
+import java.security.SecureRandom;
 import java.text.ParseException;
 import java.util.Arrays;
-import java.util.Random;
 
 public class DiceRoll implements Rollable {
 
 	public static final boolean ROLLTYPE_NORMAL = false;
 	public static final boolean ROLLTYPE_EXPLODING = true;
 
-	private final Random rng;
+	private final SecureRandom rng;
 
 	private final int n, die, droplowest, drophighest, mod;
 	private final boolean exploding;
@@ -27,7 +27,7 @@ public class DiceRoll implements Rollable {
 		this.mod = mod;
 		this.exploding = exploding;
 		this.name = name;
-		rng = new Random();
+		rng = new SecureRandom();
 	}
 
 	public DiceRoll(int n, int die, int dl, int dh, int mod, boolean exploding) {
@@ -128,7 +128,7 @@ public class DiceRoll implements Rollable {
 				+ (drophighest != 0 ? " dh" + drophighest : "")
 				+ (droplowest != 0 ? " dl" + droplowest : "") 
 				+ (mod < 0 ? " " + mod : (mod > 0 ? " +" + mod : ""))
-				+ ((getName() == null || getName().isEmpty()) ? "" : " " + getName());
+				+ ((getName() == null || getName().isEmpty()) ? "" : " \"" + getName()+"\"");
 	}
 
 	@Override

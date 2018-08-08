@@ -15,6 +15,7 @@ import java.util.Scanner;
 
 import basic.ListRoll;
 import basic.Pair;
+import basic.PremadeRollables;
 import basic.RollParser;
 import basic.Rollable;
 import basic.RollableTable;
@@ -166,6 +167,8 @@ public class RPGTools {
 				} catch (ParseException e) {
 					System.out.println("Couldn't parse the rollable"+ (restcontent!=null?" at \""+restcontent.substring(0, 10)+"... \"":"") +". Please correct the file and try again.");
 //					System.err.println("ParseError at offset " + e.getErrorOffset() +" : " + e.getMessage());
+				} catch (IllegalArgumentException e) {
+					System.out.println("No premade set found: "+option);
 				}
 			}
 		};
@@ -262,16 +265,15 @@ public class RPGTools {
 		};
 		pathCmd.addTo(commands);
 
-		helpCmd = new ToolCommand("help", "?", "[none]", "Shows a list of all commands and their descriptions.") {
+		helpCmd = new ToolCommand("help", "?", "[none, command]", "Shows a list of all commands and their help texts or a single help text.") {
 
 			@Override
 			public void action(String option) {
-				System.out.println("All available commands:");
-				for (Object cmd : commands.values().stream().distinct().toArray()) {
-					System.out.println(((ToolCommand) cmd).getInfoText()+System.lineSeparator());
-				}
-
+				
+				showHelptext(option);
 			}
+
+			
 		};
 		helpCmd.addTo(commands);
 
@@ -289,7 +291,7 @@ public class RPGTools {
 	public void init() {
 		ListRoll abilitscoreListRoll;
 		try {
-			abilitscoreListRoll = new RollParser("[4d6 dl1 Str, 4d6 dl1 Dex, 4d6 dl1 Con, 4d6 dl1 Int, 4d6 dl1 Wis, 4d6 dl1 Cha] Ability Scores").parseListRoll();
+			abilitscoreListRoll = new RollParser("[4d6 dl1 Str, 4d6 dl1 Dex, 4d6 dl1 Con, 4d6 dl1 Int, 4d6 dl1 Wis, 4d6 dl1 Cha] AbilityScores").parseListRoll();
 			rollables.put(abilitscoreListRoll.getName(), abilitscoreListRoll);
 //			addRollable(abilitscoreListRoll);
 			
@@ -311,6 +313,27 @@ public class RPGTools {
 		
 	}
 	
+	private void showHelptext(String option) {
+		
+		if (option== null || option.isEmpty()) {
+			System.out.println("All available commands:");
+			for (Object cmd : commands.values().stream().distinct().toArray()) {
+				System.out.println(((ToolCommand) cmd).getInfoText()+System.lineSeparator());
+			}
+		} else {
+			
+			ToolCommand cmd = commands.get(option);
+			if (cmd == null) {
+				System.out.println("No command found: "+option);
+				return;
+			}
+			System.out.println("Helptext for: "+option);
+			System.out.println(cmd.getInfoText()+System.lineSeparator());
+			
+		}
+			
+		
+	}
 	public void addRollable(Rollable rollable) {
 		if (!rollable.hasName()) { 
 			System.out.println("Couldn't add rollable. Rollable is missing a name, pleas add one and try again.");

@@ -103,12 +103,12 @@ public class RollParser extends AbsParser<Rollable> {
 
 		skipNextWhitespaces();
 
-//		if (isNextLetter())
-//			name = parseLetters();
-//		else
-//			name = "";
+		if (isNextText())
+			name = parseText();
+		else
+			name = "";
 
-		name = nextUntilIsNextAnySeqOf(";", ",", ":", ".", "<", ">", "[", "]", "(", ")", System.lineSeparator());
+//		name = nextUntilIsNextAnySeqOf(";", ",", ":", ".", "<", ">", "[", "]", "(", ")", System.lineSeparator());
 
 		return new DiceRoll(n, die, dl, dh, mod, exploding, name);
 	}
@@ -175,7 +175,12 @@ public class RollParser extends AbsParser<Rollable> {
 
 		skipNextWhitespaces();
 		
-		name = nextUntilIsNextAnySeqOf(";", ",", ":", ".", "<", ">", "[", "]", "(", ")", System.lineSeparator());
+		if (isNextText())
+			name = parseText();
+		else
+			name = "";
+		
+//		name = nextUntilIsNextAnySeqOf(";", ",", ":", ".", "<", ">", "[", "]", "(", ")", System.lineSeparator());
 		
 		return new ListRoll(rs, name);
 	}
