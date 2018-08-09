@@ -2,9 +2,11 @@ package basic;
 
 public class RollName extends Rollable {
 
+	private final String name;
 	
 	public RollName(String name) {
 		super(name);
+		this.name = name;
 	}
 
 	@Override
@@ -43,6 +45,11 @@ public class RollName extends Rollable {
 			return false;
 		RollName other = (RollName) obj;
 		return this.getName().equals(other.getName());
+	}
+	
+	@Override
+	public String getName() {
+		return name;
 	}
 
 	@Override

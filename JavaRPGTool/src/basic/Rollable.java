@@ -43,27 +43,17 @@ public abstract class Rollable {
 	}
 	
 // INSTANCE
-	private final String name;
 	private final RollName rollname;
 	
 	public Rollable(String name) {
-		this.name = name;
 		if (this instanceof RollName)
 			rollname = (RollName)this;
 		else
 			this.rollname = new RollName(name);
-//		if(tracked && hasName())
-//			try {
-//				addRollable(this);
-//				System.out.println("Added on creation: "+name);
-//			} catch (IllegalAccessException e) {
-//				//nothing here, this rollabel just wont be reachable thru a key.
-//	//			e.printStackTrace();
-//		}
 	}
 	
 	public String getName() {
-		return name;
+		return getRollName().getName();
 	}
 	
 	public RollName getRollName() {
