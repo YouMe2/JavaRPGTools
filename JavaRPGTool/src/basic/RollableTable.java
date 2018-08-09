@@ -6,44 +6,49 @@ import java.util.Arrays;
 public class RollableTable extends Rollable {
 
 
-	private DiceRoll tableroll;
-	private String[] entries;
+	private final DiceRoll tableroll;
+	
+	private final RollResult[] entries;
 
 	// mutable?
-	public RollableTable(DiceRoll tableroll, String[] entries) {
+	public RollableTable(DiceRoll tableroll, RollResult[] entries) {
 		super(tableroll.getName());
 		this.tableroll = tableroll;
 		this.entries = entries;
 		if (!hasName())
 			throw new IllegalArgumentException("name may not be empty");
 	}
+	
+	public RollableTable(DiceRoll tableroll, String[] entries) {
+		this(tableroll, Arrays.stream(entries).map(str -> new RollResult.PlainResult(str)).toArray(size -> new RollResult[size]));
+	}
 
 	@Override
 	public RollResult roll() {
 		int res = getTableroll().getRandomRollValue();
-		String entry = getEntry(res);
+		RollResult entry = getEntry(res);
 		
 		return new RollResult() {
 			
 			@Override
 			public String simple() {
-				return getName() + ": " + res + " -> " + entry;
+				return getName() + ": " + res + " -> " + entry.toString(SIMPLE);
 			}
 			
 			@Override
 			public String plain() {
-				return entry;
+				return entry.toString(PLAIN);
 			}
 			
 			@Override
 			public String detailed() {
 				return "Rolling " + getTableroll() +" : "
-						+ System.lineSeparator() + res + " -> " + entry;
+						+ System.lineSeparator() + res + " -> " + entry.toString(DETAILED);
 			}
 		};
 	}
 
-	public String getEntry(int i) {
+	public RollResult getEntry(int i) {
 		return entries[i - getTableroll().minResult()];
 	}
 

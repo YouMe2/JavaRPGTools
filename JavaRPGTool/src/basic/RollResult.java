@@ -43,4 +43,28 @@ public abstract class RollResult {
 	public abstract String plain();
 	public abstract String simple();
 	public abstract String detailed();
+	
+	public static class PlainResult extends RollResult{
+
+		private final String msg;
+		public PlainResult(String msg) {
+			this.msg = msg;
+		}
+		
+		@Override
+		public String plain() {
+			return msg;
+		}
+
+		@Override
+		public String simple() {
+			return plain();
+		}
+
+		@Override
+		public String detailed() {
+			return plain();
+		}
+		
+	}
 }

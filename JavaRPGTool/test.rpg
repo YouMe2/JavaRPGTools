@@ -1,7 +1,0 @@
-d20 "Gammel"
-
-<d2 "T"
-1	A
-2	A>
-
-[4d6 dl1 "Str", 4d6 dl1 "Dex", 4d6 dl1 "Con", 4d6 dl1 "Int", 4d6 dl1 "Wis", 4d6 dl1 "Cha"] "AbilityScores"
