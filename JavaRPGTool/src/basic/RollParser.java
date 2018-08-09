@@ -16,35 +16,36 @@ public class RollParser extends AbsParser<Rollable> {
 		// input = input.replace(" ", "").replace("\t", "");
 		if (input == null || input.isEmpty())
 			throw new ParseException("input may not be empty", 0);
-
-		return new RollParser(input).parse();
+		
+		RollParser p = new RollParser(input);
+		return new Pair<Rollable, String>( p.parse(), p.getRest());
 
 	}
 
 	@Override
-	public Pair<Rollable, String> parse() throws ParseException {
+	public Rollable parse() throws ParseException {
 
 		try {
 			RollParser drP = new RollParser(getRest());
-			DiceRoll dr = drP.parseDiceRoll();
-			return new Pair<Rollable, String>(dr, drP.getRest());
+			return drP.parseDiceRoll();
+			
 		} catch (ParseException e1) {
 			try {
 				RollParser lrP = new RollParser(getRest());
-				ListRoll lr = lrP.parseListRoll();
-				return new Pair<Rollable, String>(lr, lrP.getRest());
+				return lrP.parseListRoll();
+				
 			} catch (ParseException e2) {
 				try {
 					RollParser tableP = new RollParser(getRest());
-					RollableTable t = tableP.parseRollableTable();
-					return new Pair<Rollable, String>(t, tableP.getRest());
+					return tableP.parseRollableTable();
+					
 				} catch (ParseException e3) {
 					try {
 						RollParser keyP = new RollParser(getRest());
-						RollName k = keyP.parseRollName();
-						return new Pair<Rollable, String>(k, keyP.getRest());
+						return keyP.parseRollName();
+						
 					} catch (ParseException e4) {
-						return new Pair<Rollable, String>(null, getRest());
+						return null;
 					}
 
 				}
@@ -52,6 +53,7 @@ public class RollParser extends AbsParser<Rollable> {
 		}
 	}
 
+	
 	public RollName parseRollName() throws ParseException {
 		if (!isNextText())
 			throw new ParseException("expecting text as a rollname", getOffset());
@@ -195,7 +197,7 @@ public class RollParser extends AbsParser<Rollable> {
 	public RollableTable parseRollableTable() throws ParseException {
 		// String name;
 		DiceRoll tableroll;
-		String[] entries;
+		RollResult[] entries;
 
 		if (!isNext('<'))
 			throw new ParseException("expected < opening the table", getOffset());
@@ -207,7 +209,7 @@ public class RollParser extends AbsParser<Rollable> {
 		if (tableroll == null || tableroll.isExploding() || !tableroll.hasName())
 			throw new ParseException("illegal table roll", getOffset());
 
-		entries = new String[tableroll.maxResult() - tableroll.minResult() + 1];
+		entries = new RollResult[tableroll.maxResult() - tableroll.minResult() + 1];
 		skipNextWhitespaces();
 
 		// parse entries:
@@ -229,7 +231,8 @@ public class RollParser extends AbsParser<Rollable> {
 				throw new ParseException("expected entries opener/next entrie", getOffset());
 
 			int lower, upper;
-			// incl excl
+			//  incl,  incl
+			
 			skipNextWhitespaces();
 			lower = parseNatural();
 
@@ -250,9 +253,61 @@ public class RollParser extends AbsParser<Rollable> {
 				upper = lower;
 			}
 
-			String entrie = nextUntilIsNextAnySeqOf(";", ">", System.lineSeparator());
-
-			if (entrie.isEmpty())
+			//parsing the entrie:
+			ArrayList<Rollable> inlineRolls = new ArrayList<>();
+			ArrayList<String> texts = new ArrayList<>();
+			RollResult entrie;
+			
+			do {
+				texts.add(nextUntilIsNextAnySeqOf(";", ">", "/", System.lineSeparator()));
+					
+				if (isNext('/')) {
+					Rollable inlineRoll = parse();
+					if (inlineRoll == null)
+						throw new ParseException("no parse for the in line roll", getOffset());
+					
+					inlineRolls.add(inlineRoll);
+				}
+					
+			} while(!isNextAnySeqOf(";", ">", System.lineSeparator()));
+			
+			assert isNextAnySeqOf(";", ">", System.lineSeparator());
+			
+			entrie = new RollResult() {
+				
+				@Override
+				public String simple() {
+					return plain();
+				}
+				
+				@Override
+				public String plain() {
+					StringBuilder builder = new StringBuilder();
+					for (int i = 0; i < texts.size(); i++) {
+						builder.append(texts.get(i));
+						
+						if (inlineRolls.size() > i)
+							builder.append(inlineRolls.get(i).getRollMessage(SIMPLE));
+						
+					}
+					
+					
+					return builder.toString();
+				}
+				
+				@Override
+				public String detailed() {
+					return plain();
+				}
+			};
+			
+			
+				
+			
+			
+			
+			
+			if (texts.isEmpty() && inlineRolls.isEmpty())
 				throw new ParseException("empty Entrie at: " + lower + "-" + upper, getOffset());
 
 			for (int i = lower - tableroll.minResult(); i < upper; i++) {
@@ -266,7 +321,7 @@ public class RollParser extends AbsParser<Rollable> {
 		skip(1);
 
 		for (int i = 0; i < entries.length; i++) {
-			if (entries[i] == null || entries[i].isEmpty())
+			if (entries[i] == null)
 				throw new ParseException("no entire for a roll of: " + (i + tableroll.minResult()), getOffset());
 		}
 

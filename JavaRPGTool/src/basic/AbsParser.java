@@ -12,7 +12,7 @@ public abstract class AbsParser<T> {
 		offset = 0;
 	}
 	
-	public abstract Pair<T,String> parse() throws ParseException ;
+	public abstract Rollable parse() throws ParseException ;
 		
 	public String getChars() {
 		return chars;
