@@ -53,6 +53,9 @@ public abstract class AbsParser<T> {
 	
  	protected String parseText() throws ParseException {
 		StringBuilder builder = new StringBuilder();
+		if (!isNextText())
+			throw new ParseException("expecting text", getOffset());
+		
 		
 		if (isNext('\"')) {
 			skip(1);

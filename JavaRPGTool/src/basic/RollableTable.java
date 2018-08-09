@@ -100,7 +100,7 @@ public class RollableTable extends Rollable {
 				// System.out.println("Roll2: " + new
 				// RollParser(t.toString()).parseRollableTable());
 
-				assert t.equals(RollParser.valueOf(t.toString()));
+				assert t.equals(Rollable.valueOf(t.toString()));
 
 				System.out.println("Msg: " + System.lineSeparator() + t.roll().simple() + System.lineSeparator()
 						+ t.roll().detailed() + System.lineSeparator());

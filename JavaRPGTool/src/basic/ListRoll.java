@@ -26,7 +26,7 @@ public class ListRoll extends Rollable {
 //		}
 //		return res;
 //	}
-//	
+
 	@Override
 	public RollResult roll() {
 		
@@ -102,7 +102,7 @@ public class ListRoll extends Rollable {
 				
 				System.out.println("Roll:    " + l);
 
-				assert l.equals(RollParser.valueOf(l.toString()));
+				assert l.equals(Rollable.valueOf(l.toString()));
 
 
 				System.out.println("Msg: " + System.lineSeparator()

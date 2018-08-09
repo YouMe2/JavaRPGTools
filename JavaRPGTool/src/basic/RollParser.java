@@ -11,19 +11,6 @@ public class RollParser extends AbsParser<Rollable> {
 		// skipNextSpaces(); // go to the beginning
 	}
 
-	public static Rollable valueOf(String input) throws ParseException {
-		// will never return null -> throw exc
-
-		Pair<Rollable, String> p = tryParse(input);
-		// if(p == null)
-		// throw new IllegalStateException("wtf");
-		if (p.left == null)
-			throw new ParseException("no parse", 0);
-
-		assert p.left != null;
-		return p.left;
-	}
-
 	public static Pair<Rollable, String> tryParse(String input) throws ParseException {
 		// will return null and throw exc
 		// input = input.replace(" ", "").replace("\t", "");
@@ -54,9 +41,9 @@ public class RollParser extends AbsParser<Rollable> {
 				} catch (ParseException e3) {
 					try {
 						RollParser keyP = new RollParser(getRest());
-						RollKey k = keyP.parseRollKey();
+						RollName k = keyP.parseRollName();
 						return new Pair<Rollable, String>(k, keyP.getRest());
-					} catch (Exception e) {
+					} catch (ParseException e4) {
 						return new Pair<Rollable, String>(null, getRest());
 					}
 
@@ -65,15 +52,15 @@ public class RollParser extends AbsParser<Rollable> {
 		}
 	}
 
-	private RollKey parseRollKey() throws ParseException {
+	public RollName parseRollName() throws ParseException {
 		if (!isNextText())
-			throw new ParseException("expecting text as a key", getOffset());
+			throw new ParseException("expecting text as a rollname", getOffset());
 		
 		String text = parseText();
 		if (text.isEmpty())
 			throw new ParseException("empty text", getOffset());
 		
-		return new RollKey(parseText());
+		return new RollName(text);
 	}
 
 	public DiceRoll parseDiceRoll() throws ParseException {

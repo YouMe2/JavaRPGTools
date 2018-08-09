@@ -29,18 +29,6 @@ public class DiceRoll extends Rollable {
 		rng = new SecureRandom();
 	}
 
-	public DiceRoll(int n, int die, int dl, int dh, int mod, boolean exploding) {
-		this(n, die, dl, dh, mod, exploding, null);
-	}
-
-	public DiceRoll(int n, int die, int mod) {
-		this(n, die, 0, 0, mod, ROLLTYPE_NORMAL);
-	}
-
-	public DiceRoll(int n, int die) {
-		this(n, die, 0);
-	}
-
 	@Override
 	public RollResult roll() {
 		int res = getRandomRollValue();	
@@ -169,7 +157,7 @@ public class DiceRoll extends Rollable {
 				DiceRoll d = new RollParser(exa).parseDiceRoll();
 				
 				System.out.println("Roll:    " + d.toString());
-				assert d.equals(RollParser.valueOf(d.toString()));
+				assert d.equals(Rollable.valueOf(d.toString()));
 
 
 				System.out.println("Msg:" + System.lineSeparator()
