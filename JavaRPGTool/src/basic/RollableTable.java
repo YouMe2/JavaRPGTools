@@ -87,7 +87,8 @@ public class RollableTable extends Rollable {
 		System.out.println("TABLE TEST");
 
 		String[] examples = { "<d4 Test Name" + System.lineSeparator() + "1 One" + System.lineSeparator()
-				+ "2 Two" + System.lineSeparator() + "3-4 The Rest>", "<d4 Name: 1 Gold, 2 Nothing, 3-4 Some Shit>" };
+				+ "2 Two" + System.lineSeparator() + "3-4 The Rest>", "<d4 Name ; 1 Gold; 2 Nothing; 3-4 Some Shit>",
+				"<d4 Name2 ; 1 Gold; 2 Nothing; 3-4 /d20>" };
 		for (String example : examples) {
 			try {
 
