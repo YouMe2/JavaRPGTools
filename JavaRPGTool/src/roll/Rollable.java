@@ -17,6 +17,9 @@ public abstract class Rollable {
 	}
 	
 	public static void addRollable(Rollable rollable) throws IllegalArgumentException {
+		if (rollable instanceof RollName)
+			throw new IllegalArgumentException("RollNames may not be added. Please add a real rollable.");
+		
 		if (!rollable.hasName())
 			throw new IllegalArgumentException("Rollable needs a name to ba added.");
 		rollables.put(rollable.getName(), rollable);

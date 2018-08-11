@@ -379,13 +379,14 @@ public class RPGTools {
 	}
 
 	public void addRollable(Rollable rollable) {
+				
+		
 		try {
 			Rollable.addRollable(rollable);
-
 			System.out.println("Added " + rollable.getClass().getSimpleName() + " \"" + rollable.getName() + "\".");
 
 		} catch (IllegalArgumentException e) {
-			System.out.println("Couldn't add rollable. Rollable is missing a name, please add one and try again.");
+			System.out.println("Couldn't add rollable: "+e.getMessage());
 		}
 
 	}
