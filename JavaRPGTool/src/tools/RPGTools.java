@@ -21,7 +21,7 @@ import util.Pair;
 
 public class RPGTools {
 
-	static final String VERSION = "v3.1";
+	static final String VERSION = "v3.1.1";
 
 	static final Charset STANDARDCHARSET = StandardCharsets.UTF_8;
 	static final String WELCOMEMSG = System.lineSeparator() + "Welcome to RPGTools!" + System.lineSeparator()
