@@ -21,9 +21,12 @@ import util.Pair;
 
 public class RPGTools {
 
+	static final String VERSION = "v3.1";
+
 	static final Charset STANDARDCHARSET = StandardCharsets.UTF_8;
 	static final String WELCOMEMSG = System.lineSeparator() + "Welcome to RPGTools!" + System.lineSeparator()
-			+ "- by u/YaAlex" + System.lineSeparator() + "Try \"?\" or \"help\" for help." + System.lineSeparator();
+			+ "Version " + VERSION + System.lineSeparator() + "- by u/YaAlex" + System.lineSeparator()
+			+ "Try \"?\" or \"help\" for help." + System.lineSeparator();
 	static final String LINEOPENER = "~ ";
 	private static final String RPGFILEENDING = ".rpg";
 
