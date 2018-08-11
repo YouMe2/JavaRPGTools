@@ -13,7 +13,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Scanner;
 
-import basic.ListRoll;
 import roll.RollName;
 import roll.RollParser;
 import roll.RollResult;
@@ -23,9 +22,10 @@ import util.Pair;
 public class RPGTools {
 
 	static final Charset STANDARDCHARSET = StandardCharsets.UTF_8;
-	static final String WELCOMEMSG = System.lineSeparator()+"Welcome to RPGTools!" + System.lineSeparator() + "- by u/YaAlex"
-			+ System.lineSeparator() + "Try \"?\" or \"help\" for help.";
+	static final String WELCOMEMSG = System.lineSeparator() + "Welcome to RPGTools!" + System.lineSeparator()
+			+ "- by u/YaAlex" + System.lineSeparator() + "Try \"?\" or \"help\" for help." + System.lineSeparator();
 	static final String LINEOPENER = "~ ";
+	private static final String RPGFILEENDING = ".rpg";
 
 	public static void main(String[] args) {
 		RPGTools tool = new RPGTools();
@@ -33,7 +33,7 @@ public class RPGTools {
 		tool.start();
 	}
 
-//	private final HashMap<String, RollableX> rollables;
+	// private final HashMap<String, RollableX> rollables;
 	private final HashMap<String, ToolCommand> commands;
 
 	private final ToolCommand rollCmd;
@@ -52,14 +52,13 @@ public class RPGTools {
 	private Scanner sc;
 
 	public RPGTools() {
-		
-		
-		
-//		rollables = new HashMap<>();
+
+		// TODO fix command helptexts
+
 		commands = new HashMap<>();
-		
+
 		testCmd = new ToolCommand("test", "t", "", "For Testing only.") {
-			
+
 			@Override
 			public void action(String option) {
 				try {
@@ -67,21 +66,25 @@ public class RPGTools {
 				} catch (ParseException e) {
 					e.printStackTrace();
 				}
-				
+
 			}
 		};
-		testCmd.addTo(commands);
-		
-		rollCmd = new ToolCommand("roll", "r", "[roll, list, table, name]",
-				"Rolls the specified roll, list of rolls, on a table, or on some added rollable with the given name." + System.lineSeparator()
-						+ "\tExamples: \'roll d20 +3 Dex\', \'r 6[4d6 dl1] Ability Scores\', \'r 6d20! dh2 dl2 +5\', \'r Name\'"
-						+ System.lineSeparator() + "\tFor example try: \"roll Ability Scores\""
+		// testCmd.addTo(commands);
+
+		rollCmd = new ToolCommand("roll", "r", "[dice, list, table, name]",
+				"Rolls the specified dice, list of rolls, on a table, or on some added rollable with the given name."
 						+ System.lineSeparator()
-						+ "\tRoll syntax: [amount]d[die] optional: ! dh[amount] dl[amount] +/-[modifier] [some name]"
+						+ "\tExamples: \'roll d20 +3 Dex\', \'r 6[4d6 dl1] \"Ability Scores\"\', \'r 6d20! dh2 dl2 +5\', \'r Name\'"
+						+ System.lineSeparator()
+						+ "\tDiceRoll syntax: [amount]d[die] optional: ! dh[amount] dl[amount] +/-[modifier] [name]"
 						+ System.lineSeparator()
 						+ "\t\t(\"!\": use exploding die, \"dh\": drop highest, \"dl\": drop lowest)"
-						+ System.lineSeparator() + "\tList syntax: [amount]\'[\'[roll]\'] [name]\' or \'[\'[roll], ... ,[roll]\'] [name]\'"
-						+ System.lineSeparator() + "\tTable syntax: \'[\'[tableroll with name]; [result], [entie]; ... ;[res], [entie]\']\'") {
+						+ System.lineSeparator()
+						+ "\tListRoll syntax: [amount]\'[\'[roll]\'] [name]\' or \'[\'[roll], ... ,[roll]\'] [name]\'"
+						+ System.lineSeparator()
+						+ "\tTableRoll syntax: \'<\'[tableroll with name]; [result(s)] [entie]; ... ;[result(s)] [entie]\'>\'"
+						+ System.lineSeparator()
+						+ "\t\tTable Entries may include inline rollables after a \'/\'. Example entrie: \"You age by /d4 Days\"") {
 
 			@Override
 			public void action(String option) {
@@ -89,8 +92,8 @@ public class RPGTools {
 					Rollable roll = parseRollable(option);
 					System.out.println(roll.roll().toString(RollResult.DETAILED)); // maybe DETAILED?
 				} catch (ParseException e) {
-					System.out.println("No roll saved under the name \""+option+"\" and couldn't parse a rollable. Please correct it and try again.");
-//					System.err.println("ParseError at offset " + e.getErrorOffset() +" : " + e.getMessage());
+					System.out.println("No roll saved under the name \"" + option
+							+ "\" and couldn't parse a rollable. Please correct it and try again.");
 				}
 
 			}
@@ -99,7 +102,7 @@ public class RPGTools {
 
 		addCmd = new ToolCommand("add", "a", "[roll, list, table]",
 				"Adds the specified roll, list of rolls or rollable table. You can roll on it afterwards with the \'roll\' command."
-						+System.lineSeparator()+"\tNote: A roll or list has to have a name so you can add it.") {
+						+ System.lineSeparator() + "\tNote: A roll or list has to have a name so you can add it.") {
 
 			@Override
 			public void action(String option) {
@@ -107,7 +110,6 @@ public class RPGTools {
 					addRollable(Rollable.valueOf(option));
 				} catch (ParseException e) {
 					System.out.println("Couldn't parse the rollable. Please correct it and try again.");
-//					System.err.println("ParseError at offset " + e.getErrorOffset() +" : " + e.getMessage());
 				}
 			}
 
@@ -119,34 +121,19 @@ public class RPGTools {
 
 			@Override
 			public void action(String option) {
-				String restcontent = null;
+				String filepath = option + (option.endsWith(RPGFILEENDING) ? "" : RPGFILEENDING);
 				try {
-					restcontent = readRPGFile(option);
-					Pair<Rollable, String> parse;
-					
-					do {
-						parse = RollParser.tryParse(restcontent);
-						restcontent = parse.right;
-						Rollable rollable = parse.left;
-						if(rollable != null)
-							addRollable(rollable);
-						else
-							throw new ParseException("no parse2", 0);
-					} while (restcontent != null && !restcontent.isEmpty());
-					
+					loadFromFile(filepath);
 				} catch (IOException e) {
-					System.out.println("Couldn't read the file \"" + option + "\". Please try again.");
-				} catch (ParseException e) {
-					System.out.println("Couldn't parse the rollable"+ (restcontent!=null?" at \""+restcontent.substring(0, 10)+"... \"":"") +". Please correct the file and try again.");
-//					System.err.println("ParseError at offset " + e.getErrorOffset() +" : " + e.getMessage());
+					System.out.println("Couldn't read the file \"" + filepath + "\". Please try again.");
 				}
 			}
 		};
 		loadCmd.addTo(commands);
-		
+
 		addpremadeCmd = new ToolCommand("addpre", "ap", "[name of the premade set]",
-				"Adds a premade set rollables (rolls, lists, tables) that might be usefull to you." + System.lineSeparator()
-				+ "\tPremade sets: " + Arrays.toString(PremadeRollables.values())) {
+				"Adds a premade set rollables (rolls, lists, tables) that might be usefull to you."
+						+ System.lineSeparator() + "\tPremade sets: " + Arrays.toString(PremadeRollables.values())) {
 
 			@Override
 			public void action(String option) {
@@ -154,50 +141,44 @@ public class RPGTools {
 				try {
 					restcontent = PremadeRollables.valueOf(option).getContent();
 					Pair<Rollable, String> parse;
-					
+
 					do {
 						parse = RollParser.tryParse(restcontent);
 						restcontent = parse.right;
 						Rollable rollable = parse.left;
-						if(rollable != null)
+						if (rollable != null)
 							addRollable(rollable);
 						else
 							throw new ParseException("no parse2", 0);
 					} while (restcontent != null && !restcontent.isEmpty());
-					
+
 				} catch (ParseException e) {
-					System.out.println("Couldn't parse the rollable"+ (restcontent!=null?" at \""+restcontent.substring(0, 10)+"... \"":"") +". Please correct the file and try again.");
-//					System.err.println("ParseError at offset " + e.getErrorOffset() +" : " + e.getMessage());
+					System.out.println("Couldn't parse the rollable"
+							+ (restcontent != null ? " at \"" + restcontent.substring(0, 10) + "... \"" : "")
+							+ ". Please correct the file and try again.");
+					// System.err.println("ParseError at offset " + e.getErrorOffset() +" : " +
+					// e.getMessage());
 				} catch (IllegalArgumentException e) {
-					System.out.println("No premade set found: "+option);
+					System.out.println("No premade set found: " + option);
 				}
 			}
 		};
 		addpremadeCmd.addTo(commands);
-		
-		saveCmd = new ToolCommand("save", "sa", "[filename]", "Saves all your added rollables to a a file with the given name with the\".rpg\" fileending.") {
-			
+
+		saveCmd = new ToolCommand("save", "sa", "[filename]",
+				"Saves all your added rollables to a a file with the given name with the\".rpg\" fileending.") {
+
 			@Override
 			public void action(String option) {
-				
-				StringBuilder builder = new StringBuilder();
-				for (Rollable rollable : Rollable.getRollables()) {
-					builder.append(rollable.toString());
-					builder.append(System.lineSeparator());
-					builder.append(System.lineSeparator());
-				}
-				try {
-					writeRPGFile(option, builder.toString().trim());
-					System.out.println("Saved all rollables to file: "+option+".rpg");
-				} catch (IOException e) {
-					System.out.println("Couldn't write to file \"" + option + "\". Please try again.");
-				}
-				
+
+				saveToFile(option);
+
 			}
 		};
 		saveCmd.addTo(commands);
 
-		removeCmd = new ToolCommand("remove", "rm", "[name of added rollable]", "Removes the specified rollable from your list.") {
+		removeCmd = new ToolCommand("remove", "rm", "[name of added rollable]",
+				"Removes the specified rollable from your list.") {
 
 			@Override
 			public void action(String option) {
@@ -211,7 +192,7 @@ public class RPGTools {
 			}
 		};
 		removeCmd.addTo(commands);
-		
+
 		removeAllCmd = new ToolCommand("removeall", "rma", "[none]", "Removes all rollables from your list.") {
 
 			@Override
@@ -242,7 +223,7 @@ public class RPGTools {
 		listCmd = new ToolCommand("list", "ls", "[none]", "Lists all added tables by name.") {
 
 			@Override
-			public void action(String option) {		
+			public void action(String option) {
 				list();
 			}
 		};
@@ -258,15 +239,15 @@ public class RPGTools {
 		};
 		pathCmd.addTo(commands);
 
-		helpCmd = new ToolCommand("help", "?", "[none, command]", "Shows a list of all commands and their help texts or a single help text.") {
+		helpCmd = new ToolCommand("help", "?", "[none, command]",
+				"Shows a list of all commands and their help texts or a single help text.") {
 
 			@Override
 			public void action(String option) {
-				
+
 				showHelptext(option);
 			}
 
-			
 		};
 		helpCmd.addTo(commands);
 
@@ -282,20 +263,28 @@ public class RPGTools {
 	}
 
 	public void init() {
-		ListRoll abilitscoreListRoll;
+
 		try {
-			abilitscoreListRoll = new RollParser("[4d6 dl1 Str, 4d6 dl1 Dex, 4d6 dl1 Con, 4d6 dl1 Int, 4d6 dl1 Wis, 4d6 dl1 Cha] AbilityScores").parseListRoll();
-//			addRollable(abilitscoreListRoll);
-			Rollable.addRollable(abilitscoreListRoll);
-		} catch (ParseException e) {
-			System.err.println("this should never happen...");
-			e.printStackTrace();
-		} catch (IllegalArgumentException e) {
-			System.err.println("this should also never happen");
-			e.printStackTrace();
+			loadFromFile("init.rpg");
+		} catch (IOException e) {
+			System.out.println("No \"init.rpg\" file was found. starting blanc.");
 		}
+
+		// ListRoll abilitscoreListRoll;
+		// try {
+		// abilitscoreListRoll = new RollParser("[4d6 dl1 Str, 4d6 dl1 Dex, 4d6 dl1 Con,
+		// 4d6 dl1 Int, 4d6 dl1 Wis, 4d6 dl1 Cha] AbilityScores").parseListRoll();
+		//// addRollable(abilitscoreListRoll);
+		// Rollable.addRollable(abilitscoreListRoll);
+		// } catch (ParseException e) {
+		// System.err.println("this should never happen...");
+		// e.printStackTrace();
+		// } catch (IllegalArgumentException e) {
+		// System.err.println("this should also never happen");
+		// e.printStackTrace();
+		// }
 	}
-	
+
 	public void start() {
 		System.out.println(WELCOMEMSG);
 		sc = new Scanner(System.in);
@@ -303,32 +292,69 @@ public class RPGTools {
 		System.out.print(LINEOPENER);
 		while (sc.hasNextLine()) {
 			doRPGCommand(sc.nextLine());
-			System.out.print(System.lineSeparator()+LINEOPENER);
+			System.out.print(System.lineSeparator() + LINEOPENER);
 		}
-		
+
 	}
 
-	
+	public void loadFromFile(String option) throws IOException {
+
+		String restcontent = null;
+		try {
+			restcontent = readRPGFile(option);
+			Pair<Rollable, String> parse;
+
+			do {
+				parse = RollParser.tryParse(restcontent);
+				restcontent = parse.right;
+				Rollable rollable = parse.left;
+				if (rollable != null)
+					addRollable(rollable);
+				else
+					throw new ParseException("no parse2", 0);
+			} while (restcontent != null && !restcontent.isEmpty());
+
+		} catch (ParseException e) {
+			System.out.println("Couldn't parse the rollable"
+					+ (restcontent != null ? " at \"" + restcontent.substring(0, 10) + "... \"" : "")
+					+ ". Please correct the file and try again.");
+		}
+	}
+
+	public void saveToFile(String option) {
+		StringBuilder builder = new StringBuilder();
+		for (Rollable rollable : Rollable.getRollables()) {
+			builder.append(rollable.toString());
+			builder.append(System.lineSeparator());
+			builder.append(System.lineSeparator());
+		}
+		try {
+			writeRPGFile(option, builder.toString().trim());
+			System.out.println("Saved all rollables to file: " + option + ".rpg");
+		} catch (IOException e) {
+			System.out.println("Couldn't write to file \"" + option + "\". Please try again.");
+		}
+	}
+
 	private void showHelptext(String option) {
-		
-		if (option== null || option.isEmpty()) {
+
+		if (option == null || option.isEmpty()) {
 			System.out.println("All available commands:");
 			for (Object cmd : commands.values().stream().distinct().toArray()) {
-				System.out.println(((ToolCommand) cmd).getInfoText()+System.lineSeparator());
+				System.out.println(((ToolCommand) cmd).getInfoText() + System.lineSeparator());
 			}
 		} else {
-			
+
 			ToolCommand cmd = commands.get(option);
 			if (cmd == null) {
-				System.out.println("No command found: "+option);
+				System.out.println("No command found: " + option);
 				return;
 			}
-			System.out.println("Helptext for: "+option);
-			System.out.println(cmd.getInfoText()+System.lineSeparator());
-			
+			System.out.println("Helptext for: " + option);
+			System.out.println(cmd.getInfoText() + System.lineSeparator());
+
 		}
-			
-		
+
 	}
 
 	private void list() {
@@ -337,33 +363,33 @@ public class RPGTools {
 			return;
 		}
 
-		System.out.println("All added rolls, lists, and tables:");
+		System.out.println("All added rollables:");
 		for (String name : Rollable.getRollNames()) {
 			System.out.println("+ " + name);
 		}
 	}
 
 	public Rollable parseRollable(String option) throws ParseException {
-		
-			return Rollable.valueOf(option);
-			
+
+		return Rollable.valueOf(option);
+
 	}
-	
-	public void addRollable(Rollable rollable){
+
+	public void addRollable(Rollable rollable) {
 		try {
 			Rollable.addRollable(rollable);
-			// TODO Type recognition and fitting message.
-			System.out.println("Added rollable \"" + rollable.getName()+"\".");
-			
+
+			System.out.println("Added " + rollable.getClass().getSimpleName() + " \"" + rollable.getName() + "\".");
+
 		} catch (IllegalArgumentException e) {
 			System.out.println("Couldn't add rollable. Rollable is missing a name, please add one and try again.");
 		}
-		
+
 	}
-	
+
 	public void doRPGCommand(String input) {
 
-//System.out.println("before" + rollables.keySet());
+		// System.out.println("before" + rollables.keySet());
 
 		String[] in = input.split(" ", 2);
 		String command = in[0];
@@ -376,27 +402,27 @@ public class RPGTools {
 			ToolCommand cmd = commands.get(command);
 			cmd.action(option);
 
-//System.out.println("after" + rollables.keySet());
+			// System.out.println("after" + rollables.keySet());
 		}
 
 	}
 
 	public static String readRPGFile(String filename) throws IOException {
-		byte[] encoded = Files.readAllBytes(Paths.get(filename+".rpg"));
+		if (!filename.endsWith(RPGFILEENDING))
+			throw new IOException("wron file ending");
+		byte[] encoded = Files.readAllBytes(Paths.get(filename));
 		return new String(encoded, STANDARDCHARSET);
 	}
-	
-	public static void writeRPGFile(String filename, String input) throws IOException{
-		
-		Path p = Paths.get(filename+".rpg");
-		
-		try (
-		        final BufferedWriter writer = Files.newBufferedWriter(p,
-		            STANDARDCHARSET, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE, StandardOpenOption.WRITE);
-		    ) {
-		        writer.write(input);
-		        writer.flush();
-		    }
+
+	public static void writeRPGFile(String filename, String input) throws IOException {
+
+		Path p = Paths.get(filename + ".rpg");
+
+		try (final BufferedWriter writer = Files.newBufferedWriter(p, STANDARDCHARSET,
+				StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE, StandardOpenOption.WRITE);) {
+			writer.write(input);
+			writer.flush();
+		}
 	}
 
 }
