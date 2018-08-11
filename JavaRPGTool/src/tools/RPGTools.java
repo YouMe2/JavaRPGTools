@@ -166,7 +166,7 @@ public class RPGTools {
 				}
 			}
 		};
-		addpremadeCmd.addTo(commands);
+//		addpremadeCmd.addTo(commands);
 
 		saveCmd = new ToolCommand("save", "sa", "[filename]",
 				"Saves all your added rollables to a a file with the given name with the\".rpg\" fileending.") {
