@@ -87,7 +87,7 @@ public abstract class Rollable {
 	}
 	
 	public String getInlineToString() {
-		return (this instanceof RollName ? getName() : toString());
+		return (this instanceof RollName ? "\""+getName()+"\"" : toString());
 	}
 	
 	public abstract RollResult roll();
