@@ -6,7 +6,7 @@ import java.util.Arrays;
 
 import basic.DiceRoll;
 import basic.ListRoll;
-import basic.RollableTable;
+import basic.TableRoll;
 import util.AbsParser;
 import util.Pair;
 
@@ -30,25 +30,33 @@ public class RollParser extends AbsParser<Rollable> {
 
 	@Override
 	public Rollable parse() throws ParseException {
-
+		//TODO maybe add isNext for all rollables...
 		try {
 			RollParser drP = new RollParser(getRest());
-			return drP.parseDiceRoll();
+			DiceRoll dr = drP.parseDiceRoll();
+			setRest(drP.getRest());
+			return dr;
 			
 		} catch (ParseException e1) {
 			try {
 				RollParser lrP = new RollParser(getRest());
-				return lrP.parseListRoll();
+				ListRoll lr = lrP.parseListRoll();
+				setRest(lrP.getRest());
+				return lr;
 				
 			} catch (ParseException e2) {
 				try {
-					RollParser tableP = new RollParser(getRest());
-					return tableP.parseRollableTable();
+					RollParser trP = new RollParser(getRest());
+					TableRoll tr = trP.parseTableRoll();
+					setRest(trP.getRest());
+					return tr;
 					
 				} catch (ParseException e3) {
 					try {
-						RollParser keyP = new RollParser(getRest());
-						return keyP.parseRollName();
+						RollParser rnP = new RollParser(getRest());
+						RollName rn = rnP.parseRollName();
+						setRest(rnP.getRest());
+						return rn;
 						
 					} catch (ParseException e4) {
 						return null;
@@ -58,7 +66,6 @@ public class RollParser extends AbsParser<Rollable> {
 			}
 		}
 	}
-
 	
 	public RollName parseRollName() throws ParseException {
 		if (!isNextText())
@@ -200,7 +207,7 @@ public class RollParser extends AbsParser<Rollable> {
 		return new ListRoll(rs, name);
 	}
 
-	public RollableTable parseRollableTable() throws ParseException {
+	public TableRoll parseTableRoll() throws ParseException {
 		// String name;
 		DiceRoll tableroll;
 		RollResult[] entries;
@@ -268,6 +275,7 @@ public class RollParser extends AbsParser<Rollable> {
 				texts.add(nextUntilIsNextAnySeqOf(";", ">", "/", System.lineSeparator()));
 					
 				if (isNext('/')) {
+					skip(1);
 					Rollable inlineRoll = parse();
 					if (inlineRoll == null)
 						throw new ParseException("no parse for the in line roll", getOffset());
@@ -283,7 +291,16 @@ public class RollParser extends AbsParser<Rollable> {
 				
 				@Override
 				public String simple() {
-					return plain();
+					StringBuilder builder = new StringBuilder();
+					for (int i = 0; i < texts.size(); i++) {
+						builder.append(texts.get(i));
+						
+						if (inlineRolls.size() > i)
+							builder.append(inlineRolls.get(i).getRollMessage(SIMPLE));
+						
+					}	
+					
+					return builder.toString();
 				}
 				
 				@Override
@@ -292,26 +309,20 @@ public class RollParser extends AbsParser<Rollable> {
 					for (int i = 0; i < texts.size(); i++) {
 						builder.append(texts.get(i));
 						
-						if (inlineRolls.size() > i)
-							builder.append(inlineRolls.get(i).getRollMessage(SIMPLE));
-						
-					}
-					
+						if (inlineRolls.size() > i) {
+							builder.append('/');
+							builder.append(inlineRolls.get(i).toString());							
+						}
+					}	
 					
 					return builder.toString();
 				}
 				
 				@Override
 				public String detailed() {
-					return plain();
+					return simple();
 				}
 			};
-			
-			
-				
-			
-			
-			
 			
 			if (texts.isEmpty() && inlineRolls.isEmpty())
 				throw new ParseException("empty Entrie at: " + lower + "-" + upper, getOffset());
@@ -331,7 +342,7 @@ public class RollParser extends AbsParser<Rollable> {
 				throw new ParseException("no entire for a roll of: " + (i + tableroll.minResult()), getOffset());
 		}
 
-		return new RollableTable(tableroll, entries);
+		return new TableRoll(tableroll, entries);
 	}
 
 }

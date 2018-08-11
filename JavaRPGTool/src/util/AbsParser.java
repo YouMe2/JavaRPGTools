@@ -16,9 +16,9 @@ public abstract class AbsParser<T> {
 	
 	public abstract Rollable parse() throws ParseException ;
 		
-	public String getChars() {
-		return chars;
-	}
+//	public String getChars() {
+//		return chars;
+//	}
 	
 	public int getOffset() {
 		return offset;
@@ -26,6 +26,11 @@ public abstract class AbsParser<T> {
 
 	public String getRest() {
 		return chars.substring(offset, chars.length());
+	}
+	
+	public void setRest(String chars) {
+		this.chars = chars;
+		offset = 0;
 	}
 	
 	protected int parseInteger() throws ParseException {

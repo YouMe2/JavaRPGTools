@@ -14,8 +14,6 @@ public abstract class RollResult {
 	 */
 	public static final int DETAILED = 2;
 	
-	
-	
 	public RollResult() {
 		
 	}
@@ -27,12 +25,12 @@ public abstract class RollResult {
 
 	public String toString(int mode) {
 		switch (mode) {
-		case SIMPLE:
-			
+		case SIMPLE:	
 			return simple();
 
 		case DETAILED:
 			return detailed();
+			
 		case PLAIN:
 		default:
 			return plain();
@@ -66,5 +64,15 @@ public abstract class RollResult {
 			return plain();
 		}
 		
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == this)
+			return true;
+		if (!(obj instanceof RollResult))
+			return false;
+		RollResult other = (RollResult) obj;
+		return other.plain().equals(this.plain());
 	}
 }
