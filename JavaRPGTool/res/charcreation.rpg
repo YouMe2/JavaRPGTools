@@ -46,12 +46,12 @@
 12 Wizard>
 
 <d20 Alignment;
-1 Lawful Evil;
-2-3 Neutral Evil;
-4 Chaotic Evil;
-5-6 Lawful Neutral;
-7-8 True Neutral;
-9-10 Chaotic Neutral;
-11-14 Lawful Good;
-15-17 Neutral Good;
-18-20 Chaotic Good>
+1		Lawful Evil;
+2-3		Neutral Evil;
+4		Chaotic Evil;
+5-6		Lawful Neutral;
+7-8 	True Neutral;
+9-10 	Chaotic Neutral;
+11-14 	Lawful Good;
+15-17 	Neutral Good;
+18-20 	Chaotic Good>

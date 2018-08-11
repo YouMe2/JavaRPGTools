@@ -54,6 +54,12 @@ public class RollName extends Rollable {
 
 	@Override
 	public String toString() {
-		return Rollable.getRollable(this.getRollName()).toString();
+		
+		Rollable roll = getRollable(this.getRollName());
+		
+		if (roll != null)
+			return Rollable.getRollable(this.getRollName()).toString();
+		else
+			return "No roll found under this name: " + getName();
 	}
 }

@@ -121,7 +121,7 @@ public class RPGTools {
 			public void action(String option) {
 				String restcontent = null;
 				try {
-					restcontent = readFile(option);
+					restcontent = readRPGFile(option);
 					Pair<Rollable, String> parse;
 					
 					do {
@@ -187,7 +187,7 @@ public class RPGTools {
 					builder.append(System.lineSeparator());
 				}
 				try {
-					writeFile(option, builder.toString().trim());
+					writeRPGFile(option, builder.toString().trim());
 					System.out.println("Saved all rollables to file: "+option+".rpg");
 				} catch (IOException e) {
 					System.out.println("Couldn't write to file \"" + option + "\". Please try again.");
@@ -344,7 +344,9 @@ public class RPGTools {
 	}
 
 	public Rollable parseRollable(String option) throws ParseException {
-		return Rollable.valueOf(option);		
+		
+			return Rollable.valueOf(option);
+			
 	}
 	
 	public void addRollable(Rollable rollable){
@@ -379,12 +381,12 @@ public class RPGTools {
 
 	}
 
-	public static String readFile(String filename) throws IOException {
-		byte[] encoded = Files.readAllBytes(Paths.get(filename));
+	public static String readRPGFile(String filename) throws IOException {
+		byte[] encoded = Files.readAllBytes(Paths.get(filename+".rpg"));
 		return new String(encoded, STANDARDCHARSET);
 	}
 	
-	public static void writeFile(String filename, String input) throws IOException{
+	public static void writeRPGFile(String filename, String input) throws IOException{
 		
 		Path p = Paths.get(filename+".rpg");
 		
