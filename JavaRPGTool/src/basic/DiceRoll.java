@@ -54,12 +54,13 @@ public class DiceRoll extends Rollable {
 			
 			@Override
 			public String detailed() {
-				String n = "";
-				if (hasName())
-					n = "Rolling \"" + getName() +  "\": ";
-				else
-					n = "Rolling \"" + DiceRoll.this + "\": ";
-				return n + res;
+				return simple();
+//				String n = "";
+//				if (hasName())
+//					n = "Rolling \"" + getName() +  "\": ";
+//				else
+//					n = "Rolling \"" + DiceRoll.this + "\": ";
+//				return n + res;
 			}
 		};
 		

@@ -87,7 +87,7 @@ public class RPGTools {
 			public void action(String option) {
 				try {
 					Rollable roll = parseRollable(option);
-					System.out.println(roll.roll().toString(RollResult.SIMPLE)); // maybe DETAILED?
+					System.out.println(roll.roll().toString(RollResult.DETAILED)); // maybe DETAILED?
 				} catch (ParseException e) {
 					System.out.println("No roll saved under the name \""+option+"\" and couldn't parse a rollable. Please correct it and try again.");
 //					System.err.println("ParseError at offset " + e.getErrorOffset() +" : " + e.getMessage());

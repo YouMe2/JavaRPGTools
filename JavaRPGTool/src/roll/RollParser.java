@@ -236,8 +236,10 @@ public class RollParser extends AbsParser<Rollable> {
 
 		do {
 
-			if (isNext(';'))
+			if (isNext(';')) {
 				skip(1);
+				skipNextSpaces();
+			}
 			else if (isNextSeq(System.lineSeparator()))
 				skip(System.lineSeparator().length());
 			else

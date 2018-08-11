@@ -4,6 +4,8 @@ import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Objects;
 
+import javax.xml.crypto.dsig.keyinfo.RetrievalMethod;
+
 import roll.RollParser;
 import roll.RollResult;
 import roll.Rollable;
@@ -44,10 +46,12 @@ public class ListRoll extends Rollable {
 			@Override
 			public String simple() {
 				String n = "";
+				String list = "";
 				if ( hasName())
 					n = getName() + ": ";
-				return n + Arrays.toString(Arrays.stream(rolls).map(roll -> roll.roll().toString(SIMPLE)).toArray());
-
+//				old
+				list = Arrays.toString(Arrays.stream(rolls).map(roll -> roll.roll().toString(SIMPLE)).toArray());
+				return n + list;
 			}
 			
 			@Override
@@ -58,12 +62,24 @@ public class ListRoll extends Rollable {
 			@Override
 			public String detailed() {
 				String n = "";
+				String list = "";
 				if ( hasName())
-					n = "Rolling \"" + getName() + "\": ";
-				else
-					n = "Rolling \"" + ListRoll.this + "\": ";
-				return n + Arrays.toString(Arrays.stream(rolls).map(roll -> /*System.lineSeparator() + */ roll.roll().toString(SIMPLE)).toArray());
-
+					n = getName() + ":" + System.lineSeparator();
+				
+				
+				StringBuilder builder = new StringBuilder();
+				builder.append('[');
+				builder.append(rolls[0].getRollMessage(SIMPLE));
+				for (int i = 1; i < rolls.length; i++) {
+					builder.append(',');
+					builder.append(System.lineSeparator());
+					builder.append(rolls[i].getRollMessage(SIMPLE));
+					
+				}
+				builder.append("]");
+				list = builder.toString();
+				
+				return n + list;
 			}
 		};
 	}

@@ -46,8 +46,9 @@ public class TableRoll extends Rollable {
 			
 			@Override
 			public String detailed() {
-				return "Rolling " + getTableroll() +": "
-						+ System.lineSeparator() + res + " -> " + entry.toString(DETAILED);
+				return simple();
+//				return "Rolling " + getTableroll() +": "
+//						+ System.lineSeparator() + res + " -> " + entry.toString(DETAILED);
 			}
 		};
 	}
