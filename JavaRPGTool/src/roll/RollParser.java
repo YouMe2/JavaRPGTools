@@ -1,8 +1,14 @@
-package basic;
+package roll;
 
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
+
+import basic.DiceRoll;
+import basic.ListRoll;
+import basic.RollableTable;
+import util.AbsParser;
+import util.Pair;
 
 public class RollParser extends AbsParser<Rollable> {
 

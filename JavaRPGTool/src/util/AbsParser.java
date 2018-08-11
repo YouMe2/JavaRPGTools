@@ -1,6 +1,8 @@
-package basic;
+package util;
 
 import java.text.ParseException;
+
+import roll.Rollable;
 
 public abstract class AbsParser<T> {
 

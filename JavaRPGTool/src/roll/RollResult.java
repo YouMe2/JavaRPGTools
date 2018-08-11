@@ -1,4 +1,4 @@
-package basic;
+package roll;
 
 public abstract class RollResult {
 	/**

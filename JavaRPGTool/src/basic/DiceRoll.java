@@ -4,6 +4,10 @@ import java.security.SecureRandom;
 import java.text.ParseException;
 import java.util.Arrays;
 
+import roll.RollParser;
+import roll.RollResult;
+import roll.Rollable;
+
 public class DiceRoll extends Rollable {
 
 	public static final boolean ROLLTYPE_NORMAL = false;

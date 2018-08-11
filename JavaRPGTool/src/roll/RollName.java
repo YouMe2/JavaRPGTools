@@ -1,4 +1,4 @@
-package basic;
+package roll;
 
 public class RollName extends Rollable {
 

@@ -3,6 +3,10 @@ package basic;
 import java.text.ParseException;
 import java.util.Arrays;
 
+import roll.RollParser;
+import roll.RollResult;
+import roll.Rollable;
+
 public class RollableTable extends Rollable {
 
 

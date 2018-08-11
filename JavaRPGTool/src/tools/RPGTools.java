@@ -14,12 +14,11 @@ import java.util.HashMap;
 import java.util.Scanner;
 
 import basic.ListRoll;
-import basic.Pair;
-import basic.PremadeRollables;
-import basic.RollName;
-import basic.RollParser;
-import basic.RollResult;
-import basic.Rollable;
+import roll.RollName;
+import roll.RollParser;
+import roll.RollResult;
+import roll.Rollable;
+import util.Pair;
 
 public class RPGTools {
 
