@@ -144,8 +144,8 @@ public class DiceRoll extends Rollable {
 				&& this.getDroplowest() == other.getDroplowest()
 				&& this.getMod() == other.getMod()
 				&& this.isExploding() == other.isExploding()
-//				&& this.getName().equals(other.getName())
-				;
+				&& (this.hasName() == other.hasName())
+				&& (this.hasName() ? this.getName().equals(other.getName()) : true);
 	}
 
 	public static void main(String[] args) {

@@ -26,7 +26,6 @@ public class RPGTools {
 	static final String WELCOMEMSG = System.lineSeparator()+"Welcome to RPGTools!" + System.lineSeparator() + "- by u/YaAlex"
 			+ System.lineSeparator() + "Try \"?\" or \"help\" for help.";
 	static final String LINEOPENER = "~ ";
-	
 
 	public static void main(String[] args) {
 		RPGTools tool = new RPGTools();

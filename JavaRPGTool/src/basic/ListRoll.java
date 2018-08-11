@@ -19,6 +19,11 @@ public class ListRoll extends Rollable {
 		if (rolls.length == 0)
 			throw new IllegalArgumentException("no empty listrolls");
 		this.rolls = rolls;
+		
+		for (Rollable rollable : rolls) {
+			if (rollable.getRollName() == this.getRollName())
+				throw new IllegalArgumentException("recursion in list roll!");
+		}
 	}
 
 	//unused
@@ -67,10 +72,20 @@ public class ListRoll extends Rollable {
 	public String toString() {
 		
 		String list;	
-		if (Arrays.stream(rolls).allMatch(roll -> roll == rolls[0]))
-			list = rolls.length + "[" + rolls[0].toString() + "]";
-		else
-			list = Arrays.toString(rolls);
+		if (Arrays.stream(rolls).allMatch(roll -> roll.equals(rolls[0])))
+			list = rolls.length + "[" + rolls[0].getInlineToString() + "]";
+		else {
+			StringBuilder builder = new StringBuilder();
+			builder.append('[');
+			builder.append(rolls[0].getInlineToString());
+			for (int i = 1; i < rolls.length; i++) {
+				builder.append(", ");
+				builder.append(rolls[i].getInlineToString());
+				
+			}
+			builder.append("]");
+			list = builder.toString();
+		}
 		return list + ((getName() == null || getName().isEmpty()) ? "" : " \"" + getName()+"\"");
 	}
 
@@ -81,17 +96,22 @@ public class ListRoll extends Rollable {
 		if (!(o instanceof ListRoll))
 			return false;
 		ListRoll other = (ListRoll) o;
-		return Arrays.equals(this.rolls, other.rolls);
+		return this.hasName() == other.hasName()
+				&& (this.hasName() ? this.getName().equals(other.getName()) : true)
+				&& Arrays.equals(this.rolls, other.rolls);
 	}
 
 	public static void main(String[] args) {
 
 		System.out.println("LISTROLL TEST");
 		String[] examples = { "6[4d6dl1] \"Ablity Scores\"", 
-				"6[4d6 dl1] ", 
+				"6[4d6 dl1] AS", 
 				"[4d6 dl1 Str, 4d6 dl1 Dex, 4d6 dl1 Con, 4d6 dl1 Int, 4d6 dl1 Wis, 4d6 dl1 Cha] \"Ablity Scores\"", 
-				"[d20, d17 Bla, 23d6 -7] Test" };
+				"[d20, d17 Bla, 23d6 -7] Test",
+				"[2[d4] List, d4 Roll, <d2 Table;1-2 bla>, A] MultiList"};
 
+		Rollable.addRollable(new DiceRoll(1, 2, 0, 0, 0, false, "A"));
+		
 		for (String exa : examples) {
 			try {
 				System.out.println("Example: " + exa);
@@ -103,8 +123,8 @@ public class ListRoll extends Rollable {
 //					l = (ListRoll) r;
 
 				ListRoll l = new RollParser(exa).parseListRoll();
-				
-				System.out.println("Roll:    " + l);
+
+				System.out.println("Parse:   " + l);
 
 				assert l.equals(Rollable.valueOf(l.toString()));
 

@@ -136,7 +136,7 @@ public class RollParser extends AbsParser<Rollable> {
 
 	public ListRoll parseListRoll() throws ParseException {
 
-		DiceRoll[] rs;
+		Rollable[] rs;
 		String name;
 
 		if (isNextDigit()) {
@@ -147,7 +147,7 @@ public class RollParser extends AbsParser<Rollable> {
 
 				skipNextWhitespaces();
 
-				DiceRoll dr = parseDiceRoll();
+				Rollable rollable = parse();
 
 				skipNextWhitespaces();
 
@@ -157,8 +157,8 @@ public class RollParser extends AbsParser<Rollable> {
 
 				skipNextWhitespaces();
 
-				rs = new DiceRoll[n];
-				Arrays.fill(rs, dr);
+				rs = new Rollable[n];
+				Arrays.fill(rs, rollable);
 			} else
 				throw new ParseException("no valid listroll", getOffset());
 
@@ -166,13 +166,13 @@ public class RollParser extends AbsParser<Rollable> {
 			// [2d20, 8d30 "Name", d4 "Test Name"]
 			skip(1);
 
-			ArrayList<DiceRoll> rolls = new ArrayList<>();
+			ArrayList<Rollable> rolls = new ArrayList<>();
 
 			while (true) {
 				skipNextWhitespaces();
 
-				DiceRoll dr = parseDiceRoll();
-				rolls.add(dr);
+				Rollable rollables = parse();
+				rolls.add(rollables);
 
 				skipNextWhitespaces();
 
@@ -186,7 +186,7 @@ public class RollParser extends AbsParser<Rollable> {
 					throw new ParseException("unexpected char in list", getOffset());
 			}
 
-			rs = rolls.toArray(new DiceRoll[rolls.size()]);
+			rs = rolls.toArray(new Rollable[rolls.size()]);
 
 		} else
 			throw new ParseException("no valid listroll", getOffset());
@@ -311,7 +311,7 @@ public class RollParser extends AbsParser<Rollable> {
 						
 						if (inlineRolls.size() > i) {
 							builder.append('/');
-							builder.append(inlineRolls.get(i).toString());							
+							builder.append(inlineRolls.get(i).getInlineToString());							
 						}
 					}	
 					

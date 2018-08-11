@@ -15,7 +15,7 @@ public abstract class RollResult {
 	public static final int DETAILED = 2;
 	
 	public RollResult() {
-		
+		//TODO rework to feature a list of strings and rollables to intercalate...
 	}
 
 	@Override

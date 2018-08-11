@@ -86,8 +86,12 @@ public abstract class Rollable {
 		return p.left;
 	}
 	
+	public String getInlineToString() {
+		return (this instanceof RollName ? getName() : toString());
+	}
+	
 	public abstract RollResult roll();
-
+	
 	@Override
 	public abstract String toString();
 
