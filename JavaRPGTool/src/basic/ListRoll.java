@@ -12,6 +12,10 @@ import roll.Rollable;
 
 public class ListRoll extends Rollable {
 
+	//TODO rollable list lenghth: new syntax: (diceroll)[roll] oder diceroll[], der diceroll kann auch eine konstante sein? optionale klammern?
+	//TODO synatx change to feature the name in the front?
+	
+	
 	private final Rollable[] rolls;
 
 	// immutable

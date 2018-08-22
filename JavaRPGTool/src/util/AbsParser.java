@@ -6,6 +6,8 @@ import roll.Rollable;
 
 public abstract class AbsParser<T> {
 
+	//TODO skipWhileIsNExt(Fun)
+	
 	private String chars;
 	private int offset; // pointer to next to parse
 	
@@ -15,10 +17,7 @@ public abstract class AbsParser<T> {
 	}
 	
 	public abstract Rollable parse() throws ParseException ;
-		
-//	public String getChars() {
-//		return chars;
-//	}
+
 	
 	public int getOffset() {
 		return offset;

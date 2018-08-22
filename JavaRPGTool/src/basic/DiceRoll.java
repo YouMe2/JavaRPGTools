@@ -10,6 +10,9 @@ import roll.Rollable;
 
 public class DiceRoll extends Rollable {
 
+	//TODO support for multiple die types and constants -> DieRoll als single die oder constant und DiceRoll als Summe mehrerer DieRolls?, diceroll in () optional?
+	
+	
 	public static final boolean ROLLTYPE_NORMAL = false;
 	public static final boolean ROLLTYPE_EXPLODING = true;
 
@@ -17,8 +20,8 @@ public class DiceRoll extends Rollable {
 
 	private final int n, die, droplowest, drophighest, mod;
 	private final boolean exploding;
-
-
+	
+	
 	// immutable
 	public DiceRoll(int n, int die, int dl, int dh, int mod, boolean exploding, String name) {
 		super(name);
@@ -122,6 +125,12 @@ public class DiceRoll extends Rollable {
 	@Override
 	public String toString() {
 
+		//Syntax:
+		//		1d20! dh1 dl1 +1 "Some Name"
+		
+		//TODO New DicRoll synatx name placement?
+		// 		"Some Name" (1d20!dh1dl1 + 1d20!dh1dl1 + 2)
+		
 		return (n == 1 ? "" : n) 
 				+ "d" 
 				+ die

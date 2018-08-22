@@ -30,6 +30,15 @@ public class RPGTools {
 	static final String LINEOPENER = "~ ";
 	private static final String RPGFILEENDING = ".rpg";
 
+	//TODO Classes for Results
+	//TODO Rollable Entries with inline rollables als eigene Roll Classe... mit Parser funktion usw vllt InlineRoll?
+		//Strings mit rollables durchsetzt
+	//TODO InlineRoll syntax changes to /(roll) oder so?
+	//TODO save [rolls...] file, to save only a selection of all added  rollables into a file...
+	//TODO Deck, draw(), peek(), put(), ...
+	//TODO better readrpgFile methode, parse methode mit listen rückgabe aller rollables in einem file? , parseFromFile()?, //zeilen als commentare
+	
+	
 	public static void main(String[] args) {
 		RPGTools tool = new RPGTools();
 		tool.init();

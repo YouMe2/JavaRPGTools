@@ -12,6 +12,13 @@ import util.Pair;
 
 public class RollParser extends AbsParser<Rollable> {
 
+
+	//TODO parse unabhängig von lineseperators machen
+	//TODO isNextDiceRoll, isNextListRoll, isNextTableRoll, isNext...
+	//TODO verbesserte parseException weitergabe
+	//TODO new sytax, siehe rollsyntax.rpg
+	//TODO rollables may be enclosed with ( ) to make clear what's what
+	
 	public RollParser(String chars) {
 		super(chars.trim());
 		// skipNextSpaces(); // go to the beginning
