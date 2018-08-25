@@ -13,7 +13,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Scanner;
 
-import roll.RollName;
+import basic.NameRoll;
 import roll.RollParser;
 import roll.RollResult;
 import roll.Rollable;
@@ -30,10 +30,6 @@ public class RPGTools {
 	static final String LINEOPENER = "~ ";
 	private static final String RPGFILEENDING = ".rpg";
 
-	//TODO Classes for Results
-	//TODO Rollable Entries with inline rollables als eigene Roll Classe... mit Parser funktion usw vllt InlineRoll?
-		//Strings mit rollables durchsetzt
-	//TODO InlineRoll syntax changes to /(roll) oder so?
 	//TODO save [rolls...] file, to save only a selection of all added  rollables into a file...
 	//TODO Deck, draw(), peek(), put(), ...
 	//TODO better readrpgFile methode, parse methode mit listen rückgabe aller rollables in einem file? , parseFromFile()?, //zeilen als commentare
@@ -74,7 +70,7 @@ public class RPGTools {
 			@Override
 			public void action(String option) {
 				try {
-					System.out.println(new RollParser(option).parseRollName());
+					System.out.println(new RollParser(option).parseNameRoll());
 				} catch (ParseException e) {
 					e.printStackTrace();
 				}
@@ -195,7 +191,7 @@ public class RPGTools {
 			@Override
 			public void action(String option) {
 
-				RollName key = new RollName(option);
+				NameRoll key = new NameRoll(option);
 				if (Rollable.hasRollable(key)) {
 					Rollable.removeRollable(key);
 					System.out.println("Removed " + key.getName());

@@ -1,6 +1,10 @@
 package roll;
 
-public abstract class RollResult {
+/**
+ * @author YaAlex
+ *
+ */
+public abstract class RollResult extends Rollable{
 	/**
 	 * res
 	 */
@@ -14,10 +18,21 @@ public abstract class RollResult {
 	 */
 	public static final int DETAILED = 2;
 	
-	public RollResult() {
-		//TODO rework to feature a list of strings and rollables to intercalate...
+	private final Rollable roll;
+	public RollResult(Rollable roll) {
+		super(roll != null ? roll.getName() : null);
+		this.roll = roll;
 	}
 
+	public Rollable getRoll() {
+		return roll;
+	}
+	
+	@Override
+	public RollResult roll() {
+		return this;
+	}
+	
 	@Override
 	public String toString() {
 		return this.toString(PLAIN);
@@ -26,45 +41,33 @@ public abstract class RollResult {
 	public String toString(int mode) {
 		switch (mode) {
 		case SIMPLE:	
-			return simple();
+			return simpleMsg();
 
 		case DETAILED:
-			return detailed();
+			return detailedMsg();
 			
 		case PLAIN:
 		default:
-			return plain();
+			return plainText();
 
 		}
 	}
 
-	public abstract String plain();
-	public abstract String simple();
-	public abstract String detailed();
-	
-	public static class PlainResult extends RollResult{
-
-		private final String msg;
-		public PlainResult(String msg) {
-			this.msg = msg;
-		}
-		
-		@Override
-		public String plain() {
-			return msg;
-		}
-
-		@Override
-		public String simple() {
-			return plain();
-		}
-
-		@Override
-		public String detailed() {
-			return plain();
-		}
-		
-	}
+	/**
+	 * result is parsable
+	 * @return
+	 */
+	public abstract String plainText();
+	/**
+	 * result is a single line
+	 * @return
+	 */
+	public abstract String simpleMsg();
+	/**
+	 * result may be multiline
+	 * @return
+	 */
+	public abstract String detailedMsg();
 	
 	@Override
 	public boolean equals(Object obj) {
@@ -73,6 +76,6 @@ public abstract class RollResult {
 		if (!(obj instanceof RollResult))
 			return false;
 		RollResult other = (RollResult) obj;
-		return other.plain().equals(this.plain());
+		return other.plainText().equals(this.plainText());
 	}
 }

@@ -3,35 +3,35 @@
 //Rollable Syntax:
 
 //DICEROLL SYNTAX:
-"Some Name" dieroll + ... + dieroll
-Name dieroll + ... + dieroll
+	(dieroll + ... + dieroll "Some Name")
+	(dieroll + ... + dieroll Name)
 
 //DIEROLL SYNTAX: (for internal use only)
-1d2!dh3dl4
-6
+	+ 1d2!dh3dl4
+	- 6
 
 //LISTROLL SYNTAX:
-"Some Name" [rollable, ..., rollable]
-Name [rollable, ..., rollable]
-"Some Name" diceroll[rollable]
-Name diceroll[rollable]
+	"Some Name" [rollable, ..., rollable]
+	Name [rollable, ..., rollable]
+	"Some Name" diceroll[rollable]
+	Name diceroll[rollable]
 
 //TABLEROLL SYNTAX:
-<diceroll with name;
-1-2 inlineroll;
-3	inlineroll>
+	<diceroll with name;
+	1-2 inlineroll;
+	3	inlineroll>
 
 //INLINEROLL SYNTAX:
-text $(rollable) text ...
+	text $rollable text ...
 
 //NAMEROLL:
-"Some Name"
-SomeName
+	"Some Name"
+	SomeName
 
 //EXAMPLE:
-<"Test Name" d5;
-1 text;
-2 text $( Check d20			 ) text;
-3 text $( "Test Name"		 ) text;
-4 text $( <Table d2; 1-2 R>  ) text;
-5 text $( Name d4[Test d4] ) text>
+	<d5 "Test Name";
+	1 text;
+	2 text $( Check d20			 ) text;
+	3 text $( "Test Name"		 ) text;
+	4 text $( <Table d2; 1-2 R>  ) text;
+	5 text $( Name d4[Test d4] ) text>

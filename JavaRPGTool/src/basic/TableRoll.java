@@ -9,52 +9,37 @@ import roll.Rollable;
 
 public class TableRoll extends Rollable {
 
-
-	private final DiceRoll tableroll;
+	public static final String OPENER = "<";
+	public static final String CLOSER = ">";
+	public static final String SEPERATOR = ";";
 	
-	private final RollResult[] entries;
+	private final DiceRoll tableroll;
+	private final InlineRoll[] entries;
 
-	// mutable?
-	public TableRoll(DiceRoll tableroll, RollResult[] entries) {
+	// immutable
+	public TableRoll(DiceRoll tableroll, InlineRoll[] entries) {
 		super(tableroll.getName());
 		this.tableroll = tableroll;
 		this.entries = entries;
+
+		if (tableroll.isExploding())
+			throw new IllegalArgumentException("tablerolls my not use exploding die");
+		
+		if (tableroll.getMaxResult() - tableroll.getMinResult() + 1 != entries.length)
+			throw new IllegalArgumentException("table length unfit for tableroll");
+	
 		if (!hasName())
 			throw new IllegalArgumentException("name may not be empty");
 	}
 	
-	public TableRoll(DiceRoll tableroll, String[] entries) {
-		this(tableroll, Arrays.stream(entries).map(str -> new RollResult.PlainResult(str)).toArray(size -> new RollResult[size]));
-	}
 
 	@Override
 	public RollResult roll() {
-		int res = getTableroll().getRandomRollValue();
-		RollResult entry = getEntry(res);
-		
-		return new RollResult() {
-			
-			@Override
-			public String simple() {
-				return getName() + ": " + res + " -> " + entry.toString(SIMPLE);
-			}
-			
-			@Override
-			public String plain() {
-				return entry.toString(PLAIN);
-			}
-			
-			@Override
-			public String detailed() {
-				return simple();
-//				return "Rolling " + getTableroll() +": "
-//						+ System.lineSeparator() + res + " -> " + entry.toString(DETAILED);
-			}
-		};
+		return getEntry(getTableroll().getRandomRollValue()).roll();
 	}
 
-	public RollResult getEntry(int i) {
-		return entries[i - getTableroll().minResult()];
+	public InlineRoll getEntry(int i) {
+		return entries[i - getTableroll().getMinResult()];
 	}
 
 	public DiceRoll getTableroll() {
@@ -64,21 +49,21 @@ public class TableRoll extends Rollable {
 	@Override
 	public String toString() {
 		//TODO options for inline/simpletable/fancytable
+		
+		//<diceroll with name; optional lineseperator!
+		//1-2 inlineroll;
+		//3	inlineroll>
+		
 		StringBuilder builder = new StringBuilder();
 		builder.append("<");
-		builder.append(tableroll.toString()); // name in roll
-		for (int i = 0; i < entries.length; i++) {
-//			MULTILINE:
-//			builder.append(System.lineSeparator());
-//			builder.append(i + 1);
-//			builder.append("\t");
-//			builder.append(entries[i]);
+		builder.append(tableroll.toString()); // with name in roll
+		for (int i = getTableroll().getMinResult(); i <= getTableroll().getMaxResult(); i++) {
 			
-//			InLine
+//			SingleLine
 			builder.append(';');
-			builder.append(i + 1);
-			builder.append(' ');
-			builder.append(entries[i].toString(RollResult.PLAIN));
+			builder.append(i);
+			builder.append('\t');
+			builder.append(getEntry(i).toString());
 		}
 		builder.append(">");
 		return builder.toString();
@@ -99,7 +84,7 @@ public class TableRoll extends Rollable {
 	public static void main(String[] args) {
 		System.out.println("TABLE TEST");
 
-		Rollable.addRollable(new DiceRoll(1, 2, 0, 0, 0, false, "A"));
+		Rollable.addRollable(new DiceRoll("A", new DiceRoll.DieRoll(8, true)));
 		
 		String[] examples = {
 				"<d4 \"Test Name\"" + System.lineSeparator()
@@ -130,8 +115,8 @@ public class TableRoll extends Rollable {
 
 				assert t.equals(Rollable.valueOf(t.toString()));
 
-				System.out.println("Msg: " + System.lineSeparator() + t.roll().simple() + System.lineSeparator()
-						+ t.roll().detailed() + System.lineSeparator());
+				System.out.println("Msg: " + System.lineSeparator() + t.roll().simpleMsg() + System.lineSeparator()
+						+ t.roll().detailedMsg() + System.lineSeparator());
 
 				System.out.println();
 				

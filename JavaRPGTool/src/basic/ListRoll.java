@@ -4,109 +4,118 @@ import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Objects;
 
-import javax.xml.crypto.dsig.keyinfo.RetrievalMethod;
-
 import roll.RollParser;
 import roll.RollResult;
 import roll.Rollable;
 
 public class ListRoll extends Rollable {
-
-	//TODO rollable list lenghth: new syntax: (diceroll)[roll] oder diceroll[], der diceroll kann auch eine konstante sein? optionale klammern?
-	//TODO synatx change to feature the name in the front?
 	
+	public static final String OPENER = "[";
+	public static final String CLOSER = "]";
+	public static final String SEPERATOR = ",";
 	
 	private final Rollable[] rolls;
+	private final DiceRoll lenghtroll;
 
 	// immutable
-	public ListRoll(Rollable[] rolls, String name) {
+	/**
+	 * Constructs a list with a fixed length
+	 * 
+	 * @param name
+	 * @param rolls
+	 */
+	public ListRoll(String name, Rollable[] rolls) {
 		super(name);
-		Objects.requireNonNull(rolls);
+		Objects.requireNonNull(rolls, "no null lists allowed");
+		Arrays.stream(rolls).map(r -> Objects.requireNonNull(r, "no null rollables in lists allowed"));
+
 		if (rolls.length == 0)
 			throw new IllegalArgumentException("no empty listrolls");
-		this.rolls = rolls;
 		
-		for (Rollable rollable : rolls) {
-			if (rollable.getRollName() == this.getRollName())
-				throw new IllegalArgumentException("recursion in list roll!");
-		}
+		this.rolls = rolls;
+		this.lenghtroll = null;
+		
+		if (this.hasName()) //recuresion check
+			for (Rollable rollable : rolls) {
+				if (rollable.getName() == this.getName())
+					throw new IllegalArgumentException("no recursion in listroll allowed");
+			}
+	}
+	
+	/**
+	 * Constructs a list with rollable length
+	 * 
+	 * @param name
+	 * @param lengthroll
+	 * @param listedroll
+	 */
+	public ListRoll(String name, DiceRoll lengthroll, Rollable listedroll) {
+		super(name);
+		Objects.requireNonNull(lengthroll, "lists need a length");
+		Objects.requireNonNull(listedroll, "no emplty lists allowed");
+		
+		this.rolls = new Rollable[] {listedroll};
+		this.lenghtroll = lengthroll;
+		
+		if (lengthroll.hasName())
+			throw new IllegalArgumentException("lenthroll may not have a name");
+		
+		if (this.hasName() && this.getName() == listedroll.getName())
+			throw new IllegalArgumentException("no recursion in listroll allowed");
+		
+		if(lengthroll.getMinResult() < 0 || lengthroll.getMaxResult() < 0)
+			throw new IllegalArgumentException("lists must allways have a positiv or 0 length");
+	}
+	
+	public boolean isRollableLength() {
+		return lenghtroll != null;
 	}
 
-	//unused
-//	public RollResult[] getRandomRollResults() {
-//		RollResult[] res = new RollResult[rolls.length];
-//
-//		for (int i = 0; i < res.length; i++) {
-//			res[i] = rolls[i].roll();
-//		}
-//		return res;
-//	}
+	public RollResult[] getRandomRollResults() {
+		RollResult[] res;
+		Rollable[] list;
+		if (isRollableLength()) {
+			res = new RollResult[lenghtroll.getRandomRollValue()];
+			list = new Rollable[res.length];
+			Arrays.fill(list, rolls[0]);
+		}		
+		else {
+			res = new RollResult[rolls.length];
+			list = rolls;
+		}
+		for (int i = 0; i < res.length; i++) {
+			res[i] = list[i].roll();
+		}
+		return res;
+	}
 
 	@Override
 	public RollResult roll() {
 		
-		return new RollResult() {
-			
-			@Override
-			public String simple() {
-				String n = "";
-				String list = "";
-				if ( hasName())
-					n = getName() + ": ";
-//				old
-				list = Arrays.toString(Arrays.stream(rolls).map(roll -> roll.roll().toString(SIMPLE)).toArray());
-				return n + list;
-			}
-			
-			@Override
-			public String plain() {
-				return Arrays.toString(Arrays.stream(rolls).map(roll -> roll.roll().toString(PLAIN)).toArray());
-			}
-			
-			@Override
-			public String detailed() {
-				String n = "";
-				String list = "";
-				if ( hasName())
-					n = getName() + ":" + System.lineSeparator();
-				
-				
-				StringBuilder builder = new StringBuilder();
-				builder.append('[');
-				builder.append(rolls[0].getRollMessage(SIMPLE));
-				for (int i = 1; i < rolls.length; i++) {
-					builder.append(',');
-					builder.append(System.lineSeparator());
-					builder.append(rolls[i].getRollMessage(SIMPLE));
-					
-				}
-				builder.append("]");
-				list = builder.toString();
-				
-				return n + list;
-			}
-		};
+		return new ListResult(getRandomRollResults(), this);
 	}
 
 	@Override
 	public String toString() {
-		
-		String list;	
-		if (Arrays.stream(rolls).allMatch(roll -> roll.equals(rolls[0])))
-			list = rolls.length + "[" + rolls[0].getInlineToString() + "]";
+		String list;
+		if (isRollableLength())
+			list = lenghtroll + "[" + rolls[0].toString() + "]"; //NameRolls werden als name gezeigt
 		else {
 			StringBuilder builder = new StringBuilder();
 			builder.append('[');
-			builder.append(rolls[0].getInlineToString());
+			builder.append(rolls[0].toString());
 			for (int i = 1; i < rolls.length; i++) {
 				builder.append(", ");
-				builder.append(rolls[i].getInlineToString());
+				builder.append(rolls[i].toString());
 				
 			}
 			builder.append("]");
 			list = builder.toString();
 		}
-		return list + ((getName() == null || getName().isEmpty()) ? "" : " \"" + getName()+"\"");
+		
+		String name = hasName() ? "\"" + getName()+"\" " : "";
+		
+		return "(" + name + list + ")";
 	}
 
 	@Override
@@ -118,11 +127,12 @@ public class ListRoll extends Rollable {
 		ListRoll other = (ListRoll) o;
 		return this.hasName() == other.hasName()
 				&& (this.hasName() ? this.getName().equals(other.getName()) : true)
+				&& this.isRollableLength() == other.isRollableLength()
 				&& Arrays.equals(this.rolls, other.rolls);
 	}
 
 	public static void main(String[] args) {
-
+		//TODO change test syntax
 		System.out.println("LISTROLL TEST");
 		String[] examples = { "6[4d6dl1] \"Ablity Scores\"", 
 				"6[4d6 dl1] AS", 
@@ -130,7 +140,7 @@ public class ListRoll extends Rollable {
 				"[d20, d17 Bla, 23d6 -7] Test",
 				"[2[d4] List, d4 Roll, <d2 Table;1-2 bla>, A] MultiList"};
 
-		Rollable.addRollable(new DiceRoll(1, 2, 0, 0, 0, false, "A"));
+		Rollable.addRollable(new DiceRoll("A", new DiceRoll.DieRoll(7, true)));
 		
 		for (String exa : examples) {
 			try {
@@ -150,8 +160,8 @@ public class ListRoll extends Rollable {
 
 
 				System.out.println("Msg: " + System.lineSeparator()
-				+ l.roll().simple() + System.lineSeparator()
-				+ l.roll().detailed() + System.lineSeparator());
+				+ l.roll().simpleMsg() + System.lineSeparator()
+				+ l.roll().detailedMsg() + System.lineSeparator());
 
 			} catch (ParseException e) {
 				e.printStackTrace();

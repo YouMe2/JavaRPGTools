@@ -4,24 +4,31 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import javax.annotation.PostConstruct;
+import javax.swing.text.Position;
+
 import basic.DiceRoll;
+import basic.DiceRoll.DieRoll;
+import basic.InlineRoll;
 import basic.ListRoll;
+import basic.NameRoll;
 import basic.TableRoll;
 import util.AbsParser;
 import util.Pair;
 
 public class RollParser extends AbsParser<Rollable> {
 
+//TODO rollables may be enclosed with ( ) to make clear what's what !!
+//TODO parseFromFile() -> liste von rollables ignoriert comments
 
 	//TODO parse unabhängig von lineseperators machen
 	//TODO isNextDiceRoll, isNextListRoll, isNextTableRoll, isNext...
 	//TODO verbesserte parseException weitergabe
-	//TODO new sytax, siehe rollsyntax.rpg
-	//TODO rollables may be enclosed with ( ) to make clear what's what
+	
+	
 	
 	public RollParser(String chars) {
 		super(chars.trim());
-		// skipNextSpaces(); // go to the beginning
 	}
 
 	public static Pair<Rollable, String> tryParse(String input) throws ParseException {
@@ -61,7 +68,7 @@ public class RollParser extends AbsParser<Rollable> {
 				} catch (ParseException e3) {
 					try {
 						RollParser rnP = new RollParser(getRest());
-						RollName rn = rnP.parseRollName();
+						NameRoll rn = rnP.parseNameRoll();
 						setRest(rnP.getRest());
 						return rn;
 						
@@ -74,177 +81,141 @@ public class RollParser extends AbsParser<Rollable> {
 		}
 	}
 	
-	public RollName parseRollName() throws ParseException {
-		if (!isNextText())
-			throw new ParseException("expecting text as a rollname", getOffset());
-		
-		String text = parseText();
-		if (text.isEmpty())
-			throw new ParseException("empty text", getOffset());
-		
-		return new RollName(text);
+	//done
+	public NameRoll parseNameRoll() throws ParseException {
+		try {
+			NameRoll nr = new NameRoll(parseText());
+			return nr;
+		} catch (IllegalArgumentException e) {
+			throw new ParseException(e.getMessage(), getOffset());
+		}	
 	}
 
 	public DiceRoll parseDiceRoll() throws ParseException {
 
+		//dieroll + ... + dieroll "Some Name"
+		
 		final String name;
-		final Integer n, die, dh, dl, mod;
-		final boolean exploding;
-
-		// 10d20! dh2 dl2 +5 Some Name
-
-		n = isNextDigit() ? parseNatural() : 1;
-		if (!isNextAnyOf('d', 'D'))
-			throw new ParseException("expected d or D", getOffset());
-		skip(1);
-		die = parseNatural();
-
-		if (isNext('!')) {
-			skip(1);
-			exploding = DiceRoll.ROLLTYPE_EXPLODING;
-		} else
-			exploding = DiceRoll.ROLLTYPE_NORMAL;
-
-		skipNextWhitespaces();
-
-		if (isNextSeq("dh")) {
-			skip(2);
-			dh = parseNatural();
-		} else
-			dh = 0;
-
-		skipNextWhitespaces();
-
-		if (isNextSeq("dl")) {
-			skip(2);
-			dl = parseNatural();
-		} else
-			dl = 0;
-
-		skipNextWhitespaces();
-
-		if (isNextAnyOf('+', '-') && isNextInt()) {
-			mod = parseInteger();
-		} else
-			mod = 0;
-
-		skipNextWhitespaces();
-
+		ArrayList<DieRoll> dice = new ArrayList<>();
+		
+		
+		while (isNextDieRoll()) {		
+			dice.add(parseDieRoll());
+			skipNextSpaces();
+		}
+		
 		if (isNextText())
 			name = parseText();
 		else
 			name = "";
 
-		// name = nextUntilIsNextAnySeqOf(";", ",", ":", ".", "<", ">", "[", "]", "(",
-		// ")", System.lineSeparator());
-
-		return new DiceRoll(n, die, dl, dh, mod, exploding, name);
+		return new DiceRoll(name, dice.toArray(new DieRoll[dice.size()]));
 	}
 
 	public ListRoll parseListRoll() throws ParseException {
 
-		Rollable[] rs;
+		
 		String name;
-
-		if (isNextDigit()) {
-			// 5[2d20]
-			int n = parseNatural();
-			if (isNext('[')) {
-				skip(1);
-
-				skipNextWhitespaces();
-
-				Rollable rollable = parse();
-
-				skipNextWhitespaces();
-
-				if (!isNext(']'))
-					throw new ParseException("no end of list detected", getOffset());
-				skip(1);
-
-				skipNextWhitespaces();
-
-				rs = new Rollable[n];
-				Arrays.fill(rs, rollable);
-			} else
-				throw new ParseException("no valid listroll", getOffset());
-
-		} else if (isNext('[')) {
-			// [2d20, 8d30 "Name", d4 "Test Name"]
-			skip(1);
-
-			ArrayList<Rollable> rolls = new ArrayList<>();
-
-			while (true) {
-				skipNextWhitespaces();
-
-				Rollable rollables = parse();
-				rolls.add(rollables);
-
-				skipNextWhitespaces();
-
-				if (isNext(']')) {
-					skip(1); // list end
-					break;
-				} else if (isNext(',')) {
-					skip(1);
-					continue; // next roll
-				} else
-					throw new ParseException("unexpected char in list", getOffset());
-			}
-
-			rs = rolls.toArray(new Rollable[rolls.size()]);
-
-		} else
-			throw new ParseException("no valid listroll", getOffset());
-
-		if (rs.length == 0)
-			throw new ParseException("parsed empty list of rolls", getOffset());
-
-		skipNextWhitespaces();
-
+		
 		if (isNextText())
 			name = parseText();
 		else
 			name = "";
+		
+		skipNextSpaces();
+		
 
-		// name = nextUntilIsNextAnySeqOf(";", ",", ":", ".", "<", ">", "[", "]", "(",
-		// ")", System.lineSeparator());
+		if (isNextDiceRoll()) {
+			//diceroll[rollable]
+			
+			DiceRoll lengthroll = parseDiceRoll();
+			
+			if (!isNextSeq(ListRoll.OPENER))
+				throw new ParseException("expected listopener: " + ListRoll.OPENER, getOffset());
+			
+			skip(ListRoll.OPENER.length());
 
-		return new ListRoll(rs, name);
+			skipNextSpaces();
+
+			Rollable rollable = parse();
+
+			if (rollable == null)
+				throw new ParseException("no parse for inner listed roll", getOffset());
+			
+			skipNextSpaces();
+
+			if (!isNextSeq(ListRoll.CLOSER))
+				throw new ParseException("expected listcloser: " + ListRoll.CLOSER, getOffset());
+			
+			skip(ListRoll.CLOSER.length());
+			
+			return new ListRoll(name, lengthroll, rollable);
+
+		} else if (isNextSeq(ListRoll.OPENER)) {
+			//[rollable, ...]
+			
+			skip(ListRoll.OPENER.length());
+			
+			ArrayList<Rollable> rolls = new ArrayList<>();
+
+			do {
+				skipNextSpaces();
+				
+				Rollable rollable = parse();
+				if (rollable == null)
+					throw new ParseException("no parse for inner listed roll", getOffset());
+				
+				skipNextSpaces();
+				
+				if (isNextSeq(ListRoll.SEPERATOR))
+					skip(ListRoll.SEPERATOR.length());
+				else if (isNextSeq(ListRoll.CLOSER)) {}
+				else
+					throw new ParseException("expected listseperator: " + ListRoll.SEPERATOR, getOffset());
+
+			} while (! isNextSeq(ListRoll.CLOSER));
+			
+			if (!isNextSeq(ListRoll.CLOSER))
+				throw new ParseException("expected listcloser: " + ListRoll.CLOSER, getOffset());
+
+			return new ListRoll(name, rolls.toArray(new Rollable[rolls.size()]));
+			
+		} else
+			throw new ParseException("expected listopener: " + ListRoll.OPENER, getOffset());
+
 	}
 
 	public TableRoll parseTableRoll() throws ParseException {
-		// String name;
+		
 		DiceRoll tableroll;
-		RollResult[] entries;
+		InlineRoll[] entries;
 
-		if (!isNext('<'))
-			throw new ParseException("expected < opening the table", getOffset());
-		skip(1);
+		if (!isNextSeq(TableRoll.OPENER))
+			throw new ParseException("expected opener for the table: "+ TableRoll.OPENER, getOffset());
+		skip(TableRoll.OPENER.length());
 
-		skipNextWhitespaces();
+		skipNextSpaces();
 
 		tableroll = parseDiceRoll();
 		if (tableroll == null || tableroll.isExploding() || !tableroll.hasName())
-			throw new ParseException("illegal table roll", getOffset());
+			throw new ParseException("illegal table roll: " + tableroll, getOffset());
 
-		entries = new RollResult[tableroll.maxResult() - tableroll.minResult() + 1];
+		entries = new InlineRoll[tableroll.getMaxResult() - tableroll.getMinResult() + 1];
 		skipNextWhitespaces();
 
 		// parse entries:
 		// inline table:
-		// <d10 TestTableB; 1 Gold; 2 Nothing; 3-10 Some Shit>
+		// <TestTableB d10; 1 Gold; 2 Nothing; 3-10 Some Shit>
 		// lined table:
-		// <d10 TestTable
+		// <TestTable d10 
 		// 1 Gold
 		// 2 Nothing
 		// 3-10 Some Shit>
 
 		do {
 
-			if (isNext(';')) {
-				skip(1);
+			if (isNextSeq(TableRoll.SEPERATOR)) {
+				skip(TableRoll.SEPERATOR.length());
 				skipNextSpaces();
 			}
 			else if (isNextSeq(System.lineSeparator()))
@@ -258,100 +229,189 @@ public class RollParser extends AbsParser<Rollable> {
 			skipNextWhitespaces();
 			lower = parseNatural();
 
-			if (lower < tableroll.minResult() || lower > tableroll.maxResult())
-				throw new ParseException("lower value is out of bounds for the given table roll: " + lower,
-						getOffset());
+			if (lower < tableroll.getMinResult() || lower > tableroll.getMaxResult())
+				throw new ParseException("lower value is out of bounds for the given table roll: " + lower, getOffset());
 
 			skipNextWhitespaces();
+			
 			if (isNext('-')) {
 				skip(1);
 				skipNextWhitespaces();
 				upper = parseNatural();
-				if (upper < tableroll.minResult() || upper > tableroll.maxResult())
-					throw new ParseException("upper value is out of bounds for the given table roll: " + upper,
-							getOffset());
+				if (upper < tableroll.getMinResult() || upper > tableroll.getMaxResult())
+					throw new ParseException("upper value is out of bounds for the given table roll: " + upper, getOffset());
 				skipNextWhitespaces();
 			} else {
 				upper = lower;
 			}
 
 			//parsing the entrie:
-			ArrayList<Rollable> inlineRolls = new ArrayList<>();
-			ArrayList<String> texts = new ArrayList<>();
-			RollResult entrie;
-			
-			do {
-				texts.add(nextUntilIsNextAnySeqOf(";", ">", "/", System.lineSeparator()));
-					
-				if (isNext('/')) {
-					skip(1);
-					Rollable inlineRoll = parse();
-					if (inlineRoll == null)
-						throw new ParseException("no parse for the in line roll", getOffset());
-					
-					inlineRolls.add(inlineRoll);
-				}
-					
-			} while(!isNextAnySeqOf(";", ">", System.lineSeparator()));
-			
-			assert isNextAnySeqOf(";", ">", System.lineSeparator());
-			
-			entrie = new RollResult() {
-				
-				@Override
-				public String simple() {
-					StringBuilder builder = new StringBuilder();
-					for (int i = 0; i < texts.size(); i++) {
-						builder.append(texts.get(i));
-						
-						if (inlineRolls.size() > i)
-							builder.append(inlineRolls.get(i).getRollMessage(SIMPLE));
-						
-					}	
-					
-					return builder.toString();
-				}
-				
-				@Override
-				public String plain() {
-					StringBuilder builder = new StringBuilder();
-					for (int i = 0; i < texts.size(); i++) {
-						builder.append(texts.get(i));
-						
-						if (inlineRolls.size() > i) {
-							builder.append('/');
-							builder.append(inlineRolls.get(i).getInlineToString());							
-						}
-					}	
-					
-					return builder.toString();
-				}
-				
-				@Override
-				public String detailed() {
-					return simple();
-				}
-			};
-			
-			if (texts.isEmpty() && inlineRolls.isEmpty())
-				throw new ParseException("empty Entrie at: " + lower + "-" + upper, getOffset());
+			InlineRoll ilr = parseInlineRoll();
 
-			for (int i = lower - tableroll.minResult(); i < upper; i++) {
-				entries[i] = entrie;
+			for (int i = lower - tableroll.getMinResult(); i < upper; i++) {
+				entries[i] = ilr;
 			}
 
-		} while (isNextAnySeqOf(";", System.lineSeparator()));
+		} while (isNextAnySeqOf(TableRoll.SEPERATOR, System.lineSeparator()));
 
-		if (!isNext('>'))
-			throw new ParseException("expected > closing table syntax", getOffset());
-		skip(1);
+		if (!isNextSeq(TableRoll.CLOSER))
+			throw new ParseException("expected tableroll closer: "+TableRoll.CLOSER, getOffset());
+		skip(TableRoll.CLOSER.length());
 
 		for (int i = 0; i < entries.length; i++) {
 			if (entries[i] == null)
-				throw new ParseException("no entire for a roll of: " + (i + tableroll.minResult()), getOffset());
+				throw new ParseException("no entire for a roll of: " + (i + tableroll.getMinResult()), getOffset());
 		}
 
 		return new TableRoll(tableroll, entries);
 	}
 
+	public InlineRoll parseInlineRoll() throws ParseException {
+		ArrayList<Rollable> rolls = new ArrayList<>();
+		ArrayList<String> texts = new ArrayList<>();
+		
+		do {
+			texts.add(nextUntilIsNextAnySeqOf(
+					TableRoll.SEPERATOR,
+					TableRoll.CLOSER,
+					InlineRoll.OPENER,
+					System.lineSeparator()));
+				
+			if (isNextSeq(InlineRoll.OPENER)) {
+				skip(InlineRoll.OPENER.length());
+				Rollable inlineRoll = parse();
+				if (inlineRoll == null)
+					throw new ParseException("no parse for the in lineroll", getOffset());
+				
+				if (isNextSeq(InlineRoll.CLOSER))
+					skip(InlineRoll.CLOSER.length());
+				else
+					throw new ParseException("expected inline roll closed with: "+ InlineRoll.CLOSER, getOffset());
+				rolls.add(inlineRoll);
+			}
+				
+		} while(!isNextAnySeqOf(TableRoll.SEPERATOR, TableRoll.CLOSER, System.lineSeparator()));
+		
+		assert isNextAnySeqOf(TableRoll.SEPERATOR, TableRoll.CLOSER, System.lineSeparator());
+		
+		if (texts.isEmpty() && rolls.isEmpty())
+			throw new ParseException("empty inlineroll", getOffset());
+		
+		return new InlineRoll(texts.toArray(new String[texts.size()]), rolls.toArray(new Rollable[rolls.size()]));
+	}
+	
+	public DieRoll parseDieRoll() throws ParseException {
+
+		final Integer n, die, dh, dl;
+		final boolean exploding, positiv;
+
+		//Syntax:
+		//1d20 ! dh1 dl1
+		//+ 1d20 ! dh1 dl1
+		//- 12
+		
+		if (isNext('+')) {
+			positiv = true;
+			skip(1);
+			skipNextSpaces();
+		} else if (isNext('-')) {
+			positiv = false;
+			skip(1);
+			skipNextSpaces();
+		} else if (isNextDigit() || isNextAnyOf(DiceRoll.DIE)) {
+			positiv = true;
+			
+		} else
+			throw new ParseException("expected some number or some dice", getOffset());
+		
+		if (isNextDigit()) {
+			n = parseNatural();
+			skipNextSpaces();
+		} else if (isNextAnyOf(DiceRoll.DIE)){
+			n = 1;			
+		} else
+			throw new ParseException("expected some number or some dice", getOffset());
+		
+		
+		if(isNextAnyOf(DiceRoll.DIE)) { //parse die		
+			skip(1);
+			
+			die = parseNatural();
+			
+			if (die < 2)
+				throw new ParseException("dice need to be atleast 2 sided", getOffset());
+			
+			skipNextSpaces();
+			
+			if (isNextSeq(DiceRoll.EXPLODING)) {
+				skip(DiceRoll.EXPLODING.length());
+				exploding = true;
+			} else
+				exploding = false;
+			
+			skipNextSpaces();
+			
+			if (isNextSeq(DiceRoll.DROPHIGHEST)) {
+				skip(DiceRoll.DROPHIGHEST.length());
+				dh = parseNatural();
+				
+				skipNextSpaces();
+				
+				if (isNextSeq(DiceRoll.DROPLOWEST)) {
+					skip(DiceRoll.DROPLOWEST.length());
+					dl = parseNatural();
+				} else
+					dl = 0;
+				
+			} else if (isNextSeq(DiceRoll.DROPLOWEST)) {
+				skip(DiceRoll.DROPLOWEST.length());
+				dl = parseNatural();
+				
+				skipNextSpaces();
+				
+				if (isNextSeq(DiceRoll.DROPHIGHEST)) {
+					skip(DiceRoll.DROPHIGHEST.length());
+					dh = parseNatural();
+				} else
+					dh = 0;
+			} else {
+				dl = 0;
+				dh = 0;
+			}
+			
+			DieRoll dr = new DieRoll(n, die, dl, dh, exploding, positiv);
+			return dr;
+		} else { //parse constant
+			return new DieRoll(n, positiv);
+		}
+	}
+	
+//	private boolean isNextNameRoll() throws ParseException {
+//		return isNextText();
+//	}
+//	
+	private boolean isNextDiceRoll() throws ParseException {
+		return isNextDieRoll();
+	}
+	
+	private boolean isNextDieRoll() throws ParseException {		
+		return isNextInt() || isNextAnyOf('d', 'D');
+	}
+	
+	private boolean isNextListRoll() throws ParseException {
+		return isNextDiceRoll() || isNextSeq(ListRoll.OPENER);
+
+	}
+	
+	private boolean isNextTableRoll() throws ParseException {
+		return isNextSeq(TableRoll.OPENER);
+
+	}
+//	
+//	private void isNextInlineRoll() {
+//		// TODO Auto-generated method stub
+//
+//	}
+	
+	
 }
