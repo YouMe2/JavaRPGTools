@@ -46,17 +46,17 @@ public class RollParser extends AbsParser<Rollable> {
 	public Rollable parse() throws ParseException {
 		//TODO maybe add isNext for all rollables...
 		try {
-			RollParser drP = new RollParser(getRest());
-			DiceRoll dr = drP.parseDiceRoll();
-			setRest(drP.getRest());
-			return dr;
+			RollParser lrP = new RollParser(getRest());
+			ListRoll lr = lrP.parseListRoll();
+			setRest(lrP.getRest());
+			return lr;
 			
 		} catch (ParseException e1) {
 			try {
-				RollParser lrP = new RollParser(getRest());
-				ListRoll lr = lrP.parseListRoll();
-				setRest(lrP.getRest());
-				return lr;
+				RollParser drP = new RollParser(getRest());
+				DiceRoll dr = drP.parseDiceRoll();
+				setRest(drP.getRest());
+				return dr;
 				
 			} catch (ParseException e2) {
 				try {
@@ -163,7 +163,8 @@ public class RollParser extends AbsParser<Rollable> {
 				
 				Rollable rollable = parse();
 				if (rollable == null)
-					throw new ParseException("no parse for inner listed roll", getOffset());
+					throw new ParseException("no parse for inner listed roll: ", getOffset());
+				rolls.add(rollable);
 				
 				skipNextSpaces();
 				
@@ -394,8 +395,22 @@ public class RollParser extends AbsParser<Rollable> {
 		return isNextDieRoll();
 	}
 	
-	private boolean isNextDieRoll() throws ParseException {		
-		return isNextInt() || isNextAnyOf('d', 'D');
+	private boolean isNextDieRoll() throws ParseException {
+		
+		//TODO fix this EVIL workaround
+		
+		try {
+			RollParser dierP = new RollParser(getRest());
+			dierP.parseDieRoll();
+			return true;
+		} catch (Exception e) {
+			return false;
+		}
+		
+		
+		
+		
+//		return isNextInt() || isNextAnyOf('d', 'D');
 	}
 	
 	private boolean isNextListRoll() throws ParseException {

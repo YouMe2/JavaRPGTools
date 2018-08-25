@@ -75,7 +75,7 @@ public abstract class AbsParser<T> {
 		} else if (isNextLetter()) {	//buchstabe am anfang
 			do {
 				builder.append(next());
-			} while (hasNext() && !isNextWhitespace()); //dann bis space
+			} while (isNextDigit() || isNextLetter()); //dann bis was anderes
 			return builder.toString();
 		} else
 			throw new ParseException("expecting text", getOffset());
@@ -184,6 +184,7 @@ public abstract class AbsParser<T> {
 		if (!hasNext())
 			throw new ParseException("unexpected end", offset);
 		offset++;
+//		System.out.println(getOffset());
 		skip(n - 1);
 	}
 

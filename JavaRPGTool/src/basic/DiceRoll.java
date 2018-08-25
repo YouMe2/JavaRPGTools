@@ -60,7 +60,7 @@ public class DiceRoll extends Rollable {
 	public String toString() {
 
 		// "Some Name" dieroll + ... + dieroll
-		String name = ((getName() == null || getName().isEmpty()) ? "" : "\"" + getName() + "\" ");
+		String name = ((getName() == null || getName().isEmpty()) ? "" : " \"" + getName() + "\"");
 		
 		
 		StringBuilder builder = new StringBuilder();
@@ -287,7 +287,6 @@ public class DiceRoll extends Rollable {
 	public static void main(String[] args) {
 
 		System.out.println("DICEROLL TEST");
-		//TODO change the test sytax
 		String[] examples = { "d6", "4d8 +5", "d20-8", "10d6 !-2", "d20 ! +1", "d8", "1d8+0", "10d20!dh2dl2+5",
 				"4d20! dl2 -5", "d20 +8 Skillcheck", "d10 \"Test Name\"", "d2 d2 - d2 0", "4d20!dl1dh1 + 4d20dh1dl1" };
 

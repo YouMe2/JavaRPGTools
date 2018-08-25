@@ -114,8 +114,8 @@ public class ListRoll extends Rollable {
 		}
 		
 		String name = hasName() ? "\"" + getName()+"\" " : "";
-		
-		return "(" + name + list + ")";
+		return name + list;
+//		return "(" + name + list + ")";
 	}
 
 	@Override
@@ -132,13 +132,16 @@ public class ListRoll extends Rollable {
 	}
 
 	public static void main(String[] args) {
-		//TODO change test syntax
 		System.out.println("LISTROLL TEST");
-		String[] examples = { "6[4d6dl1] \"Ablity Scores\"", 
-				"6[4d6 dl1] AS", 
-				"[4d6 dl1 Str, 4d6 dl1 Dex, 4d6 dl1 Con, 4d6 dl1 Int, 4d6 dl1 Wis, 4d6 dl1 Cha] \"Ablity Scores\"", 
-				"[d20, d17 Bla, 23d6 -7] Test",
-				"[2[d4] List, d4 Roll, <d2 Table;1-2 bla>, A] MultiList"};
+		String[] examples = { "\"Ablity Scores\" 6[4d6dl1] ", 
+				"AS 6[4d6 dl1] ", 
+				"6[4d6 dl1] ", 
+				"\"Ablity Scores\" [4d6 dl1 Str, 4d6 dl1 Dex, 4d6 dl1 Con, 4d6 dl1 Int, 4d6 dl1 Wis, 4d6 dl1 Cha]",
+				"\"Ablity Scores\"[4d6 dl1 Str, 4d6 dl1 Dex, 4d6 dl1 Con, 4d6 dl1 Int, 4d6 dl1 Wis, 4d6 dl1 Cha]", 
+				"Test[2d20 dl1, d17 Bla, 23d6 -7]",
+				"Test [2d20 dl1 , d17 Bla, 23d6 -7]", 
+				"\"Test\" [2d20 dl1, d17 Bla, 23d6 -7]",
+				"MultiList [List 2[d4], d4 Roll, <d2 Table;1-2 bla>, A]"};
 
 		Rollable.addRollable(new DiceRoll("A", new DiceRoll.DieRoll(7, true)));
 		
