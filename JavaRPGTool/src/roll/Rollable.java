@@ -93,4 +93,6 @@ public abstract class Rollable {
 	@Override
 	public abstract String toString();
 
+	@Override
+	public abstract boolean equals(Object obj);
 }

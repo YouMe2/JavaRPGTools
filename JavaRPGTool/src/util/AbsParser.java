@@ -67,21 +67,30 @@ public abstract class AbsParser<T> {
 
 		if (isNext('\"')) {
 			skip(1);
-			while (!isNext('\"')) {
-				builder.append(next());
-			}
+//			while (hasNext() && !isNext('\"')) {
+//				builder.append(next());
+//			}
+			builder.append(nextUntilIsNextAnySeqOf("\""));
 			skip(1);
 			return builder.toString();
 		} else if (isNextLetter()) {	//buchstabe am anfang
-			do {
-				builder.append(next());
-			} while (isNextDigit() || isNextLetter()); //dann bis was anderes
-			return builder.toString();
+			return parseWord();
 		} else
 			throw new ParseException("expecting text", getOffset());
 
 	}
 
+	protected String parseWord() throws ParseException {
+		StringBuilder builder = new StringBuilder();
+		if (isNextLetter()) {	//buchstabe am anfang
+			do {
+				builder.append(next());
+			} while (isNextDigit() || isNextLetter()); //dann bis was anderes
+			return builder.toString();
+		} else
+			throw new ParseException("expecting word, starting with a letter (the word may contain digits)", getOffset());
+	}
+	
 	protected String parseLetters() throws ParseException {
 		StringBuilder builder = new StringBuilder();
 
@@ -253,6 +262,12 @@ public abstract class AbsParser<T> {
 		});
 	}
 	
+	protected void skipText() throws ParseException {
+		if (!isNextText())
+			return;
+		parseText();
+	}
+
 	protected boolean hasNext() {
 		return hasNext(1);
 	}

@@ -1,5 +1,7 @@
 package basic;
 
+import java.util.Arrays;
+
 import roll.RollResult;
 import roll.Rollable;
 
@@ -36,6 +38,10 @@ public class InlineRoll extends Rollable {
 		
 		return new InlineResult(texts, getRandomRollResults(), this);
 	}
+	
+	public int getLength() {
+		return length;
+	}
 
 	@Override
 	public String toString() {
@@ -55,8 +61,19 @@ public class InlineRoll extends Rollable {
 		
 	}
 	
-	public int getLength() {
-		return length;
+	
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o)
+			return true;
+		if (!(o instanceof InlineRoll))
+			return false;
+		InlineRoll other = (InlineRoll) o;
+		return this.hasName() == other.hasName()
+				&& (this.hasName() ? this.getName().equals(other.getName()) : true)
+				&& Arrays.equals(this.texts, other.texts)
+				&& Arrays.equals(this.rolls, other.rolls);
 	}
 
 }

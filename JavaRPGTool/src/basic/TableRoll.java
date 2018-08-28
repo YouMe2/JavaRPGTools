@@ -62,7 +62,7 @@ public class TableRoll extends Rollable {
 //			SingleLine
 			builder.append(';');
 			builder.append(i);
-			builder.append('\t');
+			builder.append(' ');
 			builder.append(getEntry(i).toString());
 		}
 		builder.append(">");
