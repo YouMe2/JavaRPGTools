@@ -2,6 +2,7 @@ package roll;
 
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.List;
 
 import basic.DiceRoll;
 import basic.DiceRoll.DieRoll;
@@ -60,7 +61,17 @@ public class RollParser extends AbsParser<Rollable> {
 	}
 	
 
-	//done
+	public List<Rollable> parseAll() throws ParseException {
+		List rolls = new ArrayList<>();
+		
+		skipNextSpaces(); 
+		while (hasNext()) {
+			rolls.add(parse()); //skipps comments
+			skipNextSpaces();
+		}
+		return rolls;
+	}
+
 	public NameRoll parseNameRoll() throws ParseException {
 		try {
 			NameRoll nr = new NameRoll(parseText());
@@ -271,9 +282,14 @@ public class RollParser extends AbsParser<Rollable> {
 	public Rollable parseInlineRoll() throws ParseException {
 		if (isNextInlineRoll()) {
 			skip(InlineRoll.OPENER.length());
+			
+			skipNextSpaces();
+			
 			Rollable inlineRoll = parse();
 			if (inlineRoll == null)
 				throw new ParseException("no parse for the in lineroll", getOffset());
+			
+			skipNextSpaces();
 			
 			if (!isNextSeq(InlineRoll.CLOSER))
 				throw new ParseException("expected inline roll closed with: "+ InlineRoll.CLOSER, getOffset());

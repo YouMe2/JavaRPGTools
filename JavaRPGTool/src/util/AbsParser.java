@@ -7,13 +7,17 @@ import roll.Rollable;
 
 public abstract class AbsParser<T> {
 
-
+	private final String commentLineOpener;
 	private String chars;
 	private int offset; // pointer to next to parse
 
-	public AbsParser(String chars) {
+	public AbsParser(String chars, String commentOpener) {
 		this.chars = chars;
+		this.commentLineOpener = commentOpener;
 		offset = 0;
+	}
+	public AbsParser(String chars) {
+		this(chars, "//");
 	}
 
 	public abstract Rollable parse() throws ParseException;
@@ -169,6 +173,14 @@ public abstract class AbsParser<T> {
 		return false;
 	}
 
+	protected boolean isNextCommentLine() throws ParseException {
+		return isNextSeq(getCommentLineOpener());
+	}
+	
+	protected boolean isNextLineSeperator() throws ParseException {
+		return isNextSeq(System.lineSeparator());
+	}
+	
 	protected char next() throws ParseException {
 		if (!hasNext())
 			throw new ParseException("unexpected end", offset);
@@ -204,20 +216,32 @@ public abstract class AbsParser<T> {
 		}
 	}
 
+	/**
+	 * skipps Whitespaces, Lineseperators and commentlines
+	 * 
+	 * @throws ParseException
+	 */
 	protected void skipNextSpaces() throws ParseException {
-		while (isNextWhitespace() || isNextSeq(System.lineSeparator())) {
-			try {
-				if (isNextWhitespace())
-					skip(1);
-				else
-					skip(System.lineSeparator().length());
-			} catch (ParseException e) {
-				// this should never happen!
-				e.printStackTrace();
-			}
+		
+		while (isNextWhitespace() || isNextAnySeqOf(System.lineSeparator(), getCommentLineOpener())) {
+			if (isNextWhitespace())
+				skip(1);
+			else if (isNextLineSeperator())
+				skip(System.lineSeparator().length());
+			else if (isNextCommentLine())
+				skipUntilNextIsSeq(System.lineSeparator());
+			else
+				throw new ParseException("ho? whats wrong with the skiping", getOffset());
+	
 		}
 	}
 
+	protected void skipComment() throws ParseException {
+		if (isNextSeq(getCommentLineOpener())) {
+			skipUntilNextIsSeq(System.lineSeparator());
+		}
+	}
+	
 	protected void skipWhileNext(Function<Character, Boolean> condition) {
 		try {
 			
@@ -274,5 +298,9 @@ public abstract class AbsParser<T> {
 
 	protected boolean hasNext(int n) {
 		return offset + n - 1 < chars.length();
+	}
+
+	public String getCommentLineOpener() {
+		return commentLineOpener;
 	}
 }

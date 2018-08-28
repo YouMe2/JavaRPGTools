@@ -94,10 +94,10 @@ public class TableRoll extends Rollable {
 				+ "3-4 The Rest>", 
 				"<d4 Name ; 1 Gold; 2 Nothing; 3-4 Some Shit>",
 				"<1d4 \"Name\" ; 1 Gold; 2 Nothing; 3-4 Some Shit>",
-				"<d4 \"MetaTable1\" ; 1-3 $(d20 Simpleroll); 4 Rest>",
-				"<d4 \"MetaTable2\" ; 1-3 $(<d2 InlineTable; 1-2 B>); 4 Rest>",
-				"<d4 \"MetaTable3\" ; 1-3 $([2 List: d4]); 4 Rest>",
-				"<d4 \"MetaTable4\" ; 1-3 $(A); 4 Rest>"};
+				"<d4 \"MetaTable1\" ; 1-3 $( d20 Simpleroll ); 4 Rest>",
+				"<d4 \"MetaTable2\" ; 1-3 $( <d2 InlineTable; 1-2 B> ); 4 Rest>",
+				"<d4 \"MetaTable3\" ; 1-3 $( [2 List: d4] ); 4 Rest>",
+				"<d4 \"MetaTable4\" ; 1-3 $( A ); 4 Rest>"};
 		for (String example : examples) {
 			try {
 
