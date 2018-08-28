@@ -1,0 +1,87 @@
+//for version v3.2
+
+[Plot: Adversary, Reward, Complication, Risk, Location, "Adventure Trope"]
+
+<d4 Adversary
+1 Enemy  driven by $(Motivation)
+2 Environment
+3 Wild Creature  driven by $(Motivation)
+4 Ally driven by $(Motivation)>
+
+<d6 Reward
+1 Items
+2 Access to resource or service
+3 Knowledge
+4 Beneficial location
+5 Beneficial relationship
+6 Plot advancement>
+
+<d8 Motivation
+1 Sloth - avoidance of effort
+2 Greed - accumulation of value
+3 Gluttony - consumption of value
+4 Lust - desire of unobtainable
+5 Pride - seeks adulation, or protects reputation
+6 Envy - desire of what others have
+7 Wrath - infractions must be punished
+8 $(Motivation) and $(Motivation)>
+
+<d10 Complication
+1 Allies have conflicting plans
+2 The reward is cursed, trapped, inconvenient
+3 Time is of the essence
+4 Adversary not whom or what they seem
+5 Revelation, change of priorities
+6 Side mission with conflicting goal
+7 Betrayal
+8 You weren’t expected to succeed
+9 Third parties are on the scene
+10 $(Complication) and $(Complication)>
+
+<d10 Risk
+1 Adversary becomes a stronger, returning villain
+2 Loss/destruction of an important resource
+3 Summoning of new evils/dangers/competition
+4 Alliance of different adversaries is forged
+5 An alliance of favourable forces is broken
+6 Campaign location becomes a less safe place
+7 A valued resource is no longer available
+8 A bad reputation
+9 A serious obligation, with little reward
+10 $(Risk) and $(Risk)>
+
+<d12 Location
+1 Wilderness hills
+2 Wilderness forest
+3 Wilderness swamp
+4 Natural caverns
+5 Ruins
+6 Dungeons or sewers
+7 On the road somewhere
+8 Civilised settlement
+9 Friendly safe place (keep, tavern, etc)
+10 On a boat (river, sea, lake)
+11 Island or coastal
+12 $(Location) and $(Location)>
+
+<d20 "Adventure Trope"
+1 Escape
+2 Rescue
+3 Survive a gauntlet
+4 Defend a target
+5 Obtain an item
+6 Kill an enemy
+7 Pacify a conflict
+8 Solve a mystery
+9 Map or scout a territory
+10 Find a location
+11 Win a race
+12 Pursuit
+13 Gather resources
+14 Survive waves of attacks
+15 Everyone loves an escort quest
+16 Break & Enter
+17 Go hunting (explore, track, kill)
+18 Secure a location, capture the flag
+19 Clear a location/region, totally
+20 $("Adventure Trope") and $("Adventure Trope")>

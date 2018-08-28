@@ -57,8 +57,8 @@ public class RollParser extends AbsParser<Rollable> {
 		
 		skipNextSpaces(); 
 		while (hasNext()) {
-			rolls.add(parse()); //skipps comments
-			skipNextSpaces();
+			rolls.add(parse());
+			skipNextSpaces();	//skips comments
 		}
 		return rolls;
 	}
