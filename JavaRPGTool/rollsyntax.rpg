@@ -1,0 +1,37 @@
+//this is a comment and will be ignored when read by the rpgtool
+
+//Rollable Syntax:
+
+//DICEROLL SYNTAX:
+//	dieroll + ... + dieroll "Some Name"
+//	dieroll + ... + dieroll Name
+
+//DIEROLL SYNTAX: (for internal use only)
+//	+ 1d2!dh3dl4
+//	- 6
+
+//LISTROLL SYNTAX:
+//	["Some Name": rollable, ..., rollable]
+//	[Name: rollable, ..., rollable]
+//	[diceroll with name: rollable]
+//	[diceroll with name: rollable]
+
+//TABLEROLL SYNTAX:
+//	<diceroll with name;
+//	1-2 inlineroll;
+//	3	inlineroll>
+
+//INLINEROLL SYNTAX:
+//	text $rollable text ...
+
+//NAMEROLL:
+//	"Some Name"
+//	SomeName
+
+//EXAMPLE:
+//	<d5 "Test Name";
+//	1 text;
+//	2 text $( Check d20			 ) text;
+//	3 text $( "Test Name"		 ) text;
+//	4 text $( <Table d2; 1-2 R>  ) text;
+//	5 text $( Name d4[Test d4] ) text>

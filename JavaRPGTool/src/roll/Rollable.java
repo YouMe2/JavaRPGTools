@@ -3,8 +3,10 @@ package roll;
 import java.text.ParseException;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import basic.NameRoll;
 import util.Pair;
 
 public abstract class Rollable {
@@ -12,26 +14,32 @@ public abstract class Rollable {
 //STATIC
 	private static Map<String, Rollable> rollables = new HashMap<>();
 	
-	public static Rollable getRollable(RollName name) {
-		return rollables.get(name.getName());
+	public static Rollable getRollable(String name) {
+		return rollables.get(name);
 	}
 	
 	public static void addRollable(Rollable rollable) throws IllegalArgumentException {
-		if (rollable instanceof RollName)
+		if (rollable instanceof NameRoll)
 			throw new IllegalArgumentException("RollNames may not be added. Please add a real rollable.");
 		
 		if (!rollable.hasName())
 			throw new IllegalArgumentException("Rollable needs a name to ba added.");
 		rollables.put(rollable.getName(), rollable);
-		assert hasRollable(rollable.getRollName()) && hasRollable(new RollName(rollable.getName()));
+		assert hasRollable(rollable.getName()) && hasRollable(rollable.getName());
 	}
 	
-	public static boolean hasRollable(RollName name) {
-		return rollables.containsKey(name.getName());
+	public static void addRollables(List<Rollable> rollables) throws IllegalArgumentException {			
+		for (Rollable rollable : rollables) {
+			addRollable(rollable);
+		}
 	}
 	
-	public static void removeRollable(RollName name) {
-		rollables.remove(name.getName());
+	public static boolean hasRollable(String name) {
+		return rollables.containsKey(name);
+	}
+	
+	public static void removeRollable(String name) {
+		rollables.remove(name);
 	}
 	
 	public static Collection<Rollable> getRollables() {
@@ -45,32 +53,6 @@ public abstract class Rollable {
 	
 	public static void clearRollables() {
 		rollables.clear();
-	}
-	
-// INSTANCE
-	private final RollName rollname;
-	
-	public Rollable(String name) {
-		if (this instanceof RollName)
-			rollname = (RollName)this;
-		else
-			this.rollname = new RollName(name);
-	}
-	
-	public String getName() {
-		return getRollName().getName();
-	}
-	
-	public RollName getRollName() {
-		return rollname;
-	}
-	
-	public boolean hasName() {
-		return getName() != null && !getName().isEmpty();
-	}
-	
-	public String getRollMessage(int mode) {
-		return this.roll().toString(mode);
 	}
 	
 	/**
@@ -89,8 +71,23 @@ public abstract class Rollable {
 		return p.left;
 	}
 	
-	public String getInlineToString() {
-		return (this instanceof RollName ? "\""+getName()+"\"" : toString());
+// INSTANCE
+	private final String name;
+	
+	public Rollable(String name) {
+		this.name = name;
+	}
+	
+	public String getName() {
+		return name;
+	}
+
+	public boolean hasName() {
+		return getName() != null && !getName().isEmpty();
+	}
+	
+	public String getRollMessage(int mode) {
+		return this.roll().toString(mode);
 	}
 	
 	public abstract RollResult roll();
@@ -98,4 +95,6 @@ public abstract class Rollable {
 	@Override
 	public abstract String toString();
 
+	@Override
+	public abstract boolean equals(Object obj);
 }

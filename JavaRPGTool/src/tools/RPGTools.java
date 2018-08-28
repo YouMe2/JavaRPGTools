@@ -11,9 +11,9 @@ import java.nio.file.StandardOpenOption;
 import java.text.ParseException;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Scanner;
 
-import roll.RollName;
 import roll.RollParser;
 import roll.RollResult;
 import roll.Rollable;
@@ -21,7 +21,7 @@ import util.Pair;
 
 public class RPGTools {
 
-	static final String VERSION = "v3.1.2";
+	static final String VERSION = "v3.2.2";
 
 	static final Charset STANDARDCHARSET = StandardCharsets.UTF_8;
 	static final String WELCOMEMSG = System.lineSeparator() + "Welcome to RPGTools!" + System.lineSeparator()
@@ -30,6 +30,11 @@ public class RPGTools {
 	static final String LINEOPENER = "~ ";
 	private static final String RPGFILEENDING = ".rpg";
 
+	//TODO save [rolls...] file, to save only a selection of all added  rollables into a file...
+	//TODO Deck, draw(), peek(), put(), ...
+	//TODO better readrpgFile methode, parse methode mit listen rückgabe aller rollables in einem file? , parseFromFile()?, //zeilen als commentare
+	
+	
 	public static void main(String[] args) {
 		RPGTools tool = new RPGTools();
 		tool.init();
@@ -64,12 +69,8 @@ public class RPGTools {
 
 			@Override
 			public void action(String option) {
-				try {
-					System.out.println(new RollParser(option).parseRollName());
-				} catch (ParseException e) {
-					e.printStackTrace();
-				}
-
+				
+				System.out.println("test");
 			}
 		};
 		// testCmd.addTo(commands);
@@ -91,13 +92,10 @@ public class RPGTools {
 
 			@Override
 			public void action(String option) {
-				try {
-					Rollable roll = parseRollable(option);
-					System.out.println(roll.roll().toString(RollResult.DETAILED)); // maybe DETAILED?
-				} catch (ParseException e) {
-					System.out.println("No roll saved under the name \"" + option
-							+ "\" and couldn't parse a rollable. Please correct it and try again.");
-				}
+				
+				Rollable roll = tryParseRollable(option);
+				if (roll != null)
+					System.out.println(roll.roll().toString(RollResult.DETAILED));
 
 			}
 		};
@@ -109,11 +107,9 @@ public class RPGTools {
 
 			@Override
 			public void action(String option) {
-				try {
-					addRollable(Rollable.valueOf(option));
-				} catch (ParseException e) {
-					System.out.println("Couldn't parse the rollable. Please correct it and try again.");
-				}
+				Rollable roll = tryParseRollable(option);
+				if (roll != null)
+					addRollable(roll);
 			}
 
 		};
@@ -186,10 +182,10 @@ public class RPGTools {
 			@Override
 			public void action(String option) {
 
-				RollName key = new RollName(option);
-				if (Rollable.hasRollable(key)) {
-					Rollable.removeRollable(key);
-					System.out.println("Removed " + key.getName());
+				
+				if (Rollable.hasRollable(option)) {
+					Rollable.removeRollable(option);
+					System.out.println("Removed " + option);
 				} else
 					System.out.println("No rollable found wiht name: " + option);
 			}
@@ -212,12 +208,9 @@ public class RPGTools {
 
 			@Override
 			public void action(String option) {
-				try {
-					Rollable r = parseRollable(option);
-					System.out.println(r.toString());
-				} catch (ParseException e) {
-					System.out.println("No valid roll parsable and no roll saved under that name: \"" + option + "\"");
-				}
+				Rollable roll = tryParseRollable(option);
+				if (roll != null)
+					System.out.println(roll.toString());
 
 			}
 		};
@@ -302,27 +295,28 @@ public class RPGTools {
 
 	public void loadFromFile(String option) throws IOException {
 
-		String restcontent = null;
+		String content = null;
 		try {
-			restcontent = readRPGFile(option);
-			Pair<Rollable, String> parse;
-
-			do {
-				parse = RollParser.tryParse(restcontent);
-				restcontent = parse.right;
-				Rollable rollable = parse.left;
-				if (rollable != null)
-					addRollable(rollable);
-				else
-					throw new ParseException("no parse2", 0);
-			} while (restcontent != null && !restcontent.isEmpty());
+			content = readRPGFile(option);
+			List<Rollable> rolls = new RollParser(content).parseAll();
+			for (Rollable rollable : rolls) {
+				addRollable(rollable);
+			}
 
 		} catch (ParseException e) {
-			System.out.println("Couldn't parse the rollable"
-					+ (restcontent != null ? " at \"" + restcontent.substring(0, 10) + "... \"" : "")
-					+ ". Please correct the file and try again.");
+			System.out.println("Couldn't parse the rollable at offset "+e.getErrorOffset() + ": " + e.getMessage());
 		}
 	}
+	
+	public Rollable tryParseRollable(String option) {
+		try {
+			return Rollable.valueOf(option);
+		} catch (ParseException e) {
+			System.out.println("Couldn't parse the rollable at offset "+e.getErrorOffset() + ": " + e.getMessage());
+		}
+		return null;
+	}
+
 
 	public void saveToFile(String option) {
 		StringBuilder builder = new StringBuilder();
@@ -370,12 +364,6 @@ public class RPGTools {
 		for (String name : Rollable.getRollNames()) {
 			System.out.println("+ " + name);
 		}
-	}
-
-	public Rollable parseRollable(String option) throws ParseException {
-
-		return Rollable.valueOf(option);
-
 	}
 
 	public void addRollable(Rollable rollable) {
