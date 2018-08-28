@@ -180,7 +180,7 @@ public class ListRoll extends Rollable {
 
 				System.out.println("Msg: " + System.lineSeparator()
 				+ l.roll().simpleMsg() + System.lineSeparator()
-//				+ l.roll().detailedMsg() + System.lineSeparator()
+				+ l.roll().detailedMsg() + System.lineSeparator()
 				);
 
 			} catch (ParseException e) {

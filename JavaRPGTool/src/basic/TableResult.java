@@ -5,10 +5,12 @@ import roll.RollResult;
 public class TableResult extends RollResult {
 
 	private final InlineResult res;
+	private final int n;
 	
-	public TableResult(InlineResult res, TableRoll roll) {
+	public TableResult(InlineResult res, int n, TableRoll roll) {
 		super(roll);
 		this.res = res;
+		this.n = n;
 	}
 
 	@Override
@@ -18,12 +20,12 @@ public class TableResult extends RollResult {
 
 	@Override
 	public String simpleMsg() {
-		return getName() + ": " + res + " -> " + res.simpleMsg();
+		return getName() + ": " +  res.simpleMsg();
 	}
 
 	@Override
 	public String detailedMsg() {
-		return simpleMsg();
+		return getName() + " (" + n + "):" + System.lineSeparator() + res.simpleMsg();
 	}
 
 }

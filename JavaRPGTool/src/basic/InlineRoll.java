@@ -7,7 +7,7 @@ import roll.Rollable;
 
 public class InlineRoll extends Rollable {
 
-	public static final String OPENER = "&(";
+	public static final String OPENER = "$(";
 	public static final String CLOSER = ")";
 	
 	private final String[] texts;
@@ -34,7 +34,7 @@ public class InlineRoll extends Rollable {
 	}
 	
 	@Override
-	public RollResult roll() {
+	public InlineResult roll() {
 		
 		return new InlineResult(texts, getRandomRollResults(), this);
 	}
