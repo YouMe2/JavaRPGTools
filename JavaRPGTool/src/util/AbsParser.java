@@ -229,16 +229,18 @@ public abstract class AbsParser<T> {
 			else if (isNextLineSeperator())
 				skip(System.lineSeparator().length());
 			else if (isNextCommentLine())
-				skipUntilNextIsSeq(System.lineSeparator());
+				skipNextComments();
 			else
 				throw new ParseException("ho? whats wrong with the skiping", getOffset());
 	
 		}
+		assert !isNextWhitespace() && !isNextAnySeqOf(System.lineSeparator(), getCommentLineOpener());
 	}
 
-	protected void skipComment() throws ParseException {
-		if (isNextSeq(getCommentLineOpener())) {
+	protected void skipNextComments() throws ParseException {
+		while (isNextSeq(getCommentLineOpener())) {
 			skipUntilNextIsSeq(System.lineSeparator());
+			skip(System.lineSeparator().length());
 		}
 	}
 	

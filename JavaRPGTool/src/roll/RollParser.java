@@ -180,7 +180,6 @@ public class RollParser extends AbsParser<Rollable> {
 			throw new ParseException("illegal table roll: " + tableroll, getOffset());
 
 		entries = new InlineRoll[tableroll.getMaxResult() - tableroll.getMinResult() + 1];
-		skipNextWhitespaces();
 
 		// parse entries:
 		// inline table:
@@ -192,12 +191,14 @@ public class RollParser extends AbsParser<Rollable> {
 		// 3-10 Some Shit>
 
 		do {
-
-			if (isNextSeq(TableRoll.SEPERATOR)) {
+			skipNextWhitespaces();
+			if (isNextCommentLine()) {
+				skipNextComments();
+				skipNextSpaces();
+			} else if (isNextSeq(TableRoll.SEPERATOR)) {
 				skip(TableRoll.SEPERATOR.length());
 				skipNextSpaces();
-			}
-			else if (isNextSeq(System.lineSeparator()))
+			} else if (isNextLineSeperator())
 				skip(System.lineSeparator().length());
 			else
 				throw new ParseException("expected entries opener/next entrie", getOffset());
