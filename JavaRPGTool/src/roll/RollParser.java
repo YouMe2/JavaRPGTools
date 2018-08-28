@@ -15,14 +15,6 @@ import util.Pair;
 
 public class RollParser extends AbsParser<Rollable> {
 
-//TODO rollables may be enclosed with ( ) to make clear what's what !!
-//TODO parseFromFile() -> liste von rollables ignoriert comments
-
-	//TODO parse unabhängig von lineseperators machen
-	//TODO isNextDiceRoll, isNextListRoll, isNextTableRoll, isNext...
-	//TODO verbesserte parseException weitergabe
-	
-	
 	
 	public RollParser(String chars) {
 		super(chars.trim());
@@ -41,8 +33,7 @@ public class RollParser extends AbsParser<Rollable> {
 
 	@Override
 	public Rollable parse() throws ParseException {
-		//TODO maybe add isNext for all rollables...
-		
+
 		if (isNextDiceRoll()) {
 			return parseDiceRoll();
 			
@@ -60,7 +51,6 @@ public class RollParser extends AbsParser<Rollable> {
 		
 	}
 	
-
 	public List<Rollable> parseAll() throws ParseException {
 		List<Rollable> rolls = new ArrayList<>();
 		
