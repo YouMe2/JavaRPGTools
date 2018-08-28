@@ -62,7 +62,7 @@ public class RollParser extends AbsParser<Rollable> {
 	
 
 	public List<Rollable> parseAll() throws ParseException {
-		List rolls = new ArrayList<>();
+		List<Rollable> rolls = new ArrayList<>();
 		
 		skipNextSpaces(); 
 		while (hasNext()) {
