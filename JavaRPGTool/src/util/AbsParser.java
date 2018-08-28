@@ -270,7 +270,7 @@ public abstract class AbsParser<T> {
 	}
 
 	protected void skipUntilNextIsSeq(String seq) {
-		skipUntilNextIsSeq(seq);
+		skipUntilNextIsAnyOfSeq(seq);
 	}
 	
 	protected void skipAnyOf(char... cs) {
