@@ -3,6 +3,7 @@ package roll;
 import java.text.ParseException;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import basic.NameRoll;
@@ -25,6 +26,12 @@ public abstract class Rollable {
 			throw new IllegalArgumentException("Rollable needs a name to ba added.");
 		rollables.put(rollable.getName(), rollable);
 		assert hasRollable(rollable.getName()) && hasRollable(rollable.getName());
+	}
+	
+	public static void addRollables(List<Rollable> rollables) throws IllegalArgumentException {			
+		for (Rollable rollable : rollables) {
+			addRollable(rollable);
+		}
 	}
 	
 	public static boolean hasRollable(String name) {
@@ -82,11 +89,6 @@ public abstract class Rollable {
 	public String getRollMessage(int mode) {
 		return this.roll().toString(mode);
 	}
-	
-//	public String getInlineToString() {
-//		// TODO this is ugly plz rework
-//		return (this instanceof NameRoll ? "\""+getName()+"\"" : toString());
-//	}
 	
 	public abstract RollResult roll();
 	

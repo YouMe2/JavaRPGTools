@@ -15,6 +15,7 @@ import util.Pair;
 
 public class RollParser extends AbsParser<Rollable> {
 
+	//TODO better ParseExceptionMessages
 	
 	public RollParser(String chars) {
 		super(chars.trim());
