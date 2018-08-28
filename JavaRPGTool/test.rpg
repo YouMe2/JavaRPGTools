@@ -1,10 +1,12 @@
+//for version v3.2.0
+
 <d20 "Alignment";1 Lawful Evil;2 Neutral Evil;3 Neutral Evil;4 Chaotic Evil;5 Lawful Neutral;6 Lawful Neutral;7 True Neutral;8 True Neutral;9 Chaotic Neutral;10 Chaotic Neutral;11 Lawful Good;12 Lawful Good;13 Lawful Good;14 Lawful Good;15 Neutral Good;16 Neutral Good;17 Neutral Good;18 Chaotic Good;19 Chaotic Good;20 Chaotic Good>
 
 <d12 "Background";1 Acolyte;2 Charlatan;3 Criminal;4 Entertainer;5 Folk Hero;6 Guild Artisan;7 Hermit;8 Nobel;9 Outlander;10 Sage;11 Sailor;12 Urchin>
 
-["Ability Scores", "Race", "Background", "Class", "Alignment"] "Random Character"
+["Random Character": "Ability Scores", "Race", "Background", "Class", "Alignment"] 
 
-[4d6 dl1 "Str", 4d6 dl1 "Dex", 4d6 dl1 "Con", 4d6 dl1 "Int", 4d6 dl1 "Wis", 4d6 dl1 "Cha"] "Ability Scores"
+["Ability Scores": 4d6 dl1 "Str", 4d6 dl1 "Dex", 4d6 dl1 "Con", 4d6 dl1 "Int", 4d6 dl1 "Wis", 4d6 dl1 "Cha"] 
 
 <d13 "Race";1 Dragonborn;2 Hill Dwarf;3 Mountain Dwarf;4 High Elf;5 Wood Elf;6 Forest Gnome;7 Rock Gnome;8 Half Elf;9 Half Orc;10 Lightfoot Halfling;11 Stout Halfling;12 Human;13 Tiefling>
 
