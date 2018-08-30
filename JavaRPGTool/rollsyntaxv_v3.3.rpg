@@ -1,5 +1,5 @@
 //this is a comment and will be ignored when read by the rpgtool
-// version 3.2
+// version 3.3
 
 //Rollable Syntax:
 
@@ -22,12 +22,18 @@
 //	1-2 inlineroll;
 //	3	inlineroll>
 
-//INLINEROLL SYNTAX:
-//	text $(rollable) text ...
 
 //NAMEROLL:
-//	"Some Name"
-//	SomeName
+//	@"Some Name"
+//	@SomeName
+
+//INLINEROLL SYNTAX:
+//	$(rollable)
+
+//TEXTROLL SYNTAX:
+//	"text inlineroll text"
+//	text inlineroll text
+
 
 //EXAMPLE:
 //	<d5 "Test Name";

@@ -32,8 +32,6 @@ public class RPGTools {
 
 	//TODO save [rolls...] file, to save only a selection of all added  rollables into a file...
 	//TODO Deck, draw(), peek(), put(), ...
-	//TODO better readrpgFile methode, parse methode mit listen rückgabe aller rollables in einem file? , parseFromFile()?, //zeilen als commentare
-	
 	
 	public static void main(String[] args) {
 		RPGTools tool = new RPGTools();
