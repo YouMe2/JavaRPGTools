@@ -300,8 +300,8 @@ public class DiceRoll extends Rollable {
 				assert d.equals(Rollable.valueOf(d.toString()));
 
 				System.out.println("Res:" + System.lineSeparator()
-					+ d.roll().toString(RollResult.SIMPLE) + System.lineSeparator()
-					+ d.roll().toString(RollResult.DETAILED) + System.lineSeparator());
+					+ d.roll().getSingleLineMsg() + System.lineSeparator()
+					+ d.roll().getMultiLineMsg() + System.lineSeparator());
 
 				int res = d.getRandomRollValue();
 				assert res >= d.getMinResult();

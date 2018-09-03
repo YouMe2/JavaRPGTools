@@ -2,63 +2,68 @@ package basic;
 
 import roll.RollResult;
 
-public class InlineResult extends RollResult {
+public class TextResult extends RollResult {
 
 	private final String[] texts;
 	private final RollResult[] res;
-	private final int length;
+	private final int maxlength;
 	
-	public InlineResult(String[] texts, RollResult[] res, InlineRoll roll) {
+	public TextResult(String[] texts, RollResult[] res, TextRoll roll) {
 		super(roll);
 		this.texts = texts;
 		this.res = res;
-		this.length = Math.max(texts.length, res.length);
+		this.maxlength = Math.max(texts.length, res.length);
 		
 		if (getLength() < 1)
 			throw new IllegalArgumentException("no empty inline roll");	
 	}
 
 	@Override
-	public String simpleMsg() {
+	public String getSingleLineMsg() {
 		StringBuilder builder = new StringBuilder();		
 		for (int i = 0; i < getLength(); i++) {
 			if (i < texts.length)
 				builder.append(texts[i]);
 			if (i < res.length) {
-				builder.append(res[i].simpleMsg());		
+				builder.append(res[i].getInLineMsg());		
 			}
 		}
 		return builder.toString();
 	}
 	
 	@Override
-	public String plainText() {
+	public String toPlainText() {
 		StringBuilder builder = new StringBuilder();		
 		for (int i = 0; i < getLength(); i++) {
 			if (i < texts.length)
 				builder.append(texts[i]);
 			if (i < res.length) {
-				builder.append(res[i].plainText());		
+				builder.append(res[i].toPlainText());		
 			}
 		}
 		return builder.toString();
 	}
 	
 	@Override
-	public String detailedMsg() {
+	public String getMultiLineMsg() {
 		StringBuilder builder = new StringBuilder();		
 		for (int i = 0; i < getLength(); i++) {
 			if (i < texts.length)
 				builder.append(texts[i]);
 			if (i < res.length) {
-				builder.append(res[i].detailedMsg());		
+				builder.append(res[i].getSingleLineMsg());		
 			}
 		}
 		return builder.toString();
 	}
 	
-	public int getLength() {
-		return length;
+	@Override
+	public String getInLineMsg() {
+		return getSingleLineMsg();
 	}
-
+	
+	private int getLength() {
+		return maxlength;
+	}
+	
 }

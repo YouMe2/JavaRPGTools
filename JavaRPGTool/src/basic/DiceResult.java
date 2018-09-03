@@ -12,7 +12,7 @@ public class DiceResult extends RollResult {
 	}
 
 	@Override
-	public String simpleMsg() {
+	public String getSingleLineMsg() {
 		String n = "";
 		if (hasName())
 			n = getName() + ": ";
@@ -20,15 +20,20 @@ public class DiceResult extends RollResult {
 	}
 
 	@Override
-	public String plainText() {
+	public String toPlainText() {
 		return String.valueOf(res);
 	}
 
 	@Override
-	public String detailedMsg() {
+	public String getMultiLineMsg() {
 		
-		return getRoll() + ": " + res;
+		return getRoll().toString() + ": " + res;
 		
+	}
+
+	@Override
+	public String getInLineMsg() {
+		return String.valueOf(res);
 	}
 
 }

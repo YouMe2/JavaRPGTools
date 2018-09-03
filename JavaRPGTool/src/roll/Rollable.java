@@ -86,10 +86,6 @@ public abstract class Rollable {
 		return getName() != null && !getName().isEmpty();
 	}
 	
-	public String getRollMessage(int mode) {
-		return this.roll().toString(mode);
-	}
-	
 	public abstract RollResult roll();
 	
 	@Override

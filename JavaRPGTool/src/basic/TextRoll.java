@@ -5,16 +5,16 @@ import java.util.Arrays;
 import roll.RollResult;
 import roll.Rollable;
 
-public class InlineRoll extends Rollable {
+public class TextRoll extends Rollable {
 
-	public static final String OPENER = "$(";
-	public static final String CLOSER = ")";
+	public static final String INLINEOPENER = "$(";
+	public static final String INLINECLOSER = ")";
 	
 	private final String[] texts;
 	private final Rollable[] rolls;
 	private final int length;
 	
-	public InlineRoll(String[] texts, Rollable[] rolls) {
+	public TextRoll(String[] texts, Rollable[] rolls) {
 		super(null);
 		this.texts = texts;
 		this.rolls = rolls;
@@ -34,9 +34,9 @@ public class InlineRoll extends Rollable {
 	}
 	
 	@Override
-	public InlineResult roll() {
+	public TextResult roll() {
 		
-		return new InlineResult(texts, getRandomRollResults(), this);
+		return new TextResult(texts, getRandomRollResults(), this);
 	}
 	
 	public int getLength() {
@@ -52,9 +52,9 @@ public class InlineRoll extends Rollable {
 			if (i < texts.length)
 				builder.append(texts[i]);
 			if (i < rolls.length) {
-				builder.append(OPENER);
+				builder.append(INLINEOPENER);
 				builder.append(rolls[i]); //rolls dont add () on their own
-				builder.append(CLOSER);			
+				builder.append(INLINECLOSER);			
 			}
 		}
 		return builder.toString();
@@ -67,9 +67,9 @@ public class InlineRoll extends Rollable {
 	public boolean equals(Object o) {
 		if (this == o)
 			return true;
-		if (!(o instanceof InlineRoll))
+		if (!(o instanceof TextRoll))
 			return false;
-		InlineRoll other = (InlineRoll) o;
+		TextRoll other = (TextRoll) o;
 		return this.hasName() == other.hasName()
 				&& (this.hasName() ? this.getName().equals(other.getName()) : true)
 				&& Arrays.equals(this.texts, other.texts)

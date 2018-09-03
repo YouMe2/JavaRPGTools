@@ -5,18 +5,6 @@ package roll;
  *
  */
 public abstract class RollResult extends Rollable{
-	/**
-	 * res
-	 */
-	public static final int PLAIN = 0;
-	/**
-	 * Name: res
-	 */
-	public static final int SIMPLE = 1;
-	/**
-	 * Rolling "Name": res
-	 */
-	public static final int DETAILED = 2;
 	
 	private final Rollable roll;
 	public RollResult(Rollable roll) {
@@ -35,39 +23,45 @@ public abstract class RollResult extends Rollable{
 	
 	@Override
 	public String toString() {
-		return this.toString(PLAIN);
+		return toPlainText();
 	}
 
-	public String toString(int mode) {
-		switch (mode) {
-		case SIMPLE:	
-			return simpleMsg();
-
-		case DETAILED:
-			return detailedMsg();
-			
-		case PLAIN:
-		default:
-			return plainText();
-
-		}
-	}
+//	public String toString(int mode) {
+//		switch (mode) {
+//		case SIMPLE:	
+//			return simpleMsg();
+//
+//		case DETAILED:
+//			return detailedMsg();
+//			
+//		case PLAIN:
+//		default:
+//			return plainText();
+//
+//		}
+//	}
 
 	/**
-	 * result is parsable
+	 * result in plain (inline) format without further eval parsable
 	 * @return
 	 */
-	public abstract String plainText();
+	public abstract String toPlainText();
+	/**
+	 * result in plain inline format with full eval
+	 * @return
+	 */
+	public abstract String getInLineMsg();
 	/**
 	 * result is a single line
 	 * @return
 	 */
-	public abstract String simpleMsg();
+	public abstract String getSingleLineMsg();
 	/**
 	 * result may be multiline
 	 * @return
 	 */
-	public abstract String detailedMsg();
+	public abstract String getMultiLineMsg();
+	
 	
 	@Override
 	public boolean equals(Object obj) {
@@ -76,6 +70,6 @@ public abstract class RollResult extends Rollable{
 		if (!(obj instanceof RollResult))
 			return false;
 		RollResult other = (RollResult) obj;
-		return other.plainText().equals(this.plainText());
+		return other.toPlainText().equals(this.toPlainText());
 	}
 }

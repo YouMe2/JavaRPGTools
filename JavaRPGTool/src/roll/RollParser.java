@@ -6,7 +6,7 @@ import java.util.List;
 
 import basic.DiceRoll;
 import basic.DiceRoll.DieRoll;
-import basic.InlineRoll;
+import basic.TextRoll;
 import basic.ListRoll;
 import basic.NameRoll;
 import basic.TableRoll;
@@ -23,7 +23,6 @@ public class RollParser extends AbsParser<Rollable> {
 
 	public static Pair<Rollable, String> tryParse(String input) throws ParseException {
 		// will return null and throw exc
-		// input = input.replace(" ", "").replace("\t", "");
 		if (input == null || input.isEmpty())
 			throw new ParseException("input may not be empty", 0);
 		
@@ -47,6 +46,8 @@ public class RollParser extends AbsParser<Rollable> {
 		} else if (isNextNameRoll()) {
 			return parseNameRoll();
 				
+		} else if (isNextText()) {
+			return parseTextRoll();
 		} else
 			throw new ParseException("No rollable found.", getOffset());
 		
@@ -64,6 +65,12 @@ public class RollParser extends AbsParser<Rollable> {
 	}
 
 	public NameRoll parseNameRoll() throws ParseException {
+		
+		if (isNextSeq(NameRoll.OPENER))
+			skip(NameRoll.OPENER.length());
+		else
+			throw new ParseException("expecting nameroll opener: "+NameRoll.OPENER, getOffset());
+		
 		try {
 			NameRoll nr = new NameRoll(parseText());
 			return nr;
@@ -167,7 +174,7 @@ public class RollParser extends AbsParser<Rollable> {
 	public TableRoll parseTableRoll() throws ParseException {
 		
 		DiceRoll tableroll;
-		InlineRoll[] entries;
+		TextRoll[] entries;
 
 		if (!isNextSeq(TableRoll.OPENER))
 			throw new ParseException("expected opener for the table: "+ TableRoll.OPENER, getOffset());
@@ -179,7 +186,7 @@ public class RollParser extends AbsParser<Rollable> {
 		if (tableroll == null || tableroll.isExploding() || !tableroll.hasName())
 			throw new ParseException("illegal table roll: " + tableroll, getOffset());
 
-		entries = new InlineRoll[tableroll.getMaxResult() - tableroll.getMinResult() + 1];
+		entries = new TextRoll[tableroll.getMaxResult() - tableroll.getMinResult() + 1];
 
 		// parse entries:
 		// inline table:
@@ -226,7 +233,7 @@ public class RollParser extends AbsParser<Rollable> {
 			}
 
 			//parsing the entrie:
-			InlineRoll ilr = parseInlineRollText();
+			TextRoll ilr = parseTextRoll();
 
 			for (int i = lower - tableroll.getMinResult(); i < upper; i++) {
 				entries[i] = ilr;
@@ -246,7 +253,8 @@ public class RollParser extends AbsParser<Rollable> {
 		return new TableRoll(tableroll, entries);
 	}
 
-	public InlineRoll parseInlineRollText() throws ParseException {
+	public TextRoll parseTextRoll() throws ParseException {
+		//TODO new syntax v3.3
 		ArrayList<Rollable> rolls = new ArrayList<>();
 		ArrayList<String> texts = new ArrayList<>();
 		
@@ -254,7 +262,7 @@ public class RollParser extends AbsParser<Rollable> {
 			texts.add(nextUntilIsNextAnySeqOf(
 					TableRoll.SEPERATOR,
 					TableRoll.CLOSER,
-					InlineRoll.OPENER,
+					TextRoll.INLINEOPENER,
 					System.lineSeparator()));
 				
 			if (isNextInlineRoll()) {
@@ -268,12 +276,12 @@ public class RollParser extends AbsParser<Rollable> {
 		if (texts.isEmpty() && rolls.isEmpty())
 			throw new ParseException("empty inlineroll", getOffset());
 		
-		return new InlineRoll(texts.toArray(new String[texts.size()]), rolls.toArray(new Rollable[rolls.size()]));
+		return new TextRoll(texts.toArray(new String[texts.size()]), rolls.toArray(new Rollable[rolls.size()]));
 	}
 	
 	public Rollable parseInlineRoll() throws ParseException {
 		if (isNextInlineRoll()) {
-			skip(InlineRoll.OPENER.length());
+			skip(TextRoll.INLINEOPENER.length());
 			
 			skipNextSpaces();
 			
@@ -283,13 +291,13 @@ public class RollParser extends AbsParser<Rollable> {
 			
 			skipNextSpaces();
 			
-			if (!isNextSeq(InlineRoll.CLOSER))
-				throw new ParseException("expected inline roll closed with: "+ InlineRoll.CLOSER, getOffset());
+			if (!isNextSeq(TextRoll.INLINECLOSER))
+				throw new ParseException("expected inline roll closed with: "+ TextRoll.INLINECLOSER, getOffset());
 				
-			skip(InlineRoll.CLOSER.length());
+			skip(TextRoll.INLINECLOSER.length());
 			return inlineRoll;
 		} else
-			throw new ParseException("expected inline roll opened with: "+ InlineRoll.OPENER, getOffset());
+			throw new ParseException("expected inline roll opened with: "+ TextRoll.INLINEOPENER, getOffset());
 	}
 	
 	public DieRoll parseDieRoll() throws ParseException {
@@ -414,7 +422,7 @@ public class RollParser extends AbsParser<Rollable> {
 	}
 	
 	private boolean isNextInlineRoll() throws ParseException {
-		return isNextSeq(InlineRoll.OPENER);
+		return isNextSeq(TextRoll.INLINEOPENER);
 
 	}
 	

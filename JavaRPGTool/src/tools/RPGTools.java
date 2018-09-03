@@ -9,19 +9,16 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.text.ParseException;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
 
 import roll.RollParser;
-import roll.RollResult;
 import roll.Rollable;
-import util.Pair;
 
 public class RPGTools {
 
-	static final String VERSION = "v3.2.2";
+	static final String VERSION = "v3.3.0";
 
 	static final Charset STANDARDCHARSET = StandardCharsets.UTF_8;
 	static final String WELCOMEMSG = System.lineSeparator() + "Welcome to RPGTools!" + System.lineSeparator()
@@ -46,7 +43,6 @@ public class RPGTools {
 	private final ToolCommand helpCmd;
 	private final ToolCommand addCmd;
 	private final ToolCommand loadCmd;
-	private final ToolCommand addpremadeCmd;
 	private final ToolCommand saveCmd;
 	private final ToolCommand removeCmd;
 	private final ToolCommand removeAllCmd;
@@ -93,7 +89,7 @@ public class RPGTools {
 				
 				Rollable roll = tryParseRollable(option);
 				if (roll != null)
-					System.out.println(roll.roll().toString(RollResult.DETAILED));
+					System.out.println(roll.roll().getMultiLineMsg()); //TODO maybe some option for single lie out?
 
 			}
 		};
@@ -128,39 +124,6 @@ public class RPGTools {
 		};
 		loadCmd.addTo(commands);
 
-		addpremadeCmd = new ToolCommand("addpre", "ap", "[name of the premade set]",
-				"Adds a premade set rollables (rolls, lists, tables) that might be usefull to you."
-						+ System.lineSeparator() + "\tPremade sets: " + Arrays.toString(PremadeRollables.values())) {
-
-			@Override
-			public void action(String option) {
-				String restcontent = null;
-				try {
-					restcontent = PremadeRollables.valueOf(option).getContent();
-					Pair<Rollable, String> parse;
-
-					do {
-						parse = RollParser.tryParse(restcontent);
-						restcontent = parse.right;
-						Rollable rollable = parse.left;
-						if (rollable != null)
-							addRollable(rollable);
-						else
-							throw new ParseException("no parse2", 0);
-					} while (restcontent != null && !restcontent.isEmpty());
-
-				} catch (ParseException e) {
-					System.out.println("Couldn't parse the rollable"
-							+ (restcontent != null ? " at \"" + restcontent.substring(0, 10) + "... \"" : "")
-							+ ". Please correct the file and try again.");
-					// System.err.println("ParseError at offset " + e.getErrorOffset() +" : " +
-					// e.getMessage());
-				} catch (IllegalArgumentException e) {
-					System.out.println("No premade set found: " + option);
-				}
-			}
-		};
-//		addpremadeCmd.addTo(commands);
 
 		saveCmd = new ToolCommand("save", "sa", "[filename]",
 				"Saves all your added rollables to a a file with the given name with the\".rpg\" fileending.") {
@@ -263,20 +226,6 @@ public class RPGTools {
 		} catch (IOException e) {
 			System.out.println("No \"init.rpg\" file was found. starting blanc.");
 		}
-
-		// ListRoll abilitscoreListRoll;
-		// try {
-		// abilitscoreListRoll = new RollParser("[4d6 dl1 Str, 4d6 dl1 Dex, 4d6 dl1 Con,
-		// 4d6 dl1 Int, 4d6 dl1 Wis, 4d6 dl1 Cha] AbilityScores").parseListRoll();
-		//// addRollable(abilitscoreListRoll);
-		// Rollable.addRollable(abilitscoreListRoll);
-		// } catch (ParseException e) {
-		// System.err.println("this should never happen...");
-		// e.printStackTrace();
-		// } catch (IllegalArgumentException e) {
-		// System.err.println("this should also never happen");
-		// e.printStackTrace();
-		// }
 	}
 
 	public void start() {

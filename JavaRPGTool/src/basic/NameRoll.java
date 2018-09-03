@@ -5,6 +5,8 @@ import roll.Rollable;
 
 public class NameRoll extends Rollable {
 	
+	public static final String OPENER = "@";
+	
 	public NameRoll(String name) {
 		super(name);
 		if (!hasName())
@@ -23,18 +25,23 @@ public class NameRoll extends Rollable {
 			return new RollResult(this) {
 				
 				@Override
-				public String simpleMsg() {
+				public String getSingleLineMsg() {
 					return "No roll found under this name: " + getName();
 				}
 				
 				@Override
-				public String plainText() {
+				public String toPlainText() {
 					return NameRoll.this.getName();
 				}
 				
 				@Override
-				public String detailedMsg() {
-					return simpleMsg();
+				public String getMultiLineMsg() {
+					return getSingleLineMsg();
+				}
+
+				@Override
+				public String getInLineMsg() {
+					return toPlainText();
 				}
 			};	
 		}

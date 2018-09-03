@@ -13,10 +13,10 @@ public class TableRoll extends Rollable {
 	public static final String SEPERATOR = ";";
 	
 	private final DiceRoll tableroll;
-	private final InlineRoll[] entries;
+	private final TextRoll[] entries;
 
 	// immutable
-	public TableRoll(DiceRoll tableroll, InlineRoll[] entries) {
+	public TableRoll(DiceRoll tableroll, TextRoll[] entries) {
 		super(tableroll.getName());
 		this.tableroll = tableroll;
 		this.entries = entries;
@@ -35,11 +35,11 @@ public class TableRoll extends Rollable {
 	@Override
 	public TableResult roll() {
 		int n = getTableroll().getRandomRollValue();
-		InlineRoll resLine= getEntry(n);	
+		TextRoll resLine= getEntry(n);	
 		return new TableResult(resLine.roll(), n, this);
 	}
 
-	public InlineRoll getEntry(int i) {
+	public TextRoll getEntry(int i) {
 		return entries[i - getTableroll().getMinResult()];
 	}
 
@@ -118,8 +118,8 @@ public class TableRoll extends Rollable {
 				assert t.equals(Rollable.valueOf(t.toString()));
 
 				System.out.println("Msg: " + System.lineSeparator() 
-					+ t.roll().simpleMsg() + System.lineSeparator()
-					+ t.roll().detailedMsg() + System.lineSeparator()
+					+ t.roll().getSingleLineMsg() + System.lineSeparator()
+					+ t.roll().getMultiLineMsg() + System.lineSeparator()
 					);
 
 				System.out.println();
