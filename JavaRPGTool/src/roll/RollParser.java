@@ -389,7 +389,7 @@ public class RollParser extends AbsParser<Rollable> {
 	
 	
 	private boolean isNextNameRoll() throws ParseException {
-		return isNextText();
+		return isNextSeq(NameRoll.OPENER);
 	}
 	
 	private boolean isNextDiceRoll() throws ParseException {
