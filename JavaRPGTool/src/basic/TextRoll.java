@@ -1,12 +1,7 @@
 package basic;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
 import java.text.ParseException;
 import java.util.Arrays;
-
-import org.junit.jupiter.api.Test;
 
 import roll.RollParser;
 import roll.RollResult;
@@ -14,6 +9,10 @@ import roll.Rollable;
 
 public class TextRoll extends Rollable {
 
+
+	public static final String TEXTOPENER = "\"";
+	public static final String TEXTCLOSER = "\"";
+	
 	public static final String INLINEOPENER = "$(";
 	public static final String INLINECLOSER = ")";
 	
@@ -56,7 +55,10 @@ public class TextRoll extends Rollable {
 	public String toString() {
 		//text $rollable text ...
 		
-		StringBuilder builder = new StringBuilder();		
+		StringBuilder builder = new StringBuilder();
+		
+		builder.append(TEXTOPENER);
+		
 		for (int i = 0; i < getLength(); i++) {
 			if (i < texts.length)
 				builder.append(texts[i]);
@@ -66,6 +68,10 @@ public class TextRoll extends Rollable {
 				builder.append(INLINECLOSER);			
 			}
 		}
+		
+
+		builder.append(TEXTCLOSER);
+		
 		return builder.toString();
 		
 	}

@@ -7,6 +7,11 @@ import roll.Rollable;
 
 public abstract class AbsParser<T> {
 
+	public static final String TEXTOPENER = "\"";
+	public static final String TEXTCLOSER = "\"";
+	
+	public static final String[] LINESEPERATORS = new String[] {"\n", "\r\n"};
+	
 	private final String commentLineOpener;
 	private String chars;
 	private int offset; // pointer to next to parse
@@ -178,7 +183,7 @@ public abstract class AbsParser<T> {
 	}
 	
 	protected boolean isNextLineSeperator() throws ParseException {
-		return isNextSeq(System.lineSeparator());
+		return isNextAnySeqOf(LINESEPERATORS);
 	}
 	
 	protected char next() throws ParseException {
@@ -227,7 +232,7 @@ public abstract class AbsParser<T> {
 			if (isNextWhitespace())
 				skip(1);
 			else if (isNextLineSeperator())
-				skip(System.lineSeparator().length());
+				skipNextLineSeperator();
 			else if (isNextCommentLine())
 				skipNextComments();
 			else
@@ -237,6 +242,15 @@ public abstract class AbsParser<T> {
 		assert !isNextWhitespace() && !isNextAnySeqOf(System.lineSeparator(), getCommentLineOpener());
 	}
 
+	protected void skipNextLineSeperator() throws ParseException {
+		for (String linesep : LINESEPERATORS) {
+			if(isNextSeq(linesep)) {
+				skip(linesep.length());
+				return;
+			}
+		}
+	}
+	
 	protected void skipNextComments() throws ParseException {
 		while (isNextSeq(getCommentLineOpener())) {
 			skipUntilNextIsSeq(System.lineSeparator());
@@ -287,6 +301,13 @@ public abstract class AbsParser<T> {
 			}
 		});
 	}
+	
+	protected void skipExpectedNext(String str) throws ParseException {
+		if (!isNextSeq(str))
+			throw new ParseException("expecting: " + str, getOffset());
+		skip(str.length());
+	}
+	
 	
 	protected void skipText() throws ParseException {
 		if (!isNextText())

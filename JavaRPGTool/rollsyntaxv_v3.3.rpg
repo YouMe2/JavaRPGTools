@@ -19,7 +19,7 @@
 
 //TABLEROLL SYNTAX:
 //	<diceroll with name;
-//	1-2 inlineroll;
+//	1-2 inlineroll or textroll or text;
 //	3	inlineroll>
 
 
@@ -31,7 +31,11 @@
 //	$(rollable)
 
 //TEXTROLL SYNTAX:
-//	text inlineroll text
+//	"anything inlineroll anything"
+
+//TEXT SYNTAX
+// "any thing"
+// word123
 
 
 //EXAMPLE:
