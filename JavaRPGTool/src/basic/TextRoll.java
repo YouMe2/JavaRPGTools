@@ -76,8 +76,6 @@ public class TextRoll extends Rollable {
 		
 	}
 	
-	
-
 	@Override
 	public boolean equals(Object o) {
 		if (this == o)
@@ -95,9 +93,9 @@ public class TextRoll extends Rollable {
 	public static void main(String[] args) {
 		System.out.println("TEXTROLL TEST");
 		Object[][] examples = { 
-				{"text", new TextRoll(new String[] {"text"}, null)},
-				{"$(d6)", new TextRoll(null, new Rollable[]{new DiceRoll("", new DiceRoll.DieRoll(1, 6, 0, 0, false, true))})},
-				{"textI$([3: d4])textII", new TextRoll(new String[] {"textI", "textII"}, new Rollable[]{new ListRoll(new DiceRoll("", new DiceRoll.DieRoll(3, true)), new Rollable[] {new DiceRoll("", new DiceRoll.DieRoll(1, 4, 0, 0, false, true))})})},
+				{"\"text\"", new TextRoll(new String[] {"text"}, null)},
+				{"\"$(d6)\"", new TextRoll(null, new Rollable[]{new DiceRoll("", new DiceRoll.DieRoll(1, 6, 0, 0, false, true))})},
+				{"\"textI$([3: d4])textII\"", new TextRoll(new String[] {"textI", "textII"}, new Rollable[]{new ListRoll(new DiceRoll("", new DiceRoll.DieRoll(3, true)), new Rollable[] {new DiceRoll("", new DiceRoll.DieRoll(1, 4, 0, 0, false, true))})})},
 				};
 
 		for (Object[] exa : examples) {
