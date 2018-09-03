@@ -78,7 +78,7 @@ public class RPGTools {
 						+ System.lineSeparator()
 						+ "\tExamples: \'roll d20 +3 Dex\', \'r [6 \"Ability Scores\": 4d6 dl1]\', \'r 6d20! dh2 dl2 +5\'"
 						+ System.lineSeparator()
-						+ "For mor info on roll syntax see the rollsyntax_"+VERSION_MAIN+".rpg file.") {
+						+ "\tFor more information on roll syntax see the \'rollsyntax_"+VERSION_MAIN+".rpg\' file.") {
 
 			@Override
 			public void action(String option) {
