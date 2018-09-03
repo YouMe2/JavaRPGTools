@@ -1,5 +1,7 @@
 package basic;
 
+import org.junit.jupiter.api.Test;
+
 import roll.RollResult;
 
 public class TextResult extends RollResult {
@@ -64,6 +66,12 @@ public class TextResult extends RollResult {
 	
 	private int getLength() {
 		return maxlength;
+	}
+	
+
+	@Test
+	public void testTextRoll() {
+		
 	}
 	
 }
