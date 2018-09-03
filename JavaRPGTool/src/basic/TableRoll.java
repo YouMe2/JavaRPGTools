@@ -97,7 +97,14 @@ public class TableRoll extends Rollable {
 				"<d4 \"MetaTable1\" ; 1-3 $( d20 Simpleroll ); 4 Rest>",
 				"<d4 \"MetaTable2\" ; 1-3 $( <d2 InlineTable; 1-2 B> ); 4 Rest>",
 				"<d4 \"MetaTable3\" ; 1-3 $( [2 List: d4] ); 4 Rest>",
-				"<d4 \"MetaTable4\" ; 1-3 $( @A ); 4 Rest>"};
+				"<d4 \"MetaTable4\" ; 1-3 $( @A ); 4 Rest>",
+				"<d6 \"Test Name\";\r\n" + 
+				"1 text;\r\n" + 
+				"2 $( 2d6 );\r\n" + 
+				"3 \"A DiceRoll $( d20 ) some text\";\r\n" + 
+				"4 \"A NameRoll $( @\"Test Name\" ) some text\";\r\n" + 
+				"5 \"A Table $( <d2 Table; 1-2 R> ) some text\";\r\n" + 
+				"6 \"A list $( [d2 Test: d4] ) some text\">"};
 		for (String example : examples) {
 			try {
 

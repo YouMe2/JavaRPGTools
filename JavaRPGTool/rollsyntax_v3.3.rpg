@@ -39,10 +39,10 @@
 
 
 //EXAMPLE:
-<d5 "Test Name";
+<d6 "Test Name";
 1 text;
 2 $( 2d6 );
-3 text $( d20				) text;
-4 text $( @"Test Name"		) text;
-5 text $( <Table d2; 1-2 R>	) text;
-6 text $( [d2 Test: d4] 		) text>
+3 "A DiceRoll $( d20				) some text";
+4 "A NameRoll $( @"Test Name"		) some text";
+5 "A Table $( <d2 Table; 1-2 R>	) some text";
+6 "A list $( [d2 Test: d4] 		) some text">

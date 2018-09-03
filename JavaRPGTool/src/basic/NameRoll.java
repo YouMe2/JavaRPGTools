@@ -2,6 +2,7 @@ package basic;
 
 import roll.RollResult;
 import roll.Rollable;
+import util.AbsParser;
 
 public class NameRoll extends Rollable {
 	
@@ -65,6 +66,6 @@ public class NameRoll extends Rollable {
 //		if (roll != null)
 //			return roll.toString();
 //		else
-			return OPENER + getName();
+			return OPENER + AbsParser.TEXTOPENER + getName() + AbsParser.TEXTCLOSER;
 	}
 }
