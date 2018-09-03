@@ -1,6 +1,9 @@
 //for version v3.3
 
-<d20 "Alignment"	//evil is not that likly for a player character
+["Random Character": @"Ability Scores", @"Race", @"Background", @"Class", @"Alignment"] 
+
+
+<d20 "Alignment"	//evil is not that likely for a player character
 1 		Lawful Evil
 2 - 3	Neutral Evil
 4 		Chaotic Evil
@@ -13,7 +16,7 @@
 
 <d12 "Background";1 Acolyte;2 Charlatan;3 Criminal;4 Entertainer;5 Folk Hero;6 Guild Artisan;7 Hermit;8 Nobel;9 Outlander;10 Sage;11 Sailor;12 Urchin>
 
-["Random Character": "Ability Scores", "Race", "Background", "Class", "Alignment"] 
+
 
 ["Ability Scores": 4d6 dl1 "Str", 4d6 dl1 "Dex", 4d6 dl1 "Con", 4d6 dl1 "Int", 4d6 dl1 "Wis", 4d6 dl1 "Cha"] 
 

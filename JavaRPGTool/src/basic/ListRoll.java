@@ -156,8 +156,8 @@ public class ListRoll extends Rollable {
 				"[Test: 2d20 dl1, d17 Bla, 23d6 -7]",
 				"[ Test : 2d20 dl1 , d17 Bla, 23d6 -7]", 
 				"[\"Test\": 2d20 dl1, d17 Bla, 23d6 -7]",
-				"[\"MultiList\": [2 \"List\": d4], d4 \"Roll\", <d2 \"Table\";1 bla;2 bla>, A]",
-				"[MultiList: [2 List: d4], d4 Roll, <d2 Table;1-2 bla>, A]"};
+				"[\"MultiList\": [2 \"List\": d4], d4 \"Roll\", <d2 \"Table\";1 bla;2 bla>, @A]",
+				"[MultiList: [2 List: d4], d4 Roll, <d2 Table;1-2 bla>, @A]"};
 
 		Rollable.addRollable(new DiceRoll("A", new DiceRoll.DieRoll(7, true)));
 		

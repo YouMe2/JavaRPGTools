@@ -13,12 +13,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
 
+import basic.NameRoll;
 import roll.RollParser;
 import roll.Rollable;
 
 public class RPGTools {
 
-	static final String VERSION = "v3.3.0";
+	static final String VERSION_MAIN = "v3.3";
+	static final String VERSION_SUB = ".0";
+	static final String VERSION = VERSION_MAIN+VERSION_SUB;
 
 	static final Charset STANDARDCHARSET = StandardCharsets.UTF_8;
 	static final String WELCOMEMSG = System.lineSeparator() + "Welcome to RPGTools!" + System.lineSeparator()
@@ -40,6 +43,7 @@ public class RPGTools {
 	private final HashMap<String, ToolCommand> commands;
 
 	private final ToolCommand rollCmd;
+	private final ToolCommand namerollCmd;
 	private final ToolCommand helpCmd;
 	private final ToolCommand addCmd;
 	private final ToolCommand loadCmd;
@@ -72,17 +76,9 @@ public class RPGTools {
 		rollCmd = new ToolCommand("roll", "r", "[dice, list, table, name]",
 				"Rolls the specified dice, list of rolls, on a table, or on some added rollable with the given name."
 						+ System.lineSeparator()
-						+ "\tExamples: \'roll d20 +3 Dex\', \'r 6[4d6 dl1] \"Ability Scores\"\', \'r 6d20! dh2 dl2 +5\', \'r Name\'"
+						+ "\tExamples: \'roll d20 +3 Dex\', \'r [6 \"Ability Scores\": 4d6 dl1]\', \'r 6d20! dh2 dl2 +5\'"
 						+ System.lineSeparator()
-						+ "\tDiceRoll syntax: [amount]d[die] optional: ! dh[amount] dl[amount] +/-[modifier] [name]"
-						+ System.lineSeparator()
-						+ "\t\t(\"!\": use exploding die, \"dh\": drop highest, \"dl\": drop lowest)"
-						+ System.lineSeparator()
-						+ "\tListRoll syntax: [amount]\'[\'[roll]\'] [name]\' or \'[\'[roll], ... ,[roll]\'] [name]\'"
-						+ System.lineSeparator()
-						+ "\tTableRoll syntax: \'<\'[tableroll with name]; [result(s)] [entie]; ... ;[result(s)] [entie]\'>\'"
-						+ System.lineSeparator()
-						+ "\t\tTable Entries may include inline rollables after a \'/\'. Example entrie: \"You age by /d4 Days\"") {
+						+ "For mor info on roll syntax see the rollsyntax_"+VERSION_MAIN+".rpg file.") {
 
 			@Override
 			public void action(String option) {
@@ -94,6 +90,19 @@ public class RPGTools {
 			}
 		};
 		rollCmd.addTo(commands);
+		
+		namerollCmd = new ToolCommand("nameroll", "nr", "[name of an added rollable]",
+				"Rolls the specified added rollable with the given name.") {
+
+			@Override
+			public void action(String option) {
+				
+				Rollable roll = new NameRoll(option);
+				System.out.println(roll.roll().getMultiLineMsg());
+
+			}
+		};
+		namerollCmd.addTo(commands);
 
 		addCmd = new ToolCommand("add", "a", "[roll, list, table]",
 				"Adds the specified roll, list of rolls or rollable table. You can roll on it afterwards with the \'roll\' command."
