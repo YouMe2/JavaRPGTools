@@ -271,7 +271,7 @@ public class RollParser extends AbsParser<Rollable> {
 				
 		} while(hasNext() && !isNextAnySeqOf(TableRoll.SEPERATOR, TableRoll.CLOSER, System.lineSeparator()));
 		
-		assert isNextAnySeqOf(TableRoll.SEPERATOR, TableRoll.CLOSER, System.lineSeparator());
+		assert hasNext()?isNextAnySeqOf(TableRoll.SEPERATOR, TableRoll.CLOSER, System.lineSeparator()) : true;
 		
 		if (texts.isEmpty() && rolls.isEmpty())
 			throw new ParseException("empty inlineroll", getOffset());
