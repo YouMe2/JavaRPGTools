@@ -1,7 +1,14 @@
 package basic;
 
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import java.text.ParseException;
 import java.util.Arrays;
 
+import org.junit.jupiter.api.Test;
+
+import roll.RollParser;
 import roll.RollResult;
 import roll.Rollable;
 
@@ -16,9 +23,11 @@ public class TextRoll extends Rollable {
 	
 	public TextRoll(String[] texts, Rollable[] rolls) {
 		super(null);
-		this.texts = texts;
-		this.rolls = rolls;
-		this.length = Math.max(texts.length, rolls.length);
+		this.texts = texts!=null ? texts : new String[0];
+		this.rolls = rolls!=null ? rolls : new Rollable[0];
+		assert this.texts != null;
+		assert this.rolls != null;
+		this.length = Math.max(this.texts.length, this.rolls.length);
 		
 		if (getLength() < 1)
 			throw new IllegalArgumentException("no empty inline roll");	
@@ -76,4 +85,42 @@ public class TextRoll extends Rollable {
 				&& Arrays.equals(this.rolls, other.rolls);
 	}
 
+	
+	public static void main(String[] args) {
+		System.out.println("TEXTROLL TEST");
+		Object[][] examples = { 
+				{"text", new TextRoll(new String[] {"text"}, null)},
+				{"$(d6)", new TextRoll(null, new Rollable[]{new DiceRoll("", new DiceRoll.DieRoll(1, 6, 0, 0, false, true))})},
+				{"textI$([3: d4])textII", new TextRoll(new String[] {"textI", "textII"}, new Rollable[]{new ListRoll(new DiceRoll("", new DiceRoll.DieRoll(3, true)), new Rollable[] {new DiceRoll("", new DiceRoll.DieRoll(1, 4, 0, 0, false, true))})})},
+				};
+
+		for (Object[] exa : examples) {
+			
+			String str = (String) exa[0];
+			TextRoll tr = (TextRoll) exa[1];
+			
+			System.out.println("Example:  " + str);
+			System.out.println("Real:     " + tr);
+			
+			RollParser parser = new RollParser(str);
+			
+			TextRoll trparse;
+			try {
+				trparse = parser.parseTextRoll();
+
+				assert tr.equals(trparse);
+				
+				System.out.println("Parse:    " + trparse);
+				System.out.println("Msg:      " + trparse.roll().getMultiLineMsg());
+				
+			} catch (ParseException e) {
+				e.printStackTrace();
+//				fail();
+			}
+			
+			
+			
+		}
+	}
+	
 }

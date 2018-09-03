@@ -69,9 +69,6 @@ public class TextResult extends RollResult {
 	}
 	
 
-	@Test
-	public void testTextRoll() {
-		
-	}
+
 	
 }

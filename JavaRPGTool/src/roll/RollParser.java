@@ -269,7 +269,7 @@ public class RollParser extends AbsParser<Rollable> {
 				rolls.add(parseInlineRoll());
 			}
 				
-		} while(!isNextAnySeqOf(TableRoll.SEPERATOR, TableRoll.CLOSER, System.lineSeparator()));
+		} while(hasNext() && !isNextAnySeqOf(TableRoll.SEPERATOR, TableRoll.CLOSER, System.lineSeparator()));
 		
 		assert isNextAnySeqOf(TableRoll.SEPERATOR, TableRoll.CLOSER, System.lineSeparator());
 		
@@ -388,15 +388,15 @@ public class RollParser extends AbsParser<Rollable> {
 	
 	
 	
-	private boolean isNextNameRoll() throws ParseException {
+	public boolean isNextNameRoll() throws ParseException {
 		return isNextSeq(NameRoll.OPENER);
 	}
 	
-	private boolean isNextDiceRoll() throws ParseException {
+	public boolean isNextDiceRoll() throws ParseException {
 		return isNextDieRoll();
 	}
 	
-	private boolean isNextDieRoll() throws ParseException {
+	public boolean isNextDieRoll() throws ParseException {
 		
 		//TODO fix this EVIL workaround
 		
@@ -411,17 +411,17 @@ public class RollParser extends AbsParser<Rollable> {
 //		return isNextInt() || isNextAnyOf(DiceRoll.DIE);
 	}
 	
-	private boolean isNextListRoll() throws ParseException {
+	public boolean isNextListRoll() throws ParseException {
 		return isNextSeq(ListRoll.OPENER);
 
 	}
 	
-	private boolean isNextTableRoll() throws ParseException {
+	public boolean isNextTableRoll() throws ParseException {
 		return isNextSeq(TableRoll.OPENER);
 
 	}
 	
-	private boolean isNextInlineRoll() throws ParseException {
+	public boolean isNextInlineRoll() throws ParseException {
 		return isNextSeq(TextRoll.INLINEOPENER);
 
 	}
