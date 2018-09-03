@@ -225,8 +225,10 @@ public class RollParser extends AbsParser<Rollable> {
 			TextRoll textroll;
 			if (isNextTextRoll())
 				textroll = parseTextRoll();
-			else 
-				//un nice hardcoded lineseperator thingy...
+			else if (isNextInlineRoll())
+				textroll = new TextRoll(null, new Rollable[] {parseInlineRoll()});
+			else
+				//unnice hardcoded lineseperator thingy...
 				textroll = new TextRoll(new String[] {nextUntilIsNextAnySeqOf(TableRoll.SEPERATOR, TableRoll.CLOSER, LINESEPERATORS[0], LINESEPERATORS[1])}, null);
 
 			for (int i = lower - tableroll.getMinResult(); i < upper; i++) {

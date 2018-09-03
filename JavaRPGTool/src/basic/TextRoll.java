@@ -83,10 +83,11 @@ public class TextRoll extends Rollable {
 		if (!(o instanceof TextRoll))
 			return false;
 		TextRoll other = (TextRoll) o;
-		return this.hasName() == other.hasName()
-				&& (this.hasName() ? this.getName().equals(other.getName()) : true)
-				&& Arrays.equals(this.texts, other.texts)
-				&& Arrays.equals(this.rolls, other.rolls);
+		return this.toString().equals(other.toString());
+//		return this.hasName() == other.hasName()
+//				&& (this.hasName() ? this.getName().equals(other.getName()) : true)
+//				&& Arrays.equals(this.texts, other.texts)
+//				&& Arrays.equals(this.rolls, other.rolls);
 	}
 
 	

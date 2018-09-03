@@ -65,6 +65,6 @@ public class NameRoll extends Rollable {
 //		if (roll != null)
 //			return roll.toString();
 //		else
-			return getName();
+			return OPENER + getName();
 	}
 }
