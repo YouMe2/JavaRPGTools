@@ -11,6 +11,7 @@ import java.nio.file.StandardOpenOption;
 import java.text.ParseException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 import java.util.Scanner;
 
 import basic.NameRoll;
@@ -28,8 +29,12 @@ public class RPGTools {
 			+ "Version " + VERSION + System.lineSeparator() + "- by u/YaAlex" + System.lineSeparator()
 			+ "Try \"?\" or \"help\" for help." + System.lineSeparator();
 	static final String LINEOPENER = "~ ";
-	private static final String RPGFILEENDING = ".rpg";
+	public static final String RPGFILEENDING = ".rpg";
 
+	public static final String SYNTAXFILE = "rollsyntax_" + RPGTools.VERSION_MAIN + RPGFILEENDING;
+	
+	static final String INITFILE = "init" + RPGFILEENDING;
+	
 	//TODO save [rolls...] file, to save only a selection of all added  rollables into a file...
 	//TODO Deck, draw(), peek(), put(), ...
 	
@@ -85,21 +90,19 @@ public class RPGTools {
 				
 				Rollable roll = tryParseRollable(option);
 				if (roll != null)
-					System.out.println(roll.roll().getMultiLineMsg()); //TODO maybe some option for single lie out?
-
+					doRoll(roll);
 			}
 		};
 		rollCmd.addTo(commands);
 		
 		namerollCmd = new ToolCommand("nameroll", "nr", "[name of an added rollable]",
-				"Rolls the specified added rollable with the given name.") {
+				"Rolls the added rollable with the given name.") {
 
 			@Override
 			public void action(String option) {
 				
 				Rollable roll = new NameRoll(option);
-				System.out.println(roll.roll().getMultiLineMsg());
-
+				doRoll(roll);
 			}
 		};
 		namerollCmd.addTo(commands);
@@ -231,9 +234,9 @@ public class RPGTools {
 	public void init() {
 
 		try {
-			loadFromFile("init.rpg");
+			loadFromFile(INITFILE);
 		} catch (IOException e) {
-			System.out.println("No \"init.rpg\" file was found. starting blanc.");
+			System.out.println("No \"" + INITFILE + "\" file was found. Starting blanc.");
 		}
 	}
 
@@ -272,7 +275,6 @@ public class RPGTools {
 		}
 		return null;
 	}
-
 
 	public void saveToFile(String option) {
 		StringBuilder builder = new StringBuilder();
@@ -337,22 +339,26 @@ public class RPGTools {
 
 	public void doRPGCommand(String input) {
 
-		// System.out.println("before" + rollables.keySet());
 
 		String[] in = input.split(" ", 2);
 		String command = in[0];
 		String option = in.length > 1 ? in[1] : "";
 
-		if (!commands.containsKey(command))
-			System.out.println("No command found: \"" + input + "\"");
-		else {
-
+		if (commands.containsKey(command)) {
 			ToolCommand cmd = commands.get(command);
 			cmd.action(option);
-
-			// System.out.println("after" + rollables.keySet());
+		} else if (Rollable.hasRollable(input)) {
+			doRoll(Rollable.getRollable(input));
+		} else {
+			System.out.println("No command found: \"" + input + "\"");			
 		}
 
+	}
+
+	private void doRoll(Rollable rollable) {
+		Objects.requireNonNull(rollable);
+		System.out.println(rollable.roll().getMultiLineMsg()); //TODO maybe some option for single lie out?
+		
 	}
 
 	public static String readRPGFile(String filename) throws IOException {

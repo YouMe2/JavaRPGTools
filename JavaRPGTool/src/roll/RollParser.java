@@ -10,6 +10,7 @@ import basic.ListRoll;
 import basic.NameRoll;
 import basic.TableRoll;
 import basic.TextRoll;
+import tools.RPGTools;
 import util.AbsParser;
 import util.Pair;
 
@@ -46,10 +47,10 @@ public class RollParser extends AbsParser<Rollable> {
 		} else if (isNextNameRoll()) {
 			return parseNameRoll();
 				
-		} else if (isNextText()) {
+		} else if (isNextTextRoll()) {
 			return parseTextRoll();
 		} else
-			throw new ParseException("No rollable found.", getOffset());
+			throw new ParseException("No rollable parsable. For more information on the roll syntax see the \'" + RPGTools.SYNTAXFILE + "\' file.", getOffset());
 		
 	}
 	
